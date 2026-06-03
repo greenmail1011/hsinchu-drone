@@ -868,7 +868,240 @@
     section { padding: 64px 0; }
     .about-values { grid-template-columns: 1fr; }
   }
+
+/* ── Carousel ── */
+#carousel { background: #0a1628; padding: 0; overflow: hidden; position: relative; }
+.carousel-wrap { position: relative; width: 100%; max-height: 500px; overflow: hidden; }
+#carousel-track { display: flex; transition: none; }
+.c-slide { min-width: 100%; position: absolute; top: 0; left: 0; opacity: 0; transition: opacity 0.8s ease; }
+.c-slide.active { opacity: 1; position: relative; }
+.c-slide img { width: 100%; max-height: 500px; object-fit: cover; display: block; }
+.c-caption { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(10,22,40,0.85)); color: white; padding: 24px 32px 20px; font-size: 15px; }
+.c-prev, .c-next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); backdrop-filter: blur(4px); border: none; color: white; font-size: 22px; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; z-index: 10; transition: background 0.2s; }
+.c-prev:hover, .c-next:hover { background: rgba(255,255,255,0.3); }
+.c-prev { left: 20px; }
+.c-next { right: 20px; }
+#carousel-dots { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
+.c-dot { width: 10px; height: 10px; border-radius: 50%; border: none; background: rgba(255,255,255,0.4); cursor: pointer; transition: background 0.2s; padding: 0; }
+.c-dot.active { background: white; }
+/* ── Admin Panel ── */
+#admin-fab { display:none; position:fixed; bottom:28px; left:28px; z-index:2000; width:52px; height:52px; border-radius:50%; background:#1a3a6b; color:white; border:none; font-size:22px; cursor:pointer; box-shadow:0 4px 20px rgba(26,58,107,0.35); align-items:center; justify-content:center; transition:transform 0.2s; }
+#admin-fab:hover { transform:scale(1.08); }
+#admin-panel { display:none; position:fixed; top:0; right:0; bottom:0; width:480px; max-width:100vw; background:white; box-shadow:-4px 0 40px rgba(26,58,107,0.18); z-index:3000; flex-direction:column; overflow:hidden; }
+#admin-panel.open { display:flex; }
+.admin-panel-header { background:#1a3a6b; color:white; padding:18px 24px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.admin-panel-header h2 { font-size:16px; font-weight:700; }
+.admin-panel-body { flex:1; overflow-y:auto; padding:20px 24px; }
+.admin-close-btn { background:none; border:none; color:white; font-size:24px; cursor:pointer; line-height:1; }
+#admin-login-area { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:20px; padding:40px; }
+#admin-main { display:none; }
+.btn-google-sm { display:flex; align-items:center; gap:10px; padding:11px 20px; border:1.5px solid #dde3ed; border-radius:8px; background:white; font-size:14px; font-weight:600; cursor:pointer; }
+.btn-google-sm:hover { box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+.admin-user-row { display:flex; align-items:center; gap:10px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid #f0f4f8; }
+#admin-user-avatar { width:36px; height:36px; border-radius:50%; background:#e8edf5; }
+.admin-add-btn { width:100%; padding:10px; background:#0077cc; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; margin-bottom:16px; }
+.admin-add-btn:hover { background:#005fa3; }
+#admin-form { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; margin-bottom:16px; }
+#admin-form label { display:block; font-size:11px; font-weight:700; color:#5a6880; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; margin-top:12px; }
+#admin-form label:first-child { margin-top:0; }
+#admin-form input, #admin-form select { width:100%; padding:8px 11px; border:1px solid #dde3ed; border-radius:6px; font-size:13px; font-family:inherit; outline:none; }
+#admin-form input:focus { border-color:#0077cc; }
+.admin-form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.admin-form-actions { display:flex; gap:8px; margin-top:14px; }
+.admin-save-btn { flex:1; padding:8px; background:#1a3a6b; color:white; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; }
+.admin-cancel-btn { padding:8px 16px; background:#f0f4f8; color:#5a6880; border:none; border-radius:6px; font-size:13px; cursor:pointer; }
+#admin-upload-prog { font-size:12px; color:#0077cc; margin-top:4px; display:none; }
+#admin-img-preview { max-height:120px; border-radius:6px; border:1px solid #dde3ed; display:none; margin-top:6px; }
+.admin-upload-area { border:2px dashed #dde3ed; border-radius:6px; padding:12px; text-align:center; position:relative; cursor:pointer; font-size:12px; color:#8a9ab0; }
+.admin-upload-area input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.admin-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:2999; }
+.admin-overlay.open { display:block; }
 </style>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+  // ⚠️ 請在此填入您的 Firebase 設定
+  const firebaseConfig = {
+    apiKey: "AIzaSyD2rqiTQjgYQN4JrLlVFJZbmgLuQvliySk",
+    authDomain: "hsinchu-drone.firebaseapp.com",
+    projectId: "hsinchu-drone",
+    storageBucket: "hsinchu-drone.firebasestorage.app",
+    messagingSenderId: "944428960229",
+    appId: "1:944428960229:web:a3d7a894cb312458a9870c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // 本地預設照片（Firebase 尚無資料時顯示）
+  const LOCAL_SLIDES = [
+    { url: "photo/711687945_10236555962293689_3206772477084637282_n.jpg", caption: "追風少年科技培力課程啟動記者會 — 全體合影", order: 1, active: true },
+    { url: "photo/715202032_10236555963013707_8081835340011368804_n.jpg", caption: "啟動儀式 — 新竹市政府與協會代表共同宣示", order: 2, active: true },
+    { url: "photo/712825014_10236555963373716_3209302459966334975_n.jpg", caption: "媒體採訪 — 課程理念說明", order: 3, active: true },
+    { url: "photo/714736853_10236555960933655_3209340005012413548_n.jpg", caption: "協會理事長致詞", order: 4, active: true },
+    { url: "photo/713604768_10236555961813677_2830716195629382388_n.jpg", caption: "與會貴賓專注聆聽課程介紹", order: 5, active: true },
+    { url: "photo/image (1).jpeg", caption: "無人機足球教具展示", order: 6, active: true },
+  ];
+
+  window._loadCarousel = async function() {
+    try {
+      const q = query(collection(db, "carousel"), where("active", "==", true), orderBy("order"));
+      const snap = await getDocs(q);
+      const slides = [];
+      snap.forEach(doc => slides.push(doc.data()));
+      if (slides.length > 0) {
+        renderCarousel(slides);
+      } else {
+        renderCarousel(LOCAL_SLIDES);
+      }
+    } catch(e) {
+      console.warn("Carousel load failed, using local slides:", e);
+      renderCarousel(LOCAL_SLIDES);
+    }
+  };
+
+  function renderCarousel(slides) {
+    const track = document.getElementById("carousel-track");
+    const dots = document.getElementById("carousel-dots");
+    if (!track) return;
+    track.innerHTML = slides.map((s, i) => \`
+      <div class="c-slide \${i===0?'active':''}">
+        <img src="\${s.url}" alt="\${s.caption||''}" loading="lazy">
+        \${s.caption ? \`<div class="c-caption">\${s.caption}</div>\` : ''}
+      </div>
+    \`).join('');
+    dots.innerHTML = slides.map((_,i) => \`<button class="c-dot \${i===0?'active':''}" onclick="goSlide(\${i})"></button>\`).join('');
+    window._carouselSlides = slides.length;
+    window._carouselCurrent = 0;
+    startAutoplay();
+  }
+
+  window.addEventListener('DOMContentLoaded', window._loadCarousel);
+
+  // ── Auth ──
+  const ALLOWED_EMAILS = [
+    "greenmail1011@gmail.com"
+    // ⚠️ 可新增更多管理員 Email
+  ];
+
+  const auth = getAuth(app);
+  const storage = getStorage(app);
+  const googleProvider = new GoogleAuthProvider();
+
+  onAuthStateChanged(auth, user => {
+    if (user && ALLOWED_EMAILS.includes(user.email)) {
+      document.getElementById('admin-fab').style.display = 'flex';
+      document.getElementById('admin-user-name').textContent = user.displayName || user.email;
+      if (user.photoURL) document.getElementById('admin-user-avatar').src = user.photoURL;
+      document.getElementById('admin-login-area').style.display = 'none';
+      document.getElementById('admin-main').style.display = 'block';
+      loadAdminSlides();
+    } else {
+      document.getElementById('admin-fab').style.display = 'none';
+      document.getElementById('admin-login-area').style.display = 'flex';
+      document.getElementById('admin-main').style.display = 'none';
+    }
+  });
+
+  window.doGoogleLogin = async function() {
+    try { await signInWithPopup(auth, googleProvider); }
+    catch(e) { alert('登入失敗：' + e.message); }
+  };
+  window.doAdminLogout = function() { signOut(auth); closeAdmin(); };
+
+  // ── Admin Slides ──
+  const db2 = getFirestore(app);
+
+  async function loadAdminSlides() {
+    const grid = document.getElementById('admin-slide-grid');
+    grid.innerHTML = '<p style="color:#8a9ab0;padding:20px 0;">載入中…</p>';
+    const q = query(collection(db2, "carousel"), orderBy("order"));
+    const snap = await getDocs(q);
+    const slides = [];
+    snap.forEach(d => slides.push({ id: d.id, ...d.data() }));
+    if (!slides.length) { grid.innerHTML = '<p style="color:#8a9ab0;padding:20px 0;">尚無輪播照片</p>'; return; }
+    grid.innerHTML = slides.map(s => `
+      <div style="display:flex;gap:12px;align-items:center;padding:12px;border:1px solid #dde3ed;border-radius:10px;background:#fafbfd;">
+        <img src="${s.url||''}" style="width:80px;height:56px;object-fit:cover;border-radius:6px;background:#e8edf5;flex-shrink:0;" onerror="this.style.background='#e8edf5'">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.caption||'（無說明）'}</div>
+          <div style="font-size:12px;color:#8a9ab0;">排序：${s.order??10} · <span style="color:${s.active?'#276749':'#718096'}">${s.active?'顯示':'隱藏'}</span></div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick='openEditForm(${JSON.stringify(s)})' style="padding:5px 10px;border:1px solid #dde3ed;border-radius:6px;font-size:12px;cursor:pointer;background:white;">編輯</button>
+          <button onclick="adminToggle('${s.id}',${s.active})" style="padding:5px 10px;border:none;border-radius:6px;font-size:12px;cursor:pointer;background:${s.active?'#e6f7ee':'#f0f4f8'};color:${s.active?'#276749':'#718096'};">${s.active?'隱藏':'顯示'}</button>
+          <button onclick="adminDelete('${s.id}')" style="padding:5px 10px;border:1px solid #fed7d7;border-radius:6px;font-size:12px;cursor:pointer;background:#fff5f5;color:#e53e3e;">刪除</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.adminToggle = async function(id, current) {
+    await updateDoc(doc(db2, "carousel", id), { active: !current });
+    loadAdminSlides(); window._loadCarousel();
+  };
+  window.adminDelete = async function(id) {
+    if (!confirm('確定要刪除？')) return;
+    await deleteDoc(doc(db2, "carousel", id));
+    loadAdminSlides(); window._loadCarousel();
+  };
+  window.openEditForm = function(s) {
+    document.getElementById('admin-edit-id').value = s.id || '';
+    document.getElementById('admin-img-url').value = s.url || '';
+    document.getElementById('admin-caption').value = s.caption || '';
+    document.getElementById('admin-order').value = s.order ?? 10;
+    document.getElementById('admin-active').value = String(s.active !== false);
+    adminPreview(s.url);
+    document.getElementById('admin-form').style.display = 'block';
+  };
+  window.openAddForm = function() {
+    document.getElementById('admin-edit-id').value = '';
+    document.getElementById('admin-img-url').value = '';
+    document.getElementById('admin-caption').value = '';
+    document.getElementById('admin-order').value = '10';
+    document.getElementById('admin-active').value = 'true';
+    document.getElementById('admin-img-preview').style.display = 'none';
+    document.getElementById('admin-form').style.display = 'block';
+  };
+  window.adminSave = async function() {
+    const id = document.getElementById('admin-edit-id').value;
+    const url = document.getElementById('admin-img-url').value.trim();
+    const caption = document.getElementById('admin-caption').value.trim();
+    const order = parseInt(document.getElementById('admin-order').value) || 10;
+    const active = document.getElementById('admin-active').value === 'true';
+    if (!url) { alert('請填入圖片網址或先完成上傳。'); return; }
+    const data = { url, caption, order, active };
+    if (id) { await updateDoc(doc(db2, "carousel", id), data); }
+    else { await addDoc(collection(db2, "carousel"), data); }
+    document.getElementById('admin-form').style.display = 'none';
+    loadAdminSlides(); window._loadCarousel();
+  };
+  window.adminUpload = function(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const prog = document.getElementById('admin-upload-prog');
+    prog.style.display = 'block';
+    const storRef = ref(storage, `carousel/${Date.now()}_${file.name}`);
+    const task = uploadBytesResumable(storRef, file);
+    task.on('state_changed',
+      snap => { prog.textContent = `上傳中… ${Math.round(snap.bytesTransferred/snap.totalBytes*100)}%`; },
+      err => { alert('上傳失敗'); prog.style.display='none'; },
+      async () => {
+        const dlUrl = await getDownloadURL(task.snapshot.ref);
+        document.getElementById('admin-img-url').value = dlUrl;
+        adminPreview(dlUrl); prog.style.display='none';
+      }
+    );
+  };
+  window.adminPreview = function(url) {
+    const img = document.getElementById('admin-img-preview');
+    if (url) { img.src = url; img.style.display = 'block'; } else { img.style.display = 'none'; }
+  };
+</script>
 </head>
 <body>
 
@@ -911,6 +1144,21 @@
 </div>
 
 <!-- Hero -->
+<!-- Photo Carousel -->
+<section id="carousel" style="padding:0;">
+  <div class="carousel-wrap">
+    <div id="carousel-track">
+      <!-- 預設佔位（Firebase 載入前顯示） -->
+      <div class="c-slide active" style="background:linear-gradient(135deg,#1a3a6b,#0077cc);min-height:300px;display:flex;align-items:center;justify-content:center;">
+        <p style="color:rgba(255,255,255,0.4);font-size:14px;">載入輪播照片中…</p>
+      </div>
+    </div>
+    <button class="c-prev" onclick="prevSlide()">&#8249;</button>
+    <button class="c-next" onclick="nextSlide()">&#8250;</button>
+    <div id="carousel-dots"></div>
+  </div>
+</section>
+
 <section id="hero">
   <div class="hero-inner">
     <div class="hero-content">
@@ -940,6 +1188,7 @@
     </div>
   </div>
 </section>
+
 
 <!-- About -->
 <section id="about">
@@ -1018,6 +1267,18 @@
       <p class="section-desc">掌握協會最新動態、活動公告與無人機產業資訊。</p>
     </div>
     <div class="news-grid">
+      <div class="news-card">
+        <div class="news-card-img" style="background:linear-gradient(135deg,#d0e8ff,#b0d4f8,#c8e0ff);">
+          <div class="news-card-tag">新聞稿</div>
+          🚁
+        </div>
+        <div class="news-card-body">
+          <p class="news-date">📅 2026年06月03日</p>
+          <h3 class="news-title">追風少年科技培力課程啟動！協會攜手市府讓新竹孩子從校園起飛</h3>
+          <p class="news-excerpt">新竹市無人機創新科技協會聯合國立陽明交通大學與市府共同推動「K-12追風少年科技培力課程」，以半導體與無人機為核心，辦理時間115年6月1日至8月31日，招收幼兒園至高中學生，讓科技教育向下扎根。民富國小五年級學生於啟動記者會現場進行無人機足球操控表演，展現學習成果。</p>
+          <a href="#" class="news-link" onclick="document.getElementById('news-modal-chasing').style.display='flex';return false;">閱讀更多 →</a>
+        </div>
+      </div>
       <div class="news-card">
         <div class="news-card-img" style="background:linear-gradient(135deg,#e0eeff,#c8deff);">
           <div class="news-card-tag">活動公告</div>
@@ -1388,6 +1649,28 @@
   </div>
 </footer>
 
+<!-- News Modal: 追風少年 -->
+<div class="modal-overlay" id="news-modal-chasing" style="display:none; align-items:flex-start; padding:40px 16px; overflow-y:auto;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box" style="max-width:760px; width:100%; text-align:left; padding:48px; max-height:90vh; overflow-y:auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+      <span style="background:#e0eeff; color:#1a3a6b; font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px; letter-spacing:.05em;">新聞稿</span>
+      <button onclick="document.getElementById('news-modal-chasing').style.display='none'" style="background:none; border:none; font-size:24px; cursor:pointer; color:#5a6880;">×</button>
+    </div>
+    <p style="color:#5a6880; font-size:14px; margin-bottom:8px;">📅 2026年06月03日</p>
+    <h2 style="font-size:22px; font-weight:700; color:#1a2333; line-height:1.5; margin-bottom:24px;">新竹市無人機創新科技協會攜手市府推動「追風少年科技培力課程」<br>讓科技之城的孩子從校園起飛，培養下一代科技之星</h2>
+    <div style="color:#3a4a60; line-height:1.9; font-size:15px;">
+      <p style="margin-bottom:16px;">新竹市作為全國重要的科技城市，擁有世界級半導體產業聚落與高度創新的城市能量。為讓科技教育向下扎根，新竹市政府攜手國立陽明交通大學電機工程學系、電子研究所及新竹市無人機創新科技協會，共同推動「追風少年科技培力課程」，以半導體與無人機兩大科技主題為核心，帶領學生從認識科技、動手實作到團隊合作，培養面向未來的科技素養與競爭力。</p>
+      <p style="margin-bottom:16px;">新竹市無人機創新科技協會表示，新竹市的教育，就是要很不一樣。作為頂尖的科技之城，新竹的孩子不只要理解科技，更要有機會親手操作、實際體驗，讓科技不再只是課本上的知識，而是能看見、能操作、能應用的能力。</p>
+      <p style="margin-bottom:16px;">本次「追風少年科技培力課程」啟動記者會中，民富國小五年級學生帶來精彩的無人機足球操控表演，展現學生在科技實作、專注力、空間判斷與團隊合作上的學習成果。透過無人機足球，孩子們不只是學會飛行操作，更能在競賽與任務挑戰中，培養問題解決、策略思考與臨場應變能力。</p>
+      <p style="margin-bottom:16px;">協會指出，無人機教育結合了飛行科技、工程設計、程式邏輯、競賽規則與安全觀念，是非常適合校園推動的新興科技教育內容。尤其無人機足球兼具趣味性與教育性，能降低學生接觸科技的門檻，讓孩子在「玩中學、做中學、賽中學」，自然建立對科技的興趣與自信。</p>
+      <p style="margin-bottom:16px;">新竹市無人機創新科技協會理事長表示，科技教育的目的，不只是培養會操作設備的學生，而是培養能理解科技、善用科技、並勇於創新的下一代。新竹市擁有最強大的科技產業基礎，更應該讓孩子從小接觸半導體、無人機、AI、程式設計等未來關鍵領域，讓城市的科技優勢真正轉化為教育動能。</p>
+      <p style="margin-bottom:16px;">協會也感謝新竹市政府長期重視科技教育，並肯定本次課程將半導體與無人機元素導入校園，為學生打造跨域學習場域。未來協會將持續投入無人機科技教育、師資培訓、校園推廣、競賽辦理與安全規範建置，與市府、學校及產學單位共同合作，讓更多孩子有機會接觸新興科技，培養面對未來世界的核心能力。</p>
+      <p style="margin-bottom:24px;">新竹市無人機創新科技協會強調，培養下一代科技之星，必須從現在開始。協會將持續以專業、安全、創新為核心，推動無人機教育在新竹市校園扎根，讓新竹孩子在科技之城中展翅起飛，成為未來科技舞台上的重要力量。</p>
+      <p style="color:#5a6880; font-size:13px;">#新竹市教育 #科技之城 #半導體 #無人機 #追風少年科技培力課程 #科技教育 #未來素養 #新竹市無人機創新科技協會</p>
+    </div>
+  </div>
+</div>
+
 <!-- Modal -->
 <div class="modal-overlay" id="modal">
   <div class="modal-box">
@@ -1430,6 +1713,114 @@
   }
 
   function closeModal() { document.getElementById('modal').classList.remove('show'); }
+</script>
+
+<script>
+  var _autoplayTimer = null;
+  function goSlide(n) {
+    var slides = document.querySelectorAll('.c-slide');
+    var dots = document.querySelectorAll('.c-dot');
+    if (!slides.length) return;
+    slides[window._carouselCurrent || 0].classList.remove('active');
+    if (dots[window._carouselCurrent || 0]) dots[window._carouselCurrent || 0].classList.remove('active');
+    window._carouselCurrent = (n + slides.length) % slides.length;
+    slides[window._carouselCurrent].classList.add('active');
+    if (dots[window._carouselCurrent]) dots[window._carouselCurrent].classList.add('active');
+  }
+  function nextSlide() { goSlide((window._carouselCurrent || 0) + 1); }
+  function prevSlide() { goSlide((window._carouselCurrent || 0) - 1); }
+  function startAutoplay() {
+    clearInterval(_autoplayTimer);
+    _autoplayTimer = setInterval(function(){ nextSlide(); }, 5000);
+  }
+  document.getElementById('carousel').addEventListener('mouseenter', function(){ clearInterval(_autoplayTimer); });
+  document.getElementById('carousel').addEventListener('mouseleave', function(){ startAutoplay(); });
+</script>
+
+<!-- Admin FAB -->
+<button id="admin-fab" title="後台管理" onclick="toggleAdmin()">⚙️</button>
+
+<!-- Admin Overlay -->
+<div class="admin-overlay" id="admin-overlay" onclick="closeAdmin()"></div>
+
+<!-- Admin Panel -->
+<div id="admin-panel">
+  <div class="admin-panel-header">
+    <h2>⚙️ 後台管理</h2>
+    <button class="admin-close-btn" onclick="closeAdmin()">×</button>
+  </div>
+  <div class="admin-panel-body">
+
+    <!-- Not logged in -->
+    <div id="admin-login-area">
+      <p style="color:#5a6880;font-size:14px;text-align:center;">請使用管理員 Google 帳號登入</p>
+      <button class="btn-google-sm" onclick="doGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        使用 Google 帳號登入
+      </button>
+    </div>
+
+    <!-- Logged in -->
+    <div id="admin-main">
+      <div class="admin-user-row">
+        <img id="admin-user-avatar" src="" alt="">
+        <div style="flex:1;">
+          <div id="admin-user-name" style="font-size:13px;font-weight:600;"></div>
+          <div style="font-size:12px;color:#8a9ab0;">管理員</div>
+        </div>
+        <button onclick="doAdminLogout()" style="font-size:12px;color:#5a6880;background:#f0f4f8;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;">登出</button>
+      </div>
+
+      <button class="admin-add-btn" onclick="openAddForm()">＋ 新增輪播照片</button>
+
+      <!-- Edit/Add Form -->
+      <div id="admin-form" style="display:none;">
+        <input type="hidden" id="admin-edit-id">
+        <label>上傳圖片</label>
+        <div class="admin-upload-area">
+          <input type="file" accept="image/*" onchange="adminUpload(event)">
+          點擊上傳圖片
+        </div>
+        <div id="admin-upload-prog"></div>
+        <label style="margin-top:8px;">或填入圖片網址</label>
+        <input type="url" id="admin-img-url" placeholder="https://..." oninput="adminPreview(this.value)">
+        <img id="admin-img-preview" src="" alt="預覽">
+        <label>說明文字（選填）</label>
+        <input type="text" id="admin-caption" placeholder="照片說明">
+        <div class="admin-form-row" style="margin-top:12px;">
+          <div>
+            <label>排序</label>
+            <input type="number" id="admin-order" value="10" min="0">
+          </div>
+          <div>
+            <label>狀態</label>
+            <select id="admin-active">
+              <option value="true">顯示</option>
+              <option value="false">隱藏</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-form-actions">
+          <button class="admin-save-btn" onclick="adminSave()">儲存</button>
+          <button class="admin-cancel-btn" onclick="document.getElementById('admin-form').style.display='none'">取消</button>
+        </div>
+      </div>
+
+      <!-- Slide List -->
+      <div id="admin-slide-grid" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleAdmin() {
+    document.getElementById('admin-panel').classList.toggle('open');
+    document.getElementById('admin-overlay').classList.toggle('open');
+  }
+  function closeAdmin() {
+    document.getElementById('admin-panel').classList.remove('open');
+    document.getElementById('admin-overlay').classList.remove('open');
+  }
 </script>
 </body>
 </html>
