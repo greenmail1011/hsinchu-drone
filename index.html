@@ -1148,10 +1148,12 @@
 <section id="carousel" style="padding:0;">
   <div class="carousel-wrap">
     <div id="carousel-track">
-      <!-- 預設佔位（Firebase 載入前顯示） -->
-      <div class="c-slide active" style="background:linear-gradient(135deg,#1a3a6b,#0077cc);min-height:300px;display:flex;align-items:center;justify-content:center;">
-        <p style="color:rgba(255,255,255,0.4);font-size:14px;">載入輪播照片中…</p>
-      </div>
+      <div class="c-slide active"><img src="photo/711687945_10236555962293689_3206772477084637282_n.jpg" alt="追風少年科技培力課程啟動記者會 — 全體合影" loading="eager"><div class="c-caption">追風少年科技培力課程啟動記者會 — 全體合影</div></div>
+      <div class="c-slide"><img src="photo/715202032_10236555963013707_8081835340011368804_n.jpg" alt="啟動儀式" loading="lazy"><div class="c-caption">啟動儀式 — 新竹市政府與協會代表共同宣示</div></div>
+      <div class="c-slide"><img src="photo/712825014_10236555963373716_3209302459966334975_n.jpg" alt="媒體採訪" loading="lazy"><div class="c-caption">媒體採訪 — 課程理念說明</div></div>
+      <div class="c-slide"><img src="photo/714736853_10236555960933655_3209340005012413548_n.jpg" alt="理事長致詞" loading="lazy"><div class="c-caption">協會理事長致詞</div></div>
+      <div class="c-slide"><img src="photo/713604768_10236555961813677_2830716195629382388_n.jpg" alt="貴賓聆聽" loading="lazy"><div class="c-caption">與會貴賓專注聆聽課程介紹</div></div>
+      <div class="c-slide"><img src="photo/image (1).jpeg" alt="無人機教具" loading="lazy"><div class="c-caption">無人機足球教具展示</div></div>
     </div>
     <button class="c-prev" onclick="prevSlide()">&#8249;</button>
     <button class="c-next" onclick="nextSlide()">&#8250;</button>
@@ -1717,6 +1719,18 @@
 
 <script>
   var _autoplayTimer = null;
+  // Init carousel on page load with pre-rendered slides
+  window._carouselCurrent = 0;
+  window._carouselSlides = 6;
+  document.addEventListener('DOMContentLoaded', function() {
+    var dots = document.getElementById('carousel-dots');
+    var slides = document.querySelectorAll('.c-slide');
+    dots.innerHTML = Array.from(slides).map((_,i) =>
+      '<button class="c-dot ' + (i===0?'active':'') + '" onclick="goSlide(' + i + ')"></button>'
+    ).join('');
+    window._carouselSlides = slides.length;
+    startAutoplay();
+  });
   function goSlide(n) {
     var slides = document.querySelectorAll('.c-slide');
     var dots = document.querySelectorAll('.c-dot');
