@@ -871,19 +871,41 @@
 
 /* ── Carousel ── */
 #carousel { background: #0a1628; padding: 0; overflow: hidden; position: relative; }
-.carousel-wrap { position: relative; width: 100%; max-height: 500px; overflow: hidden; }
-#carousel-track { display: flex; transition: none; }
-.c-slide { min-width: 100%; position: absolute; top: 0; left: 0; opacity: 0; transition: opacity 0.8s ease; }
-.c-slide.active { opacity: 1; position: relative; }
-.c-slide img { width: 100%; max-height: 500px; object-fit: cover; display: block; }
-.c-caption { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(10,22,40,0.85)); color: white; padding: 24px 32px 20px; font-size: 15px; }
-.c-prev, .c-next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); backdrop-filter: blur(4px); border: none; color: white; font-size: 22px; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; z-index: 10; transition: background 0.2s; }
+.carousel-wrap { position: relative; width: 100%; }
+#carousel-track { display: block; }
+.c-slide { display: none; position: relative; overflow: hidden; }
+.c-slide.active { display: block; }
+.c-slide::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: var(--bg-img);
+  background-size: cover;
+  background-position: center;
+  filter: blur(24px) brightness(0.45) saturate(1.4);
+  transform: scale(1.08);
+  z-index: 0;
+}
+.c-slide img {
+  display: block;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 75vh;
+  object-fit: contain;
+}
+.c-caption { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; background: linear-gradient(transparent, rgba(10,22,40,0.85)); color: white; padding: 24px 32px 20px; font-size: 15px; }
+.c-prev, .c-next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); backdrop-filter: blur(4px); border: none; color: white; font-size: 22px; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; z-index: 12; transition: background 0.2s; }
 .c-prev:hover, .c-next:hover { background: rgba(255,255,255,0.3); }
 .c-prev { left: 20px; }
 .c-next { right: 20px; }
 #carousel-dots { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
 .c-dot { width: 10px; height: 10px; border-radius: 50%; border: none; background: rgba(255,255,255,0.4); cursor: pointer; transition: background 0.2s; padding: 0; }
 .c-dot.active { background: white; }
+@media (max-width: 768px) {
+  .c-slide img { height: 56vw; min-height: 220px; }
+  .c-caption { font-size: 13px; padding: 16px 16px 14px; }
+  .c-prev, .c-next { width: 36px; height: 36px; font-size: 18px; }
+}
 /* ── Admin Panel ── */
 #admin-fab { display:none; position:fixed; bottom:28px; left:28px; z-index:2000; width:52px; height:52px; border-radius:50%; background:#1a3a6b; color:white; border:none; font-size:22px; cursor:pointer; box-shadow:0 4px 20px rgba(26,58,107,0.35); align-items:center; justify-content:center; transition:transform 0.2s; }
 #admin-fab:hover { transform:scale(1.08); }
@@ -940,12 +962,12 @@
 
   // 本地預設照片（Firebase 尚無資料時顯示）
   const LOCAL_SLIDES = [
-    { url: "photo/711687945_10236555962293689_3206772477084637282_n.jpg", caption: "追風少年科技培力課程啟動記者會 — 全體合影", order: 1, active: true },
-    { url: "photo/715202032_10236555963013707_8081835340011368804_n.jpg", caption: "啟動儀式 — 新竹市政府與協會代表共同宣示", order: 2, active: true },
-    { url: "photo/712825014_10236555963373716_3209302459966334975_n.jpg", caption: "媒體採訪 — 課程理念說明", order: 3, active: true },
-    { url: "photo/714736853_10236555960933655_3209340005012413548_n.jpg", caption: "協會理事長致詞", order: 4, active: true },
+    { url: "photo/711687945_10236555962293689_3206772477084637282_n.jpg", caption: "協會理事長致詞", order: 1, active: true },
+    { url: "photo/715202032_10236555963013707_8081835340011368804_n.jpg", caption: "無人機足球教具展示", order: 2, active: true },
+    { url: "photo/712825014_10236555963373716_3209302459966334975_n.jpg", caption: "媒體聯訪新竹 高虹安 市長", order: 3, active: true },
+    { url: "photo/714736853_10236555960933655_3209340005012413548_n.jpg", caption: "啟動儀式 — 新竹市政府與協會代表共同宣示", order: 4, active: true },
     { url: "photo/713604768_10236555961813677_2830716195629382388_n.jpg", caption: "與會貴賓專注聆聽課程介紹", order: 5, active: true },
-    { url: "photo/image (1).jpeg", caption: "無人機足球教具展示", order: 6, active: true },
+    { url: "photo/image (1).jpeg", caption: "追風少年科技培力課程啟動記者會 — 全體合影", order: 6, active: true },
   ];
 
   window._loadCarousel = async function() {
@@ -970,7 +992,7 @@
     const dots = document.getElementById("carousel-dots");
     if (!track) return;
     track.innerHTML = slides.map((s, i) => \`
-      <div class="c-slide \${i===0?'active':''}">
+      <div class="c-slide \${i===0?'active':''}" style="--bg-img:url('\${s.url}')">
         <img src="\${s.url}" alt="\${s.caption||''}" loading="lazy">
         \${s.caption ? \`<div class="c-caption">\${s.caption}</div>\` : ''}
       </div>
@@ -1148,12 +1170,12 @@
 <section id="carousel" style="padding:0;">
   <div class="carousel-wrap">
     <div id="carousel-track">
-      <div class="c-slide active"><img src="photo/711687945_10236555962293689_3206772477084637282_n.jpg" alt="追風少年科技培力課程啟動記者會 — 全體合影" loading="eager"><div class="c-caption">追風少年科技培力課程啟動記者會 — 全體合影</div></div>
-      <div class="c-slide"><img src="photo/715202032_10236555963013707_8081835340011368804_n.jpg" alt="啟動儀式" loading="lazy"><div class="c-caption">啟動儀式 — 新竹市政府與協會代表共同宣示</div></div>
-      <div class="c-slide"><img src="photo/712825014_10236555963373716_3209302459966334975_n.jpg" alt="媒體採訪" loading="lazy"><div class="c-caption">媒體採訪 — 課程理念說明</div></div>
-      <div class="c-slide"><img src="photo/714736853_10236555960933655_3209340005012413548_n.jpg" alt="理事長致詞" loading="lazy"><div class="c-caption">協會理事長致詞</div></div>
-      <div class="c-slide"><img src="photo/713604768_10236555961813677_2830716195629382388_n.jpg" alt="貴賓聆聽" loading="lazy"><div class="c-caption">與會貴賓專注聆聽課程介紹</div></div>
-      <div class="c-slide"><img src="photo/image (1).jpeg" alt="無人機教具" loading="lazy"><div class="c-caption">無人機足球教具展示</div></div>
+      <div class="c-slide active" style="--bg-img:url('photo/711687945_10236555962293689_3206772477084637282_n.jpg')"><img src="photo/711687945_10236555962293689_3206772477084637282_n.jpg" alt="協會理事長致詞" loading="eager"><div class="c-caption">協會理事長致詞</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/715202032_10236555963013707_8081835340011368804_n.jpg')"><img src="photo/715202032_10236555963013707_8081835340011368804_n.jpg" alt="啟動儀式" loading="lazy"><div class="c-caption">無人機足球教具展示</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/712825014_10236555963373716_3209302459966334975_n.jpg')"><img src="photo/712825014_10236555963373716_3209302459966334975_n.jpg" alt="媒體採訪" loading="lazy"><div class="c-caption">媒體聯訪新竹 高虹安 市長</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/714736853_10236555960933655_3209340005012413548_n.jpg')"><img src="photo/714736853_10236555960933655_3209340005012413548_n.jpg" alt="理事長致詞" loading="lazy"><div class="c-caption">啟動儀式 — 新竹市政府與協會代表共同宣示</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/713604768_10236555961813677_2830716195629382388_n.jpg')"><img src="photo/713604768_10236555961813677_2830716195629382388_n.jpg" alt="貴賓聆聽" loading="lazy"><div class="c-caption">與會貴賓專注聆聽課程介紹</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/image (1).jpeg')"><img src="photo/image (1).jpeg" alt="無人機教具" loading="lazy"><div class="c-caption">追風少年科技培力課程啟動記者會 — 全體合影</div></div>
     </div>
     <button class="c-prev" onclick="prevSlide()">&#8249;</button>
     <button class="c-next" onclick="nextSlide()">&#8250;</button>
