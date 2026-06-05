@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -938,7 +939,9 @@
 .admin-upload-area input { position:absolute; inset:0; opacity:0; cursor:pointer; }
 .admin-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:2999; }
 .admin-overlay.open { display:block; }
-</style>
+
+  .nav-admin-btn { font-size:13px; color:var(--text-muted) !important; opacity:0.6; }
+  .nav-admin-btn:hover { opacity:1; }</style>
 
 <!-- Firebase SDK -->
 <script type="module">
@@ -1146,6 +1149,7 @@
       <li><a href="#membership">加入會員</a></li>
       <li><a href="#contact">聯絡我們</a></li>
       <li><a href="#membership" class="nav-join">立即申請</a></li>
+      <li><a href="#" class="nav-admin-btn" onclick="toggleAdmin();return false;" title="後台管理">⚙️ 後台</a></li>
     </ul>
     <div class="nav-hamburger" onclick="toggleMenu()">
       <span></span><span></span><span></span>
@@ -1170,12 +1174,12 @@
 <section id="carousel" style="padding:0;">
   <div class="carousel-wrap">
     <div id="carousel-track">
-      <div class="c-slide active" style="--bg-img:url('photo/711687945_10236555962293689_3206772477084637282_n.jpg')"><img src="photo/711687945_10236555962293689_3206772477084637282_n.jpg" alt="協會理事長致詞" loading="eager"><div class="c-caption">協會理事長致詞</div></div>
-      <div class="c-slide" style="--bg-img:url('photo/715202032_10236555963013707_8081835340011368804_n.jpg')"><img src="photo/715202032_10236555963013707_8081835340011368804_n.jpg" alt="啟動儀式" loading="lazy"><div class="c-caption">無人機足球教具展示</div></div>
+      <div class="c-slide active" style="--bg-img:url('photo/711687945_10236555962293689_3206772477084637282_n.jpg')"><img src="photo/711687945_10236555962293689_3206772477084637282_n.jpg" alt="追風少年科技培力課程啟動記者會 — 全體合影" loading="eager"><div class="c-caption">追風少年科技培力課程啟動記者會 — 全體合影</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/715202032_10236555963013707_8081835340011368804_n.jpg')"><img src="photo/715202032_10236555963013707_8081835340011368804_n.jpg" alt="啟動儀式 — 新竹市政府與協會代表共同宣示" loading="lazy"><div class="c-caption">啟動儀式 — 新竹市政府與協會代表共同宣示</div></div>
       <div class="c-slide" style="--bg-img:url('photo/712825014_10236555963373716_3209302459966334975_n.jpg')"><img src="photo/712825014_10236555963373716_3209302459966334975_n.jpg" alt="媒體採訪" loading="lazy"><div class="c-caption">媒體聯訪新竹 高虹安 市長</div></div>
-      <div class="c-slide" style="--bg-img:url('photo/714736853_10236555960933655_3209340005012413548_n.jpg')"><img src="photo/714736853_10236555960933655_3209340005012413548_n.jpg" alt="理事長致詞" loading="lazy"><div class="c-caption">啟動儀式 — 新竹市政府與協會代表共同宣示</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/714736853_10236555960933655_3209340005012413548_n.jpg')"><img src="photo/714736853_10236555960933655_3209340005012413548_n.jpg" alt="協會理事長致詞" loading="lazy"><div class="c-caption">協會理事長致詞</div></div>
       <div class="c-slide" style="--bg-img:url('photo/713604768_10236555961813677_2830716195629382388_n.jpg')"><img src="photo/713604768_10236555961813677_2830716195629382388_n.jpg" alt="貴賓聆聽" loading="lazy"><div class="c-caption">與會貴賓專注聆聽課程介紹</div></div>
-      <div class="c-slide" style="--bg-img:url('photo/image (1).jpeg')"><img src="photo/image (1).jpeg" alt="無人機教具" loading="lazy"><div class="c-caption">追風少年科技培力課程啟動記者會 — 全體合影</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/image (1).jpeg')"><img src="photo/image (1).jpeg" alt="無人機足球教具展示" loading="lazy"><div class="c-caption">無人機足球教具展示</div></div>
     </div>
     <button class="c-prev" onclick="prevSlide()">&#8249;</button>
     <button class="c-next" onclick="nextSlide()">&#8250;</button>
