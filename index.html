@@ -1,12 +1,16 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>新竹市無人機創新科技協會</title>
+<link rel="preload" href="photo/711687945_10236555962293689_3206772477084637282_n.jpg" as="image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
 <style>
   :root {
     --primary: #1a3a6b;
@@ -983,6 +987,9 @@
   ];
 
   window._loadCarousel = async function() {
+    // 先立即顯示本地照片，不等 Firebase
+    renderCarousel(LOCAL_SLIDES);
+    // 背景更新：若 Firebase 有資料則替換
     try {
       const q = query(collection(db, "carousel"), where("active", "==", true), orderBy("order"));
       const snap = await getDocs(q);
@@ -990,12 +997,9 @@
       snap.forEach(doc => slides.push(doc.data()));
       if (slides.length > 0) {
         renderCarousel(slides);
-      } else {
-        renderCarousel(LOCAL_SLIDES);
       }
     } catch(e) {
-      console.warn("Carousel load failed, using local slides:", e);
-      renderCarousel(LOCAL_SLIDES);
+      // 本地照片已顯示，靜默忽略
     }
   };
 
