@@ -883,6 +883,22 @@
     .about-values { grid-template-columns: 1fr; }
   }
 
+  /* ── 消息 info 資訊格 ── */
+  .ds-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 20px;
+  }
+  @media (max-width: 600px) {
+    .ds-info-grid {
+      grid-template-columns: 1fr;
+    }
+    .ds-info-grid p[style*="grid-column:span 2"],
+    .ds-info-grid p[style*="grid-column: span 2"] {
+      grid-column: span 1 !important;
+    }
+  }
+
 /* ── Carousel ── */
 #carousel { background: #0a1628; padding: 0; overflow: hidden; position: relative; }
 .carousel-wrap { position: relative; width: 100%; }
@@ -1311,7 +1327,10 @@
       <div class="news-card">
         <div class="news-card-img" style="background:#0d1b3e;">
           <div class="news-card-tag" style="background:rgba(220,38,38,0.85);color:white;">賽事消息</div>
-          <img src="photo/截圖 2026-06-10 上午10.25.04.png" alt="2026 RoboRAVE 新竹市無人機足球競賽" loading="lazy" style="object-position: top;">
+          <picture>
+            <source srcset="photo/dronesoccer-poster.webp" type="image/webp">
+            <img src="photo/dronesoccer-poster.jpg" alt="2026 RoboRAVE 新竹市無人機足球競賽" loading="lazy" style="object-position: top; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+          </picture>
         </div>
         <div class="news-card-body">
           <p class="news-date">📅 2026年06月10日</p>
@@ -1882,12 +1901,15 @@
     <h2 style="font-size:22px; font-weight:700; color:#1a2333; line-height:1.5; margin-bottom:8px;">2026 RoboRAVE 新竹市無人機足球競賽</h2>
     <p style="font-size:16px; font-weight:600; color:#dc2626; margin-bottom:24px;">飛越極限，球定勝負！⚽ 開放報名！</p>
     <div style="color:#3a4a60; line-height:1.9; font-size:15px;">
-      <img src="photo/截圖 2026-06-10 上午10.25.04.png" alt="2026 RoboRAVE 新竹市無人機足球競賽海報" style="width:100%; border-radius:12px; margin-bottom:20px; object-fit:cover;">
+      <picture>
+        <source srcset="photo/dronesoccer-poster.webp" type="image/webp">
+        <img src="photo/dronesoccer-poster.jpg" alt="2026 RoboRAVE 新竹市無人機足球競賽海報" style="width:100%; border-radius:12px; margin-bottom:20px; object-fit:cover;">
+      </picture>
       <p style="margin-bottom:16px;">無人機足球競賽結合無人機操控、團隊合作與科技競技，是目前最具臨場感的新興科技運動。3v3 的空中激鬥，等你和隊友一起來挑戰！</p>
 
       <div style="background:#fff8f8; border:1.5px solid #fecaca; border-radius:14px; padding:24px; margin:24px 0;">
         <p style="font-size:14px; font-weight:700; color:#dc2626; margin:0 0 14px;">⚠️ 名額有限，要搶要快！各組僅12隊</p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px 20px;">
+        <div class="ds-info-grid">
           <p style="font-size:14px; color:#3a4a60; margin:0;">📅 <strong>日期</strong>｜2026/07/26（日）</p>
           <p style="font-size:14px; color:#3a4a60; margin:0;">🕚 <strong>時間</strong>｜11:00 – 16:00</p>
           <p style="font-size:14px; color:#3a4a60; margin:0; grid-column:span 2;">📍 <strong>地點</strong>｜玄奘大學 元亨堂（新竹市香山區玄奘路48號）</p>
