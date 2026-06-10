@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>新竹市無人機創新科技協會</title>
-<link rel="preload" href="photo/711687945_10236555962293689_3206772477084637282_n.jpg" as="image">
+<link rel="preload" href="photo/711687945_10236555962293689_3206772477084637282_n.webp" as="image" type="image/webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -977,7 +977,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   // ⚠️ 請在此填入您的 Firebase 設定
   const firebaseConfig = {
@@ -1023,12 +1022,19 @@
     const track = document.getElementById("carousel-track");
     const dots = document.getElementById("carousel-dots");
     if (!track) return;
-    track.innerHTML = slides.map((s, i) => \`
-      <div class="c-slide \${i===0?'active':''}" style="--bg-img:url('\${s.url}')">
-        <img src="\${s.url}" alt="\${s.caption||''}" loading="lazy">
-        \${s.caption ? \`<div class="c-caption">\${s.caption}</div>\` : ''}
-      </div>
-    \`).join('');
+    track.innerHTML = slides.map((s, i) => {
+      const isLocal = s.url && s.url.startsWith('photo/');
+      const webpUrl = isLocal ? s.url.replace(/\.(jpg|jpeg|png)$/i, '.webp') : null;
+      const lazy = i === 0 ? '' : ' loading="lazy"';
+      const imgTag = webpUrl
+        ? \`<picture><source srcset="\${webpUrl}" type="image/webp"><img src="\${s.url}" alt="\${s.caption||''}"\${lazy}></picture>\`
+        : \`<img src="\${s.url}" alt="\${s.caption||''}"\${lazy}>\`;
+      return \`
+        <div class="c-slide \${i===0?'active':''}" style="--bg-img:url('\${s.url}')">
+          \${imgTag}
+          \${s.caption ? \`<div class="c-caption">\${s.caption}</div>\` : ''}
+        </div>\`;
+    }).join('');
     dots.innerHTML = slides.map((_,i) => \`<button class="c-dot \${i===0?'active':''}" onclick="goSlide(\${i})"></button>\`).join('');
     window._carouselSlides = slides.length;
     window._carouselCurrent = 0;
@@ -1044,7 +1050,6 @@
   ];
 
   const auth = getAuth(app);
-  const storage = getStorage(app);
   const googleProvider = new GoogleAuthProvider();
 
   onAuthStateChanged(auth, user => {
@@ -1135,10 +1140,14 @@
     document.getElementById('admin-form').style.display = 'none';
     loadAdminSlides(); window._loadCarousel();
   };
-  window.adminUpload = function(e) {
+  window.adminUpload = async function(e) {
     const file = e.target.files[0]; if (!file) return;
     const prog = document.getElementById('admin-upload-prog');
     prog.style.display = 'block';
+    // 懶載入 Storage（只在上傳時才下載 SDK）
+    const { getStorage, ref, uploadBytesResumable, getDownloadURL } =
+      await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js");
+    const storage = getStorage(app);
     const storRef = ref(storage, `carousel/${Date.now()}_${file.name}`);
     const task = uploadBytesResumable(storRef, file);
     task.on('state_changed',
