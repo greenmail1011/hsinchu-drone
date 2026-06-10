@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -1311,7 +1312,7 @@
           <p class="news-date">📅 2026年06月03日</p>
           <h3 class="news-title">追風少年科技培力課程啟動！協會攜手市府讓新竹孩子從校園起飛</h3>
           <p class="news-excerpt">新竹市無人機創新科技協會聯合國立陽明交通大學與市府共同推動「K-12追風少年科技培力課程」，以半導體與無人機為核心，辦理時間115年6月1日至8月31日，招收幼兒園至高中學生，讓科技教育向下扎根。民富國小五年級學生於啟動記者會現場進行無人機足球操控表演，展現學習成果。</p>
-          <a href="#" class="news-link" onclick="var m=document.getElementById('news-modal-chasing');m.style.display='flex';m.classList.add('show');return false;">閱讀更多 →</a>
+          <a href="#news-chasing" class="news-link" onclick="openNewsModal('news-chasing');return false;">閱讀更多 →</a>
         </div>
       </div>
       <div class="news-card">
@@ -1413,7 +1414,7 @@
           <p class="news-date">📅 2026年06月04日</p>
           <h3 class="news-title">2026 RoboRAVE 新竹 Rally 競賽簡章正式公布，7月26日登場</h3>
           <p class="news-excerpt">由協會承辦的 RoboRAVE 2026 新竹 Rally 即將於 7 月 26 日在玄奘大學元亨堂舉行，設有無人機足球、SoccerBot、企業創意組等多項組別，報名截止 6 月 30 日，名額有限。</p>
-          <a href="#" onclick="document.getElementById('modal-roborave').style.display='flex';return false;" class="news-link">查看賽事詳情 →</a>
+          <a href="#news-roborave" onclick="openNewsModal('news-roborave');return false;" class="news-link">查看賽事詳情 →</a>
         </div>
       </div>
       <div class="news-card">
@@ -1468,7 +1469,7 @@
           <p class="news-date">📅 2026年02月11日</p>
           <h3 class="news-title">新竹市無人機創新科技協會 正式成立大會圓滿落幕</h3>
           <p class="news-excerpt">本會於115年2月11日假新竹市家欣樓餐廳召開第一次會員大會，出席31人，通過115年度工作計畫與預算，並選出第一屆理事長陳炳富及理監事，協會正式展開運作。</p>
-          <a href="#" class="news-link" onclick="var m=document.getElementById('news-modal-founding');m.style.display='flex';m.classList.add('show');return false;">閱讀更多 →</a>
+          <a href="#news-founding" class="news-link" onclick="openNewsModal('news-founding');return false;">閱讀更多 →</a>
         </div>
       </div>
     </div>
@@ -1522,7 +1523,7 @@
           </div>
           <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
             <a href="https://docs.google.com/forms/d/e/1FAIpQLScNEX9a-Yd8uifri-CLN8sivrG70bQd8tYjG9mf0cBgnpXKbg/viewform" target="_blank" style="display:inline-block; padding:8px 20px; background:var(--primary); color:white; border-radius:8px; text-decoration:none; font-size:13px; font-weight:700;">立即報名 →</a>
-            <a href="#" onclick="document.getElementById('modal-roborave').style.display='flex';return false;" style="display:inline-block; padding:8px 20px; background:transparent; color:var(--primary); border:1.5px solid var(--primary); border-radius:8px; text-decoration:none; font-size:13px; font-weight:600;">查看詳情</a>
+            <a href="#news-roborave" onclick="openNewsModal('news-roborave');return false;" style="display:inline-block; padding:8px 20px; background:transparent; color:var(--primary); border:1.5px solid var(--primary); border-radius:8px; text-decoration:none; font-size:13px; font-weight:600;">查看詳情</a>
             <a href="2026_RoboRAVE_新竹Rally_簡章.pdf" target="_blank" style="display:inline-block; padding:8px 20px; background:transparent; color:var(--text-muted); border:1.5px solid var(--border); border-radius:8px; text-decoration:none; font-size:13px;">📄 下載簡章</a>
             <a href="2026_RoboRAVE_新竹Rally_規則.pdf" target="_blank" style="display:inline-block; padding:8px 20px; background:transparent; color:var(--text-muted); border:1.5px solid var(--border); border-radius:8px; text-decoration:none; font-size:13px;">📄 下載規則</a>
           </div>
@@ -1775,9 +1776,12 @@
 </section>
 
 <!-- RoboRAVE Modal -->
-<div id="modal-roborave" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9000; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto;" onclick="if(event.target===this)this.style.display='none'">
+<div id="modal-roborave" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9000; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto;" onclick="if(event.target===this)closeNewsModal('news-roborave')">
   <div style="background:white; border-radius:20px; max-width:720px; width:100%; padding:40px; position:relative;">
-    <button onclick="document.getElementById('modal-roborave').style.display='none'" style="position:absolute; top:16px; right:20px; background:none; border:none; font-size:24px; cursor:pointer; color:#888;">×</button>
+    <div style="position:absolute; top:16px; right:20px; display:flex; align-items:center; gap:8px;">
+      <button id="share-btn-news-roborave" onclick="copyNewsLink('news-roborave')" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;">🔗 複製連結</button>
+      <button onclick="closeNewsModal('news-roborave')" style="background:none; border:none; font-size:24px; cursor:pointer; color:#888;">×</button>
+    </div>
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
       <div style="background:#0d5e2a; color:white; border-radius:12px; padding:10px 18px; text-align:center; font-weight:900; line-height:1.1;">
         <div style="font-size:11px; letter-spacing:1px;">JUL</div>
@@ -1901,11 +1905,14 @@
 </footer>
 
 <!-- News Modal: 協會成立 -->
-<div class="modal-overlay" id="news-modal-founding" style="display:none; align-items:flex-start; padding:40px 16px; overflow-y:auto;" onclick="if(event.target===this){this.style.display='none';this.classList.remove('show');}">
+<div class="modal-overlay" id="news-modal-founding" style="display:none; align-items:flex-start; padding:40px 16px; overflow-y:auto;" onclick="if(event.target===this)closeNewsModal('news-founding');">
   <div class="modal-box" style="max-width:720px; width:100%; text-align:left; padding:48px; max-height:90vh; overflow-y:auto;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
       <span style="background:#fff5e0; color:#92400e; font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px; letter-spacing:.05em;">協會動態</span>
-      <button onclick="var m=document.getElementById('news-modal-founding');m.style.display='none';m.classList.remove('show');" style="background:none; border:none; font-size:24px; cursor:pointer; color:#5a6880;">×</button>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button id="share-btn-news-founding" onclick="copyNewsLink('news-founding')" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;">🔗 複製連結</button>
+        <button onclick="closeNewsModal('news-founding');" style="background:none; border:none; font-size:24px; cursor:pointer; color:#5a6880;">×</button>
+      </div>
     </div>
     <p style="color:#5a6880; font-size:14px; margin-bottom:8px;">📅 2026年02月11日</p>
     <h2 style="font-size:22px; font-weight:700; color:#1a2333; line-height:1.5; margin-bottom:24px;">新竹市無人機創新科技協會 正式成立大會圓滿落幕</h2>
@@ -1927,11 +1934,14 @@
 </div>
 
 <!-- News Modal: 追風少年 -->
-<div class="modal-overlay" id="news-modal-chasing" style="display:none; align-items:flex-start; padding:40px 16px; overflow-y:auto;" onclick="if(event.target===this){this.style.display='none';this.classList.remove('show');}">
+<div class="modal-overlay" id="news-modal-chasing" style="display:none; align-items:flex-start; padding:40px 16px; overflow-y:auto;" onclick="if(event.target===this)closeNewsModal('news-chasing');">
   <div class="modal-box" style="max-width:760px; width:100%; text-align:left; padding:48px; max-height:90vh; overflow-y:auto;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
       <span style="background:#e0eeff; color:#1a3a6b; font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px; letter-spacing:.05em;">新聞稿</span>
-      <button onclick="var m=document.getElementById('news-modal-chasing');m.style.display='none';m.classList.remove('show');" style="background:none; border:none; font-size:24px; cursor:pointer; color:#5a6880;">×</button>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button id="share-btn-news-chasing" onclick="copyNewsLink('news-chasing')" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;">🔗 複製連結</button>
+        <button onclick="closeNewsModal('news-chasing');" style="background:none; border:none; font-size:24px; cursor:pointer; color:#5a6880;">×</button>
+      </div>
     </div>
     <p style="color:#5a6880; font-size:14px; margin-bottom:8px;">📅 2026年06月03日</p>
     <h2 style="font-size:22px; font-weight:700; color:#1a2333; line-height:1.5; margin-bottom:24px;">新竹市無人機創新科技協會攜手市府推動「追風少年科技培力課程」<br>讓科技之城的孩子從校園起飛，培養下一代科技之星</h2>
@@ -2166,6 +2176,63 @@
     document.getElementById('admin-panel').classList.remove('open');
     document.getElementById('admin-overlay').classList.remove('open');
   }
+</script>
+
+<script>
+  /* ── 最新消息 Deep-linking ──
+     每篇消息都有獨立 URL hash，方便分享到各平台。
+     例：https://example.com/#news-chasing
+  */
+  var _newsModalMap = {
+    'news-founding': 'news-modal-founding',
+    'news-chasing':  'news-modal-chasing',
+    'news-roborave': 'modal-roborave'
+  };
+
+  function copyNewsLink(hash) {
+    var url = location.origin + location.pathname + '#' + hash;
+    navigator.clipboard.writeText(url).then(function() {
+      var btn = document.getElementById('share-btn-' + hash);
+      if (!btn) return;
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✓ 已複製！';
+      btn.style.background = '#d1fae5';
+      btn.style.color = '#065f46';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.background = '';
+        btn.style.color = '';
+      }, 2000);
+    });
+  }
+
+  function openNewsModal(hash) {
+    var id = _newsModalMap[hash];
+    if (!id) return;
+    var m = document.getElementById(id);
+    if (!m) return;
+    m.style.display = 'flex';
+    m.classList.add('show');
+    history.replaceState(null, '', '#' + hash);
+  }
+
+  function closeNewsModal(hash) {
+    var id = _newsModalMap[hash];
+    if (!id) return;
+    var m = document.getElementById(id);
+    if (!m) return;
+    m.style.display = 'none';
+    m.classList.remove('show');
+    history.replaceState(null, '', window.location.pathname + '#news');
+  }
+
+  // 頁面載入時，若 URL hash 對應某篇消息，自動開啟
+  document.addEventListener('DOMContentLoaded', function() {
+    var hash = window.location.hash.replace('#', '');
+    if (_newsModalMap[hash]) {
+      openNewsModal(hash);
+    }
+  });
 </script>
 </body>
 </html>
