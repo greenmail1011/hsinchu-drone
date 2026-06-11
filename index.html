@@ -555,6 +555,15 @@
     align-items: center;
     gap: 28px;
     transition: all 0.25s;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 600px) {
+    .event-item { padding: 18px 16px; gap: 16px; }
+    .event-date-block { align-self: flex-start; }
+    .event-info { flex: 1; min-width: 0; }
+    .event-info h3 { font-size: 15px; }
+    .event-meta { gap: 8px; }
+    .event-tag { align-self: flex-start; margin-left: auto; }
   }
 
   .event-item:hover {
@@ -1509,7 +1518,7 @@
             <span>👥 對象：國小學生</span>
           </div>
           <div style="margin-top:14px;">
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLSdlwDwKxb-38jKBp1ftdgu5xbivTmOxkZVsK3jwkq5X8WlsJw/viewform?usp=header" target="_blank" style="display:inline-block; padding:10px 22px; background:var(--accent); color:#fff; border-radius:8px; text-decoration:none; font-size:14px; font-weight:600;">立即報名 →</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSdlwDwKxb-38jKBp1ftdgu5xbivTmOxkZVsK3jwkq5X8WlsJw/viewform?usp=header" target="_blank" style="display:inline-block; padding:10px 22px; background:var(--accent); color:#fff; border-radius:8px; text-decoration:none; font-size:14px; font-weight:600; white-space:nowrap;">立即報名 →</a>
           </div>
         </div>
         <span class="event-tag" style="background:rgba(220,38,38,0.12);color:#dc2626;">報名中</span>
