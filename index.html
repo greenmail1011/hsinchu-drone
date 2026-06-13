@@ -2271,8 +2271,19 @@
     clearInterval(_autoplayTimer);
     _autoplayTimer = setInterval(function(){ nextSlide(); }, 5000);
   }
+  // 桌機：滑鼠移入暫停、移出恢復
   document.getElementById('carousel').addEventListener('mouseenter', function(){ clearInterval(_autoplayTimer); });
   document.getElementById('carousel').addEventListener('mouseleave', function(){ startAutoplay(); });
+  // 手機：touch 滑動支援
+  var _touchStartX = 0;
+  document.getElementById('carousel').addEventListener('touchstart', function(e){ _touchStartX = e.touches[0].clientX; clearInterval(_autoplayTimer); }, {passive:true});
+  document.getElementById('carousel').addEventListener('touchend', function(e){
+    var diff = _touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : prevSlide(); }
+    startAutoplay();
+  }, {passive:true});
+  // 確保 autoplay 一定啟動（Firebase 未載入時的備援）
+  setTimeout(function(){ if(!_autoplayTimer) startAutoplay(); }, 3000);
 </script>
 
 <!-- Admin FAB -->
