@@ -896,8 +896,9 @@
   @media (max-width: 900px) {
     .hero-inner { grid-template-columns: 1fr; gap: 48px; }
     .hero-visual { order: -1; }
-    .hero-logo-wrap { width: 200px; height: 200px; }
-    .hero-logo-center { width: 150px; height: 150px; font-size: 64px; }
+    .hero-logo-wrap { width: 160px; height: 160px; }
+    .hero-logo-center { width: 120px; height: 120px; font-size: 52px; }
+    .hero-inner { padding: 40px 20px; gap: 24px; }
     .about-grid { grid-template-columns: 1fr; gap: 48px; }
     .news-grid { grid-template-columns: 1fr; }
     .membership-grid { grid-template-columns: 1fr; }
@@ -908,8 +909,8 @@
     .nav-links { display: none; }
     .nav-hamburger { display: flex; }
     .hero-stats { gap: 20px; }
-    .nav-logo-text .sub { display: none; }
     .nav-logo-text .main { font-size: 13px; }
+    .nav-logo-text .sub { font-size: 9px; letter-spacing: 0; white-space: nowrap; }
   }
 
   @media (max-width: 600px) {
@@ -1006,11 +1007,13 @@
   .nav-admin-btn { font-size:13px; color:var(--text-muted) !important; opacity:0.6; }
   .nav-admin-btn:hover { opacity:1; }
   @media (max-width: 480px) {
-    .hero-inner { padding: 40px 20px; gap: 24px; }
-    .hero-logo-wrap { width: 160px; height: 160px; }
-    .hero-logo-center { width: 120px; height: 120px; }
-    .hero-title { font-size: 30px; }
-    .hero-stats { flex-wrap: wrap; gap: 16px; }
+    .hero-inner { padding: 28px 20px; gap: 16px; }
+    .hero-logo-wrap { width: 130px; height: 130px; }
+    .hero-logo-center { width: 96px; height: 96px; }
+    .hero-title { font-size: 28px; }
+    .hero-subtitle { font-size: 12px; letter-spacing: 1px; }
+    .hero-stats { flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 20px; }
+    .hero-stat h3 { font-size: 22px; }
   }
 </style>
 
