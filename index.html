@@ -27,6 +27,7 @@
 <meta property="og:locale" content="zh_TW">
 <meta property="og:image:alt" content="新竹市無人機創新科技協會活動照片">
 <meta property="og:image:type" content="image/jpeg">
+<link rel="preload" href="logo.webp" as="image" type="image/webp">
 <link rel="preload" href="photo/711687945_10236555962293689_3206772477084637282_n.webp" as="image" type="image/webp" fetchpriority="high">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -108,6 +109,12 @@
     object-position: center;
   }
 
+  .nav-logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
   .nav-logo-text .main {
     font-size: 15px;
     font-weight: 700;
@@ -121,6 +128,7 @@
     color: var(--text-muted);
     letter-spacing: 0.3px;
   }
+  .sub-br { display: none; }
 
   .nav-links {
     display: flex;
@@ -910,7 +918,8 @@
     .nav-hamburger { display: flex; }
     .hero-stats { gap: 20px; }
     .nav-logo-text .main { font-size: 13px; }
-    .nav-logo-text .sub { font-size: 9px; letter-spacing: 0; white-space: nowrap; }
+    .nav-logo-text .sub { font-size: 9px; letter-spacing: 0; }
+    .sub-br { display: inline; }
   }
 
   @media (max-width: 600px) {
@@ -1301,7 +1310,7 @@
       </div>
       <div class="nav-logo-text">
         <span class="main">新竹市無人機創新科技協會</span>
-        <span class="sub">Hsinchu City Drone Innovation &amp; Technology Association</span>
+        <span class="sub">Hsinchu City Drone Innovation<br class="sub-br"> &amp; Technology Association</span>
       </div>
     </a>
     <ul class="nav-links">
