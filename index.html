@@ -1043,6 +1043,17 @@
   .admin-hint { font-size:12.5px; color:#8a9ab0; margin-bottom:14px; line-height:1.6; }
   .ac-admin-row { display:flex; align-items:center; justify-content:space-between; padding:11px 14px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:8px; font-size:14px; }
   .ac-admin-row button { background:#fff5f5; color:#e53e3e; border:1px solid #fed7d7; border-radius:6px; padding:5px 12px; font-size:12px; cursor:pointer; }
+  /* News filter chips */
+  #news-filter { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:28px; }
+  .news-chip { padding:7px 16px; border:1px solid #dde3ed; background:#fff; border-radius:20px; font-size:13px; font-weight:600; color:#5a6880; cursor:pointer; transition:all .15s; }
+  .news-chip:hover { border-color:#1a3a6b; color:#1a3a6b; }
+  .news-chip.active { background:#1a3a6b; border-color:#1a3a6b; color:#fff; }
+  /* Admin news form */
+  #admin-news-form { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; margin:14px 0; }
+  #admin-news-form label { display:block; font-size:11px; font-weight:700; color:#5a6880; text-transform:uppercase; letter-spacing:.05em; margin:12px 0 4px; }
+  #admin-news-form input, #admin-news-form select, #admin-news-form textarea { width:100%; padding:8px 11px; border:1px solid #dde3ed; border-radius:6px; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box; }
+  #admin-news-form textarea { resize:vertical; line-height:1.6; }
+  #admin-news-form input:focus, #admin-news-form textarea:focus, #admin-news-form select:focus { border-color:#0077cc; }
 </style>
 
 <!-- Firebase SDK -->
@@ -1146,7 +1157,7 @@
       document.getElementById('admin-main').style.display = 'block';
       if(hdr) hdr.style.display = 'flex';
       loadAdminSlides();
-      if(window._loadAdminContent) window._loadAdminContent();
+      if(window._loadAdminNews) window._loadAdminNews();
     } else {
       if (user && !_alertedNonAdmin) { _alertedNonAdmin = true; alert('此 Google 帳號未被授權為管理者：\n' + user.email + '\n請改用已授權的帳號登入，或請主管理者於後台新增您。'); }
       document.getElementById('admin-fab').style.display = 'none';
@@ -1337,6 +1348,175 @@
     if(!confirm('確定移除管理者 '+em+'？')) return;
     try{ await deleteDoc(doc(db2,'admins',em)); window._loadAdmins(); }
     catch(e){ alert('移除失敗：'+e.message); }
+  };
+
+  // ====== News / 最新消息 ======
+  window._newsPosts = [];
+  window._adminNewsCache = [];
+  function _newsTs(dateStr){
+    if(!dateStr) return 0;
+    const m = String(dateStr).match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+    if(m) return new Date(+m[1], +m[2]-1, +m[3]).getTime();
+    const d = Date.parse(dateStr); return isNaN(d)?0:d;
+  }
+  function _esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  window._loadNewsFront = async function(){
+    try{
+      const snap = await getDocs(query(collection(db2,'news'), where('published','==',true)));
+      const posts=[]; snap.forEach(function(d){ posts.push(Object.assign({id:d.id}, d.data())); });
+      if(!posts.length) return; // keep static fallback
+      posts.sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+      window._newsPosts = posts;
+      _renderNewsFront(posts);
+    }catch(e){ /* keep static */ }
+  };
+  function _renderNewsFront(posts){
+    const grid = document.querySelector('#news .news-grid'); if(!grid) return;
+    const cats=[]; posts.forEach(function(p){ if(p.category && cats.indexOf(p.category)<0) cats.push(p.category); });
+    let bar=document.getElementById('news-filter');
+    if(!bar){ bar=document.createElement('div'); bar.id='news-filter'; grid.parentNode.insertBefore(bar, grid); }
+    const chips=['全部'].concat(cats);
+    bar.innerHTML = chips.map(function(c,i){ return '<button class="news-chip'+(i===0?' active':'')+'" onclick="_filterNews(this)" data-cat="'+_esc(c)+'">'+_esc(c)+'</button>'; }).join('');
+    grid.innerHTML = posts.map(function(p,idx){ return _newsCardHtml(p,idx); }).join('');
+  }
+  function _newsCardHtml(p,idx){
+    const img = p.image ? '<img src="'+_esc(p.image)+'" alt="'+_esc(p.title)+'" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">'
+                        : '<div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a3a6b,#0d1b3e);"></div>';
+    return '<div class="news-card" data-cat="'+_esc(p.category)+'">'
+      + '<div class="news-card-img" style="background:#0d1b3e;"><div class="news-card-tag">'+_esc(p.category)+'</div>'+img+'</div>'
+      + '<div class="news-card-body"><p class="news-date">📅 '+_esc(p.date)+'</p>'
+      + '<h3 class="news-title">'+_esc(p.title)+'</h3>'
+      + '<p class="news-excerpt">'+_esc(p.excerpt)+'</p>'
+      + '<a href="#" class="news-link" onclick="_openDynNews('+idx+');return false;">閱讀更多 →</a></div></div>';
+  }
+  window._filterNews = function(btn){
+    const cat = btn.getAttribute('data-cat');
+    document.querySelectorAll('#news-filter .news-chip').forEach(function(b){ b.classList.toggle('active', b===btn); });
+    document.querySelectorAll('#news .news-grid .news-card').forEach(function(card){
+      card.style.display = (cat==='全部' || card.getAttribute('data-cat')===cat) ? '' : 'none';
+    });
+  };
+  window._openDynNews = function(idx){
+    const p = window._newsPosts[idx]; if(!p) return;
+    const modal=document.getElementById('news-modal-dynamic'); if(!modal) return;
+    document.getElementById('news-dyn-cat').textContent = p.category||'';
+    document.getElementById('news-dyn-date').textContent = p.date||'';
+    document.getElementById('news-dyn-title').textContent = p.title||'';
+    document.getElementById('news-dyn-body').innerHTML = p.body && p.body.trim() ? p.body : ('<p>'+_esc(p.excerpt)+'</p>');
+    modal.style.display='flex'; modal.classList.add('show'); document.body.style.overflow='hidden';
+  };
+  window._closeDynNews = function(){ const m=document.getElementById('news-modal-dynamic'); if(m){ m.style.display='none'; m.classList.remove('show'); document.body.style.overflow=''; } };
+  window.addEventListener('DOMContentLoaded', function(){ window._loadNewsFront(); });
+
+  // ---- Admin: news management ----
+  window._nfCatChange = function(){
+    const sel=document.getElementById('nf-cat'); const cu=document.getElementById('nf-cat-custom');
+    cu.style.display = (sel.value==='__custom') ? 'block' : 'none';
+  };
+  window._nfPreview = function(url){ const img=document.getElementById('nf-img-preview'); if(url){ img.src=url; img.style.display='block'; } else { img.style.display='none'; } };
+  window._openAddNews = function(){
+    document.getElementById('nf-id').value='';
+    document.getElementById('nf-title').value='';
+    document.getElementById('nf-cat').value='賽事消息';
+    document.getElementById('nf-cat-custom').value=''; document.getElementById('nf-cat-custom').style.display='none';
+    const d=new Date(); document.getElementById('nf-date').value = d.getFullYear()+'年'+String(d.getMonth()+1).padStart(2,'0')+'月'+String(d.getDate()).padStart(2,'0')+'日';
+    document.getElementById('nf-image').value=''; document.getElementById('nf-img-preview').style.display='none';
+    document.getElementById('nf-excerpt').value='';
+    document.getElementById('nf-body').value='';
+    document.getElementById('nf-published').value='true';
+    document.getElementById('admin-news-form').style.display='block';
+  };
+  window._editNews = function(id){
+    const p = (window._adminNewsCache||[]).find(function(x){ return x.id===id; }); if(!p) return;
+    document.getElementById('nf-id').value=p.id;
+    document.getElementById('nf-title').value=p.title||'';
+    const cats=['賽事消息','新聞稿','活動公告','協會動態'];
+    if(cats.indexOf(p.category)>=0){ document.getElementById('nf-cat').value=p.category; document.getElementById('nf-cat-custom').style.display='none'; }
+    else { document.getElementById('nf-cat').value='__custom'; document.getElementById('nf-cat-custom').style.display='block'; document.getElementById('nf-cat-custom').value=p.category||''; }
+    document.getElementById('nf-date').value=p.date||'';
+    document.getElementById('nf-image').value=p.image||''; _nfPreview(p.image||'');
+    document.getElementById('nf-excerpt').value=p.excerpt||'';
+    document.getElementById('nf-body').value=p.body||'';
+    document.getElementById('nf-published').value=String(p.published!==false);
+    document.getElementById('admin-news-form').style.display='block';
+    document.getElementById('admin-news-form').scrollIntoView({behavior:'smooth',block:'nearest'});
+  };
+  window._saveNews = async function(){
+    const id=document.getElementById('nf-id').value;
+    const title=document.getElementById('nf-title').value.trim();
+    let category=document.getElementById('nf-cat').value;
+    if(category==='__custom') category=document.getElementById('nf-cat-custom').value.trim()||'未分類';
+    const date=document.getElementById('nf-date').value.trim();
+    const image=document.getElementById('nf-image').value.trim();
+    const excerpt=document.getElementById('nf-excerpt').value.trim();
+    const body=document.getElementById('nf-body').value;
+    const published=document.getElementById('nf-published').value==='true';
+    if(!title){ alert('請輸入標題'); return; }
+    const data={ title, category, date, image, excerpt, body, published, ts:_newsTs(date) };
+    try{
+      if(id){ await updateDoc(doc(db2,'news',id), data); }
+      else { await addDoc(collection(db2,'news'), data); }
+      document.getElementById('admin-news-form').style.display='none';
+      await window._loadAdminNews(); await window._loadNewsFront();
+      alert('文章已儲存。');
+    }catch(e){ alert('儲存失敗：'+e.message); }
+  };
+  window._deleteNews = async function(id){
+    if(!confirm('確定刪除這篇文章？')) return;
+    try{ await deleteDoc(doc(db2,'news',id)); await window._loadAdminNews(); await window._loadNewsFront(); }
+    catch(e){ alert('刪除失敗：'+e.message); }
+  };
+  window._loadAdminNews = async function(){
+    const box=document.getElementById('admin-news-list'); if(!box) return;
+    box.innerHTML='<p class="admin-hint">載入中…</p>';
+    try{
+      const snap=await getDocs(collection(db2,'news'));
+      const posts=[]; snap.forEach(function(d){ posts.push(Object.assign({id:d.id}, d.data())); });
+      posts.sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+      window._adminNewsCache=posts;
+      const importBtn = posts.length ? '' : '<button class="admin-add-btn" style="background:#0d5e2a;margin-bottom:14px;" onclick="_importExistingNews()">⬇ 一鍵匯入現有 4 篇消息</button>';
+      if(!posts.length){ box.innerHTML = importBtn + '<p class="admin-hint">尚無文章。可先「匯入現有 4 篇」，或按上方「新增文章」。</p>'; return; }
+      box.innerHTML = importBtn + posts.map(function(p){
+        return '<div class="ac-admin-row" style="align-items:flex-start;">'
+          + '<div style="flex:1;min-width:0;"><div style="font-weight:700;">'+_esc(p.title||'(無標題)')+'</div>'
+          + '<div style="font-size:12px;color:#8a9ab0;margin-top:2px;">'+_esc(p.category||'')+' · '+_esc(p.date||'')+' · <span style="color:'+(p.published!==false?'#276749':'#b08900')+'">'+(p.published!==false?'已發佈':'草稿')+'</span></div></div>'
+          + '<div style="display:flex;gap:6px;flex-shrink:0;">'
+          + '<button style="background:#eef2ff;color:#1a3a6b;border:1px solid #dde3ed;" onclick="_editNews(\''+p.id+'\')">編輯</button>'
+          + '<button onclick="_deleteNews(\''+p.id+'\')">刪除</button></div></div>';
+      }).join('');
+    }catch(e){ box.innerHTML='<p class="admin-hint">讀取失敗：'+e.message+'</p>'; }
+  };
+
+  function _extractModalBody(modal){
+    const card = modal.querySelector(':scope > div'); if(!card) return '';
+    const clone = card.cloneNode(true);
+    clone.querySelectorAll('button').forEach(function(b){ const oc=b.getAttribute('onclick')||''; if(oc.indexOf('closeNewsModal')>=0||oc.indexOf('copyNewsLink')>=0) b.remove(); });
+    return clone.innerHTML.trim();
+  }
+  window._importExistingNews = async function(){
+    const cards=[].slice.call(document.querySelectorAll('#news .news-grid .news-card'));
+    if(!cards.length){ alert('找不到現有消息卡片。'); return; }
+    if(!confirm('將把目前頁面上的 '+cards.length+' 篇消息匯入後台，匯入後即可編輯。要繼續嗎？')) return;
+    const map = window._newsModalMap || {};
+    let n=0;
+    for(let i=0;i<cards.length;i++){
+      const c=cards[i];
+      const title=(c.querySelector('.news-title')||{}).textContent||''; 
+      const excerpt=(c.querySelector('.news-excerpt')||{}).textContent||'';
+      const dateRaw=(c.querySelector('.news-date')||{}).textContent||'';
+      const date=dateRaw.replace('📅','').trim();
+      const category=((c.querySelector('.news-card-tag')||{}).textContent||'協會動態').trim();
+      const imgEl=c.querySelector('.news-card-img img'); const image=imgEl?imgEl.getAttribute('src'):'';
+      let body='<p>'+excerpt.trim()+'</p>';
+      const link=c.querySelector('.news-link'); const oc=link?(link.getAttribute('onclick')||''):'';
+      const mm=oc.match(/openNewsModal\('([^']+)'\)/);
+      if(mm && map[mm[1]]){ const modal=document.getElementById(map[mm[1]]); if(modal){ const b=_extractModalBody(modal); if(b) body=b; } }
+      try{ await addDoc(collection(db2,'news'), { title:title.trim(), excerpt:excerpt.trim(), category, date, image, body, published:true, ts:_newsTs(date) }); n++; }
+      catch(e){ alert('匯入第'+(i+1)+'篇失敗：'+e.message); break; }
+    }
+    alert('已匯入 '+n+' 篇文章。');
+    await window._loadAdminNews(); await window._loadNewsFront();
   };
 </script>
 <!-- JSON-LD 結構化資料 -->
@@ -2406,6 +2586,19 @@
   setTimeout(function(){ if(!_autoplayTimer) startAutoplay(); }, 3000);
 </script>
 
+<!-- Dynamic News Modal -->
+<div class="modal-overlay" id="news-modal-dynamic" style="display:none; align-items:flex-start; padding:40px 16px; overflow-y:auto;" onclick="if(event.target===this)_closeDynNews();">
+  <div style="background:white; border-radius:20px; max-width:760px; width:100%; padding:40px; position:relative; margin:auto;">
+    <button onclick="_closeDynNews()" style="position:absolute; top:16px; right:18px; background:#f0f4f8; border:none; border-radius:8px; width:34px; height:34px; font-size:18px; cursor:pointer; color:#5a6880;">×</button>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+      <span id="news-dyn-cat" style="background:#1a3a6b; color:white; font-size:12px; font-weight:700; padding:4px 12px; border-radius:20px;"></span>
+      <span id="news-dyn-date" style="font-size:13px; color:#8a9ab0;"></span>
+    </div>
+    <h2 id="news-dyn-title" style="font-size:24px; font-weight:900; color:#1a2333; margin:0 0 18px; line-height:1.45;"></h2>
+    <div id="news-dyn-body" style="font-size:15px; color:#3a4658; line-height:1.9;"></div>
+  </div>
+</div>
+
 <!-- Admin FAB -->
 <button id="admin-fab" title="後台管理" onclick="toggleAdmin()">⚙️</button>
 
@@ -2437,16 +2630,48 @@
     <!-- Logged in -->
     <div id="admin-main">
       <div class="admin-tabs">
-        <button class="admin-tab active" data-tab="content" onclick="showAdminTab('content')">📝 內容文字</button>
+        <button class="admin-tab active" data-tab="news" onclick="showAdminTab('news')">📰 最新消息</button>
         <button class="admin-tab" data-tab="carousel" onclick="showAdminTab('carousel')">🖼️ 輪播照片</button>
         <button class="admin-tab" data-tab="admins" onclick="showAdminTab('admins')">👤 管理者</button>
       </div>
 
-      <!-- Tab: Content -->
-      <div class="admin-tab-pane" id="tab-content">
-        <p class="admin-hint">直接編輯各區塊文字，完成後按下方「儲存內容」。換行可用 &lt;br&gt;。留空白存檔會清掉該欄文字。</p>
-        <div id="admin-content-fields"></div>
-        <button class="admin-add-btn" onclick="_saveAdminContent()">💾 儲存內容</button>
+      <!-- Tab: News -->
+      <div class="admin-tab-pane" id="tab-news">
+        <p class="admin-hint">在這裡發佈與管理「最新消息」文章。每篇可設定分類，前台會顯示分類篩選。</p>
+        <button class="admin-add-btn" onclick="_openAddNews()">＋ 新增文章</button>
+        <div id="admin-news-form" style="display:none;">
+          <input type="hidden" id="nf-id">
+          <label>標題</label>
+          <input type="text" id="nf-title" placeholder="文章標題">
+          <label>分類</label>
+          <select id="nf-cat" onchange="_nfCatChange()">
+            <option>賽事消息</option>
+            <option>新聞稿</option>
+            <option>活動公告</option>
+            <option>協會動態</option>
+            <option value="__custom">其他（自訂）…</option>
+          </select>
+          <input type="text" id="nf-cat-custom" placeholder="自訂分類名稱" style="display:none; margin-top:6px;">
+          <label>日期</label>
+          <input type="text" id="nf-date" placeholder="例：2026年06月10日">
+          <label>封面圖片網址（選填）</label>
+          <input type="url" id="nf-image" placeholder="https://...　或　photo/xxx.jpg" oninput="_nfPreview(this.value)">
+          <img id="nf-img-preview" alt="預覽" style="max-height:120px; border-radius:6px; border:1px solid #dde3ed; display:none; margin-top:6px;">
+          <label>摘要（顯示在卡片上）</label>
+          <textarea id="nf-excerpt" style="min-height:60px;"></textarea>
+          <label>內文（點「閱讀更多」後顯示，可用 HTML，換行用 &lt;br&gt; 或留空行）</label>
+          <textarea id="nf-body" style="min-height:170px;"></textarea>
+          <label>狀態</label>
+          <select id="nf-published">
+            <option value="true">發佈（公開顯示）</option>
+            <option value="false">草稿（不顯示）</option>
+          </select>
+          <div class="admin-form-actions">
+            <button class="admin-save-btn" onclick="_saveNews()">儲存文章</button>
+            <button class="admin-cancel-btn" onclick="document.getElementById('admin-news-form').style.display='none'">取消</button>
+          </div>
+        </div>
+        <div id="admin-news-list" style="display:flex; flex-direction:column; gap:10px; margin-top:14px;"></div>
       </div>
 
       <!-- Tab: Carousel -->
@@ -2513,7 +2738,7 @@
     document.querySelectorAll('.admin-tab-pane').forEach(function(p){ p.style.display='none'; });
     var pane=document.getElementById('tab-'+name); if(pane) pane.style.display='block';
     if(name==='admins' && window._loadAdmins) window._loadAdmins();
-    if(name==='content' && window._loadAdminContent) window._loadAdminContent();
+    if(name==='news' && window._loadAdminNews) window._loadAdminNews();
   }
 </script>
 
