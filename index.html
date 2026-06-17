@@ -1030,7 +1030,7 @@
   .admin-user-mini { display:flex; align-items:center; gap:8px; font-size:13px; margin-left:auto; margin-right:14px; }
   .admin-user-mini img { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.25); }
   .admin-user-mini button { font-size:12px; background:rgba(255,255,255,0.2); color:#fff; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; }
-  .admin-panel-body { max-width:920px; margin:0 auto; width:100%; }
+  .admin-panel-body { max-width:920px; margin:0 auto; width:100%; overscroll-behavior:contain; }
   .admin-tabs { display:flex; gap:4px; border-bottom:1px solid #e2e8f0; margin-bottom:20px; flex-wrap:wrap; }
   .admin-tab { padding:10px 16px; background:none; border:none; border-bottom:2px solid transparent; font-size:14px; font-weight:600; color:#5a6880; cursor:pointer; }
   .admin-tab.active { color:#1a3a6b; border-bottom-color:#1a3a6b; }
@@ -1053,7 +1053,15 @@
   #admin-news-form label { display:block; font-size:11px; font-weight:700; color:#5a6880; text-transform:uppercase; letter-spacing:.05em; margin:12px 0 4px; }
   #admin-news-form input, #admin-news-form select, #admin-news-form textarea { width:100%; padding:8px 11px; border:1px solid #dde3ed; border-radius:6px; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box; }
   #admin-news-form textarea { resize:vertical; line-height:1.6; }
-  #admin-news-form input:focus, #admin-news-form textarea:focus, #admin-news-form select:focus { border-color:#0077cc; }
+  .ac-admin-row button { background:#fff5f5; color:#e53e3e; border:1px solid #fed7d7; border-radius:6px; padding:5px 12px; font-size:12px; cursor:pointer; }
+  /* Rich text editor */
+  .rte-toolbar { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+  .rte-toolbar button { padding:5px 11px; border:1px solid #dde3ed; background:#fff; border-radius:6px; font-size:13px; cursor:pointer; color:#3a4658; line-height:1; }
+  .rte-toolbar button:hover { background:#eef2ff; border-color:#1a3a6b; color:#1a3a6b; }
+  .rte-editor { width:100%; min-height:200px; max-height:340px; overflow-y:auto; padding:12px 14px; border:1px solid #dde3ed; border-radius:6px; font-size:14px; line-height:1.8; outline:none; box-sizing:border-box; margin-top:6px; background:#fff; }
+  .rte-editor:focus { border-color:#0077cc; }
+  .rte-editor:empty:before { content:'在這裡輸入文章內文…'; color:#b0bac9; }
+  .rte-editor img { max-width:100%; height:auto; }
 </style>
 
 <!-- Firebase SDK -->
@@ -1415,6 +1423,9 @@
     cu.style.display = (sel.value==='__custom') ? 'block' : 'none';
   };
   window._nfPreview = function(url){ const img=document.getElementById('nf-img-preview'); if(url){ img.src=url; img.style.display='block'; } else { img.style.display='none'; } };
+  window._rte = function(cmd){ const e=document.getElementById('nf-body-editor'); e.focus(); try{ document.execCommand(cmd,false,null); }catch(err){} };
+  window._rteBlock = function(tag){ const e=document.getElementById('nf-body-editor'); e.focus(); try{ document.execCommand('formatBlock',false,tag); }catch(err){} };
+  window._rteLink = function(){ const u=prompt('請輸入連結網址：','https://'); if(u){ const e=document.getElementById('nf-body-editor'); e.focus(); try{ document.execCommand('createLink',false,u); }catch(err){} } };
   window._openAddNews = function(){
     document.getElementById('nf-id').value='';
     document.getElementById('nf-title').value='';
@@ -1423,7 +1434,7 @@
     const d=new Date(); document.getElementById('nf-date').value = d.getFullYear()+'年'+String(d.getMonth()+1).padStart(2,'0')+'月'+String(d.getDate()).padStart(2,'0')+'日';
     document.getElementById('nf-image').value=''; document.getElementById('nf-img-preview').style.display='none';
     document.getElementById('nf-excerpt').value='';
-    document.getElementById('nf-body').value='';
+    document.getElementById('nf-body-editor').innerHTML='';
     document.getElementById('nf-published').value='true';
     document.getElementById('admin-news-form').style.display='block';
   };
@@ -1437,7 +1448,7 @@
     document.getElementById('nf-date').value=p.date||'';
     document.getElementById('nf-image').value=p.image||''; _nfPreview(p.image||'');
     document.getElementById('nf-excerpt').value=p.excerpt||'';
-    document.getElementById('nf-body').value=p.body||'';
+    document.getElementById('nf-body-editor').innerHTML=p.body||'';
     document.getElementById('nf-published').value=String(p.published!==false);
     document.getElementById('admin-news-form').style.display='block';
     document.getElementById('admin-news-form').scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -1450,7 +1461,7 @@
     const date=document.getElementById('nf-date').value.trim();
     const image=document.getElementById('nf-image').value.trim();
     const excerpt=document.getElementById('nf-excerpt').value.trim();
-    const body=document.getElementById('nf-body').value;
+    const body=document.getElementById('nf-body-editor').innerHTML.trim();
     const published=document.getElementById('nf-published').value==='true';
     if(!title){ alert('請輸入標題'); return; }
     const data={ title, category, date, image, excerpt, body, published, ts:_newsTs(date) };
@@ -2659,8 +2670,17 @@
           <img id="nf-img-preview" alt="預覽" style="max-height:120px; border-radius:6px; border:1px solid #dde3ed; display:none; margin-top:6px;">
           <label>摘要（顯示在卡片上）</label>
           <textarea id="nf-excerpt" style="min-height:60px;"></textarea>
-          <label>內文（點「閱讀更多」後顯示，可用 HTML，換行用 &lt;br&gt; 或留空行）</label>
-          <textarea id="nf-body" style="min-height:170px;"></textarea>
+          <label>內文（點「閱讀更多」後顯示）</label>
+          <div class="rte-toolbar">
+            <button type="button" onmousedown="event.preventDefault()" onclick="_rte('bold')" title="粗體"><b>B</b></button>
+            <button type="button" onmousedown="event.preventDefault()" onclick="_rte('italic')" title="斜體"><i>I</i></button>
+            <button type="button" onmousedown="event.preventDefault()" onclick="_rteBlock('H3')" title="小標題">標題</button>
+            <button type="button" onmousedown="event.preventDefault()" onclick="_rteBlock('P')" title="一般段落">段落</button>
+            <button type="button" onmousedown="event.preventDefault()" onclick="_rte('insertUnorderedList')" title="項目清單">• 清單</button>
+            <button type="button" onmousedown="event.preventDefault()" onclick="_rteLink()" title="插入連結">🔗 連結</button>
+            <button type="button" onmousedown="event.preventDefault()" onclick="_rte('removeFormat')" title="清除格式">清除格式</button>
+          </div>
+          <div id="nf-body-editor" class="rte-editor" contenteditable="true"></div>
           <label>狀態</label>
           <select id="nf-published">
             <option value="true">發佈（公開顯示）</option>
