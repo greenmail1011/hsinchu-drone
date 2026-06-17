@@ -1024,12 +1024,31 @@
     .hero-stats { flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 20px; }
     .hero-stat h3 { font-size: 22px; }
   }
+  /* ── Full-page Admin overrides ── */
+  #admin-panel { width:100vw !important; max-width:100vw !important; left:0; right:0; }
+  .admin-panel-header { align-items:center; }
+  .admin-user-mini { display:flex; align-items:center; gap:8px; font-size:13px; margin-left:auto; margin-right:14px; }
+  .admin-user-mini img { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.25); }
+  .admin-user-mini button { font-size:12px; background:rgba(255,255,255,0.2); color:#fff; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; }
+  .admin-panel-body { max-width:920px; margin:0 auto; width:100%; }
+  .admin-tabs { display:flex; gap:4px; border-bottom:1px solid #e2e8f0; margin-bottom:20px; flex-wrap:wrap; }
+  .admin-tab { padding:10px 16px; background:none; border:none; border-bottom:2px solid transparent; font-size:14px; font-weight:600; color:#5a6880; cursor:pointer; }
+  .admin-tab.active { color:#1a3a6b; border-bottom-color:#1a3a6b; }
+  .ac-group { margin-bottom:26px; }
+  .ac-group h4 { font-size:15px; font-weight:800; color:#1a3a6b; margin-bottom:12px; padding-bottom:7px; border-bottom:1px solid #eef2f7; }
+  .ac-field { margin-bottom:14px; }
+  .ac-field label { display:block; font-size:12px; color:#8a9ab0; margin-bottom:4px; }
+  .ac-field textarea { width:100%; min-height:52px; padding:9px 12px; border:1px solid #dde3ed; border-radius:7px; font-size:13.5px; font-family:inherit; line-height:1.6; resize:vertical; outline:none; box-sizing:border-box; }
+  .ac-field textarea:focus { border-color:#0077cc; }
+  .admin-hint { font-size:12.5px; color:#8a9ab0; margin-bottom:14px; line-height:1.6; }
+  .ac-admin-row { display:flex; align-items:center; justify-content:space-between; padding:11px 14px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:8px; font-size:14px; }
+  .ac-admin-row button { background:#fff5f5; color:#e53e3e; border:1px solid #fed7d7; border-radius:6px; padding:5px 12px; font-size:12px; cursor:pointer; }
 </style>
 
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, getDoc, addDoc, setDoc, updateDoc, deleteDoc, doc, orderBy, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   // ⚠️ 請在此填入您的 Firebase 設定
@@ -1098,26 +1117,42 @@
   window.addEventListener('DOMContentLoaded', window._loadCarousel);
 
   // ── Auth ──
-  const ALLOWED_EMAILS = [
-    "greenmail1011@gmail.com"
-    // ⚠️ 可新增更多管理員 Email
-  ];
+  const SUPER_ADMIN = "greenmail1011@gmail.com";
+  window._currentUser = null;
+  window._isAdmin = false;
 
   const auth = getAuth(app);
   const googleProvider = new GoogleAuthProvider();
+  const db2 = getFirestore(app);
 
-  onAuthStateChanged(auth, user => {
-    if (user && ALLOWED_EMAILS.includes(user.email)) {
+  async function _checkIsAdmin(email){
+    if(!email) return false;
+    if(email.toLowerCase() === SUPER_ADMIN) return true;
+    try { const sx = await getDoc(doc(db2,'admins',email.toLowerCase())); return sx.exists(); }
+    catch(e){ return false; }
+  }
+
+  let _alertedNonAdmin = false;
+  onAuthStateChanged(auth, async user => {
+    window._currentUser = user || null;
+    const ok = user ? await _checkIsAdmin(user.email) : false;
+    window._isAdmin = ok;
+    const hdr = document.getElementById('admin-main-header');
+    if (ok) {
       document.getElementById('admin-fab').style.display = 'flex';
-      document.getElementById('admin-user-name').textContent = user.displayName || user.email;
-      if (user.photoURL) document.getElementById('admin-user-avatar').src = user.photoURL;
+      const nm=document.getElementById('admin-user-name'); if(nm) nm.textContent = user.displayName || user.email;
+      const av=document.getElementById('admin-user-avatar'); if(av && user.photoURL) av.src = user.photoURL;
       document.getElementById('admin-login-area').style.display = 'none';
       document.getElementById('admin-main').style.display = 'block';
+      if(hdr) hdr.style.display = 'flex';
       loadAdminSlides();
+      if(window._loadAdminContent) window._loadAdminContent();
     } else {
+      if (user && !_alertedNonAdmin) { _alertedNonAdmin = true; alert('此 Google 帳號未被授權為管理者：\n' + user.email + '\n請改用已授權的帳號登入，或請主管理者於後台新增您。'); }
       document.getElementById('admin-fab').style.display = 'none';
       document.getElementById('admin-login-area').style.display = 'flex';
       document.getElementById('admin-main').style.display = 'none';
+      if(hdr) hdr.style.display = 'none';
     }
   });
 
@@ -1128,7 +1163,6 @@
   window.doAdminLogout = function() { signOut(auth); closeAdmin(); };
 
   // ── Admin Slides ──
-  const db2 = getFirestore(app);
 
   async function loadAdminSlides() {
     const grid = document.getElementById('admin-slide-grid');
@@ -1217,6 +1251,92 @@
   window.adminPreview = function(url) {
     const img = document.getElementById('admin-img-preview');
     if (url) { img.src = url; img.style.display = 'block'; } else { img.style.display = 'none'; }
+  };
+
+  // ====== Content CMS ======
+  const CONTENT_SECTIONS = [['#hero','主視覺'],['#about','關於協會'],['#news','最新消息'],['#events','活動專區'],['#membership','入會申請'],['#contact','聯絡我們'],['footer','頁尾']];
+  const CONTENT_SEL = 'h1,h2,h3,h4,h5,p,li,span.section-label,a.btn-primary,a.btn-outline,.news-date,.news-title,.news-excerpt,.news-link,.news-card-tag,.hero-badge,blockquote';
+  function _editableEls(){
+    const out=[];
+    for(const pair of CONTENT_SECTIONS){
+      const sel=pair[0], name=pair[1];
+      const root=document.querySelector(sel); if(!root) continue;
+      const cands=Array.prototype.slice.call(root.querySelectorAll(CONTENT_SEL));
+      const leaves=cands.filter(function(el){
+        const t=(el.textContent||'').trim(); if(!t) return false;
+        if(el.closest('#admin-panel')) return false;
+        return !cands.some(function(o){ return o!==el && el.contains(o); });
+      });
+      leaves.forEach(function(el,i){
+        const key=sel.replace(/[^a-zA-Z]/g,'')+'_'+i;
+        el.dataset.ck=key;
+        out.push({key:key, el:el, section:name, label:(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,42)});
+      });
+    }
+    return out;
+  }
+  window._applyContent = async function(){
+    try {
+      const sx = await getDoc(doc(db2,'content','main'));
+      if(!sx.exists()) return;
+      const data = sx.data()||{};
+      _editableEls().forEach(function(o){ if(data[o.key]!=null) o.el.innerHTML = data[o.key]; });
+    } catch(e){ /* keep static defaults */ }
+  };
+  window.addEventListener('DOMContentLoaded', function(){ window._applyContent(); });
+
+  window._loadAdminContent = function(){
+    const wrap = document.getElementById('admin-content-fields'); if(!wrap) return;
+    const els = _editableEls();
+    const order=[]; const groups={};
+    els.forEach(function(o){ if(!groups[o.section]){ groups[o.section]=[]; order.push(o.section); } groups[o.section].push(o); });
+    let html='';
+    order.forEach(function(sec){
+      html += '<div class="ac-group"><h4>'+sec+'</h4>';
+      groups[sec].forEach(function(o){
+        const val = (o.el.innerHTML||'').trim().replace(/&/g,'&amp;').replace(/</g,'&lt;');
+        html += '<div class="ac-field"><label>'+(o.label||'(文字)')+'</label><textarea data-ckey="'+o.key+'">'+val+'</textarea></div>';
+      });
+      html += '</div>';
+    });
+    wrap.innerHTML = html || '<p class="admin-hint">找不到可編輯的文字區塊。</p>';
+  };
+  window._saveAdminContent = async function(){
+    const tas = document.querySelectorAll('#admin-content-fields textarea');
+    const map = {};
+    tas.forEach(function(ta){ map[ta.dataset.ckey] = ta.value; });
+    try {
+      await setDoc(doc(db2,'content','main'), map, {merge:true});
+      _editableEls().forEach(function(o){ if(map[o.key]!=null) o.el.innerHTML = map[o.key]; });
+      alert('內容已儲存並更新到網站。');
+    } catch(e){ alert('儲存失敗：'+e.message); }
+  };
+
+  // ====== Admins management ======
+  window._loadAdmins = async function(){
+    const box=document.getElementById('admin-admins-list'); if(!box) return;
+    box.innerHTML='<p class="admin-hint">載入中…</p>';
+    try{
+      const snap=await getDocs(collection(db2,'admins'));
+      const emails=[]; snap.forEach(function(d){ emails.push(d.id); });
+      if(emails.indexOf(SUPER_ADMIN)===-1) emails.unshift(SUPER_ADMIN);
+      box.innerHTML = emails.map(function(em){
+        const isSuper = (em===SUPER_ADMIN);
+        return '<div class="ac-admin-row"><span>'+em+(isSuper?' <b style="color:#1a3a6b;">（主管理者）</b>':'')+'</span>'+(isSuper?'':'<button onclick="_removeAdmin(\''+em+'\')">移除</button>')+'</div>';
+      }).join('');
+    }catch(e){ box.innerHTML='<p class="admin-hint">讀取失敗：'+e.message+'</p>'; }
+  };
+  window._addAdmin = async function(){
+    const inp=document.getElementById('admin-new-email');
+    const em=(inp.value||'').trim().toLowerCase();
+    if(!em || em.indexOf('@')<0){ alert('請輸入有效的 Google email'); return; }
+    try{ await setDoc(doc(db2,'admins',em),{addedBy:(window._currentUser&&window._currentUser.email)||'',addedAt:Date.now()}); inp.value=''; window._loadAdmins(); }
+    catch(e){ alert('新增失敗：'+e.message); }
+  };
+  window._removeAdmin = async function(em){
+    if(!confirm('確定移除管理者 '+em+'？')) return;
+    try{ await deleteDoc(doc(db2,'admins',em)); window._loadAdmins(); }
+    catch(e){ alert('移除失敗：'+e.message); }
   };
 </script>
 <!-- JSON-LD 結構化資料 -->
@@ -2292,10 +2412,15 @@
 <!-- Admin Overlay -->
 <div class="admin-overlay" id="admin-overlay" onclick="closeAdmin()"></div>
 
-<!-- Admin Panel -->
+<!-- Admin Panel (full page) -->
 <div id="admin-panel">
   <div class="admin-panel-header">
     <h2>⚙️ 後台管理</h2>
+    <div class="admin-user-mini" id="admin-main-header" style="display:none;">
+      <img id="admin-user-avatar" src="" alt="">
+      <span id="admin-user-name"></span>
+      <button onclick="doAdminLogout()">登出</button>
+    </div>
     <button class="admin-close-btn" onclick="closeAdmin()">×</button>
   </div>
   <div class="admin-panel-body">
@@ -2311,52 +2436,65 @@
 
     <!-- Logged in -->
     <div id="admin-main">
-      <div class="admin-user-row">
-        <img id="admin-user-avatar" src="" alt="">
-        <div style="flex:1;">
-          <div id="admin-user-name" style="font-size:13px;font-weight:600;"></div>
-          <div style="font-size:12px;color:#8a9ab0;">管理員</div>
-        </div>
-        <button onclick="doAdminLogout()" style="font-size:12px;color:#5a6880;background:#f0f4f8;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;">登出</button>
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="content" onclick="showAdminTab('content')">📝 內容文字</button>
+        <button class="admin-tab" data-tab="carousel" onclick="showAdminTab('carousel')">🖼️ 輪播照片</button>
+        <button class="admin-tab" data-tab="admins" onclick="showAdminTab('admins')">👤 管理者</button>
       </div>
 
-      <button class="admin-add-btn" onclick="openAddForm()">＋ 新增輪播照片</button>
-
-      <!-- Edit/Add Form -->
-      <div id="admin-form" style="display:none;">
-        <input type="hidden" id="admin-edit-id">
-        <label>上傳圖片</label>
-        <div class="admin-upload-area">
-          <input type="file" accept="image/*" onchange="adminUpload(event)">
-          點擊上傳圖片
-        </div>
-        <div id="admin-upload-prog"></div>
-        <label style="margin-top:8px;">或填入圖片網址</label>
-        <input type="url" id="admin-img-url" placeholder="https://..." oninput="adminPreview(this.value)">
-        <img id="admin-img-preview" src="" alt="預覽">
-        <label>說明文字（選填）</label>
-        <input type="text" id="admin-caption" placeholder="照片說明">
-        <div class="admin-form-row" style="margin-top:12px;">
-          <div>
-            <label>排序</label>
-            <input type="number" id="admin-order" value="10" min="0">
-          </div>
-          <div>
-            <label>狀態</label>
-            <select id="admin-active">
-              <option value="true">顯示</option>
-              <option value="false">隱藏</option>
-            </select>
-          </div>
-        </div>
-        <div class="admin-form-actions">
-          <button class="admin-save-btn" onclick="adminSave()">儲存</button>
-          <button class="admin-cancel-btn" onclick="document.getElementById('admin-form').style.display='none'">取消</button>
-        </div>
+      <!-- Tab: Content -->
+      <div class="admin-tab-pane" id="tab-content">
+        <p class="admin-hint">直接編輯各區塊文字，完成後按下方「儲存內容」。換行可用 &lt;br&gt;。留空白存檔會清掉該欄文字。</p>
+        <div id="admin-content-fields"></div>
+        <button class="admin-add-btn" onclick="_saveAdminContent()">💾 儲存內容</button>
       </div>
 
-      <!-- Slide List -->
-      <div id="admin-slide-grid" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <!-- Tab: Carousel -->
+      <div class="admin-tab-pane" id="tab-carousel" style="display:none;">
+        <button class="admin-add-btn" onclick="openAddForm()">＋ 新增輪播照片</button>
+        <div id="admin-form" style="display:none;">
+          <input type="hidden" id="admin-edit-id">
+          <label>上傳圖片</label>
+          <div class="admin-upload-area">
+            <input type="file" accept="image/*" onchange="adminUpload(event)">
+            點擊上傳圖片
+          </div>
+          <div id="admin-upload-prog"></div>
+          <label style="margin-top:8px;">或填入圖片網址</label>
+          <input type="url" id="admin-img-url" placeholder="https://..." oninput="adminPreview(this.value)">
+          <img id="admin-img-preview" src="" alt="預覽">
+          <label>說明文字（選填）</label>
+          <input type="text" id="admin-caption" placeholder="照片說明">
+          <div class="admin-form-row" style="margin-top:12px;">
+            <div>
+              <label>排序</label>
+              <input type="number" id="admin-order" value="10" min="0">
+            </div>
+            <div>
+              <label>狀態</label>
+              <select id="admin-active">
+                <option value="true">顯示</option>
+                <option value="false">隱藏</option>
+              </select>
+            </div>
+          </div>
+          <div class="admin-form-actions">
+            <button class="admin-save-btn" onclick="adminSave()">儲存</button>
+            <button class="admin-cancel-btn" onclick="document.getElementById('admin-form').style.display='none'">取消</button>
+          </div>
+        </div>
+        <div id="admin-slide-grid" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+
+      <!-- Tab: Admins -->
+      <div class="admin-tab-pane" id="tab-admins" style="display:none;">
+        <p class="admin-hint">新增其他管理者的 Google 帳號 email；被加入者用該帳號登入即可管理。主管理者無法被移除。</p>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <input id="admin-new-email" type="email" placeholder="someone@gmail.com" style="flex:1;padding:9px 12px;border:1px solid #dde3ed;border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+          <button class="admin-add-btn" style="width:auto;margin:0;padding:9px 18px;" onclick="_addAdmin()">新增</button>
+        </div>
+        <div id="admin-admins-list"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -2369,6 +2507,13 @@
   function closeAdmin() {
     document.getElementById('admin-panel').classList.remove('open');
     document.getElementById('admin-overlay').classList.remove('open');
+  }
+  function showAdminTab(name) {
+    document.querySelectorAll('.admin-tab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===name); });
+    document.querySelectorAll('.admin-tab-pane').forEach(function(p){ p.style.display='none'; });
+    var pane=document.getElementById('tab-'+name); if(pane) pane.style.display='block';
+    if(name==='admins' && window._loadAdmins) window._loadAdmins();
+    if(name==='content' && window._loadAdminContent) window._loadAdminContent();
   }
 </script>
 
