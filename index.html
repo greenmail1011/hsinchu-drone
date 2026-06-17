@@ -1081,15 +1081,15 @@
       const webpUrl = isLocal ? s.url.replace(/\.(jpg|jpeg|png)$/i, '.webp') : null;
       const lazy = i === 0 ? '' : ' loading="lazy"';
       const imgTag = webpUrl
-        ? \`<picture><source srcset="\${webpUrl}" type="image/webp"><img src="\${s.url}" alt="\${s.caption||''}"\${lazy}></picture>\`
-        : \`<img src="\${s.url}" alt="\${s.caption||''}"\${lazy}>\`;
-      return \`
-        <div class="c-slide \${i===0?'active':''}" style="--bg-img:url('\${s.url}')">
-          \${imgTag}
-          \${s.caption ? \`<div class="c-caption">\${s.caption}</div>\` : ''}
-        </div>\`;
+        ? `<picture><source srcset="${webpUrl}" type="image/webp"><img src="${s.url}" alt="${s.caption||''}"${lazy}></picture>`
+        : `<img src="${s.url}" alt="${s.caption||''}"${lazy}>`;
+      return `
+        <div class="c-slide ${i===0?'active':''}" style="--bg-img:url('${s.url}')">
+          ${imgTag}
+          ${s.caption ? `<div class="c-caption">${s.caption}</div>` : ''}
+        </div>`;
     }).join('');
-    dots.innerHTML = slides.map((_,i) => \`<button class="c-dot \${i===0?'active':''}" onclick="goSlide(\${i})"></button>\`).join('');
+    dots.innerHTML = slides.map((_,i) => `<button class="c-dot ${i===0?'active':''}" onclick="goSlide(${i})"></button>`).join('');
     window._carouselSlides = slides.length;
     window._carouselCurrent = 0;
     startAutoplay();
