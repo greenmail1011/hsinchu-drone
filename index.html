@@ -1098,10 +1098,11 @@
     renderCarousel(LOCAL_SLIDES);
     // 背景更新：若 Firebase 有資料則替換
     try {
-      const q = query(collection(db, "carousel"), where("active", "==", true), orderBy("order"));
+      // 只用單欄 orderBy（不需複合索引），active 篩選改在 JS 端做
+      const q = query(collection(db, "carousel"), orderBy("order"));
       const snap = await getDocs(q);
       const slides = [];
-      snap.forEach(doc => slides.push(doc.data()));
+      snap.forEach(doc => { const d = doc.data(); if (d.active !== false) slides.push(d); });
       if (slides.length > 0) {
         renderCarousel(slides);
       }
