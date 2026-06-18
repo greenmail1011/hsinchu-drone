@@ -1183,6 +1183,8 @@
 
   // ── Admin Slides ──
 
+  let _importingDefaults = false;
+  window._adminSlides = [];
   async function loadAdminSlides() {
     const grid = document.getElementById('admin-slide-grid');
     grid.innerHTML = '<p style="color:#8a9ab0;padding:20px 0;">載入中…</p>';
@@ -1190,13 +1192,36 @@
     const snap = await getDocs(q);
     const slides = [];
     snap.forEach(d => slides.push({ id: d.id, ...d.data() }));
+    // 資料庫尚無資料 → 自動把首頁預設照片匯入，之後即可在後台編輯／排序
+    if (!slides.length && !_importingDefaults) {
+      _importingDefaults = true;
+      grid.innerHTML = '<p style="color:#8a9ab0;padding:20px 0;">首次載入，正在匯入預設輪播照片…</p>';
+      try {
+        for (const s of LOCAL_SLIDES) {
+          await addDoc(collection(db2, "carousel"), { url: s.url, caption: s.caption, order: s.order, active: s.active !== false });
+        }
+      } catch(e) {
+        _importingDefaults = false;
+        grid.innerHTML = '<p style="color:#e53e3e;padding:20px 0;">匯入預設照片失敗：' + e.message + '</p>';
+        return;
+      }
+      _importingDefaults = false;
+      window._loadCarousel();
+      return loadAdminSlides();
+    }
     if (!slides.length) { grid.innerHTML = '<p style="color:#8a9ab0;padding:20px 0;">尚無輪播照片</p>'; return; }
-    grid.innerHTML = slides.map(s => `
-      <div style="display:flex;gap:12px;align-items:center;padding:12px;border:1px solid #dde3ed;border-radius:10px;background:#fafbfd;">
+    window._adminSlides = slides;
+    grid.innerHTML =
+      '<p style="font-size:12px;color:#8a9ab0;margin:0 0 10px;">💡 拖曳卡片即可調整順序，放開後自動儲存並更新首頁。</p>' +
+      slides.map((s, i) => `
+      <div class="admin-slide-row" draggable="true" data-idx="${i}"
+        ondragstart="slideDragStart(event)" ondragover="slideDragOver(event)" ondrop="slideDrop(event)" ondragend="slideDragEnd(event)"
+        style="display:flex;gap:12px;align-items:center;padding:12px;border:1px solid #dde3ed;border-radius:10px;background:#fafbfd;">
+        <span style="font-size:18px;line-height:1;color:#b0bccd;cursor:grab;flex-shrink:0;user-select:none;" title="拖曳排序">⠿</span>
         <img src="${s.url||''}" style="width:80px;height:56px;object-fit:cover;border-radius:6px;background:#e8edf5;flex-shrink:0;" onerror="this.style.background='#e8edf5'">
         <div style="flex:1;min-width:0;">
           <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.caption||'（無說明）'}</div>
-          <div style="font-size:12px;color:#8a9ab0;">排序：${s.order??10} · <span style="color:${s.active?'#276749':'#718096'}">${s.active?'顯示':'隱藏'}</span></div>
+          <div style="font-size:12px;color:#8a9ab0;">第 ${i+1} 張 · <span style="color:${s.active?'#276749':'#718096'}">${s.active?'顯示':'隱藏'}</span></div>
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0;">
           <button onclick='openEditForm(${JSON.stringify(s)})' style="padding:5px 10px;border:1px solid #dde3ed;border-radius:6px;font-size:12px;cursor:pointer;background:white;">編輯</button>
@@ -1206,6 +1231,30 @@
       </div>
     `).join('');
   }
+
+  // ── 拖曳排序 ──
+  let _dragIdx = null;
+  window.slideDragStart = function(e){ _dragIdx = +e.currentTarget.dataset.idx; e.currentTarget.style.opacity = '0.4'; e.dataTransfer.effectAllowed = 'move'; try{ e.dataTransfer.setData('text/plain', String(_dragIdx)); }catch(_){} };
+  window.slideDragOver = function(e){ e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+  window.slideDragEnd = function(e){ e.currentTarget.style.opacity = '1'; };
+  window.slideDrop = async function(e){
+    e.preventDefault();
+    const toIdx = +e.currentTarget.dataset.idx;
+    if (_dragIdx === null || isNaN(_dragIdx) || _dragIdx === toIdx) { _dragIdx = null; return; }
+    const arr = window._adminSlides.slice();
+    const [moved] = arr.splice(_dragIdx, 1);
+    arr.splice(toIdx, 0, moved);
+    _dragIdx = null;
+    const grid = document.getElementById('admin-slide-grid');
+    grid.innerHTML = '<p style="color:#8a9ab0;padding:20px 0;">排序儲存中…</p>';
+    try {
+      for (let i = 0; i < arr.length; i++) {
+        await updateDoc(doc(db2, "carousel", arr[i].id), { order: i + 1 });
+      }
+    } catch(err){ alert('排序儲存失敗：' + err.message); }
+    await loadAdminSlides();
+    window._loadCarousel();
+  };
 
   window.adminToggle = async function(id, current) {
     await updateDoc(doc(db2, "carousel", id), { active: !current });
