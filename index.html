@@ -1439,8 +1439,16 @@
     grid.innerHTML = posts.map(function(p,idx){ return _newsCardHtml(p,idx); }).join('');
   }
   function _newsCardHtml(p,idx){
-    const img = p.image ? '<img src="'+_esc(p.image)+'" alt="'+_esc(p.title)+'" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">'
-                        : '<div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a3a6b,#0d1b3e);"></div>';
+    let img;
+    if(p.image){
+      const _st='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+      const _isLocal=/^photo\//i.test(p.image);
+      const _webp=_isLocal?p.image.replace(/\.(jpg|jpeg|png)$/i,'.webp'):null;
+      const _tag='<img src="'+_esc(p.image)+'" alt="'+_esc(p.title)+'" loading="lazy" style="'+_st+'">';
+      img = _webp ? '<picture><source srcset="'+_esc(_webp)+'" type="image/webp">'+_tag+'</picture>' : _tag;
+    } else {
+      img = '<div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a3a6b,#0d1b3e);"></div>';
+    }
     return '<div class="news-card" data-cat="'+_esc(p.category)+'">'
       + '<div class="news-card-img" style="background:#0d1b3e;"><div class="news-card-tag">'+_esc(p.category)+'</div>'+img+'</div>'
       + '<div class="news-card-body"><p class="news-date">📅 '+_esc(p.date)+'</p>'
