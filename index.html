@@ -1202,12 +1202,22 @@
       if (user && !_alertedNonAdmin) { _alertedNonAdmin = true; alert('此 Google 帳號未被授權為管理者：\n' + user.email + '\n請改用已授權的帳號登入，或請主管理者於後台新增您。'); }
       document.getElementById('admin-fab').style.display = 'none'; // 公開頁面不顯示浮動齒輪；入口改用頁尾「⚙️ 管理專區」
       document.getElementById('admin-login-area').style.display = 'flex';
+      var ww=document.getElementById('webview-warn'); if(ww) ww.style.display = _isInAppBrowser() ? 'block' : 'none';
       document.getElementById('admin-main').style.display = 'none';
       if(hdr) hdr.style.display = 'none';
     }
   });
 
+  // 偵測 App 內建瀏覽器（LINE／FB／IG…），Google 不允許在這類 WebView 登入
+  function _isInAppBrowser(){
+    var ua = navigator.userAgent || '';
+    return /FBAN|FBAV|FB_IAB|Instagram|Line\/|LINE|Messenger|MicroMessenger|WeChat|TikTok|musical_ly|KAKAOTALK|; wv\)/i.test(ua);
+  }
   window.doGoogleLogin = async function() {
+    if(_isInAppBrowser()){
+      alert('偵測到您是用 App 內建瀏覽器開啟（例如 LINE／Facebook／IG）。\nGoogle 基於安全政策，不允許在這種瀏覽器登入。\n\n請改用 Safari 或 Chrome 開啟本網站再登入：\n· 點右上或右下的「⋯」或分享鈕 →「用 Safari 開啟」／「在瀏覽器中開啟」\n· 或直接在 Safari／Chrome 輸入 hcdrone.org.tw');
+      return;
+    }
     try { await signInWithPopup(auth, googleProvider); }
     catch(e) { alert('登入失敗：' + e.message); }
   };
@@ -1609,6 +1619,37 @@
     cu.style.display = (sel.value==='__custom') ? 'block' : 'none';
   };
   window._nfPreview = function(url){ const img=document.getElementById('nf-img-preview'); if(url){ img.src=url; img.style.display='block'; } else { img.style.display='none'; } };
+  // ── 日期格式轉換（日曆用 ISO YYYY-MM-DD ↔ 顯示用「2026年06月10日」）──
+  function _toDisplayDate(iso){ var m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m? (m[1]+'年'+m[2]+'月'+m[3]+'日') : (iso||''); }
+  function _toISODate(s){ var m=String(s||'').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/); return m? (m[1]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0')) : ''; }
+  function _todayISO(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  // ── 表單內嵌訊息、摘要字數、未存提醒 ──
+  function _nfMsg(t, ok){ var el=document.getElementById('nf-msg'); if(!el) return; el.textContent=t||''; el.style.color= ok? '#276749' : '#e53e3e'; }
+  window._nfCount = function(){ var t=document.getElementById('nf-excerpt'), c=document.getElementById('nf-excerpt-count'); if(t&&c) c.textContent=(t.value||'').length+' 字'; };
+  window._nfDirty = false;
+  window._cancelNewsForm = function(){ if(window._nfDirty && !confirm('表單有未儲存的變更，確定要關閉嗎？')) return; window._nfDirty=false; document.getElementById('admin-news-form').style.display='none'; };
+  // ── 儲存前即時預覽（重用前台分類插圖，沒封面圖也有圖）──
+  window._previewNews = function(){
+    var catSel=document.getElementById('nf-cat');
+    var cat = catSel.value==='__custom' ? (document.getElementById('nf-cat-custom').value.trim()||'未分類') : catSel.value;
+    var date=_toDisplayDate(document.getElementById('nf-date').value)||'（未選日期）';
+    var title=document.getElementById('nf-title').value.trim()||'（未填標題）';
+    var excerpt=document.getElementById('nf-excerpt').value.trim();
+    var body=document.getElementById('nf-body-editor').innerHTML;
+    var image=document.getElementById('nf-image').value.trim();
+    var cover;
+    if(image){ cover='<div style="height:220px;background:#0d1b3e;position:relative;"><img src="'+_esc(image)+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></div>'; }
+    else { var ph=_newsPlaceholder(cat); cover='<div style="height:220px;position:relative;background:'+ph.bg+';">'+ph.svg+'</div>'; }
+    var html=cover+'<div style="padding:24px 28px 32px;">'
+      +'<span style="display:inline-block;background:#1a3a6b;color:#fff;font-size:12px;font-weight:600;padding:3px 12px;border-radius:20px;">'+_esc(cat)+'</span>'
+      +'<p style="font-size:12px;color:#8a9ab0;margin:14px 0 6px;">📅 '+_esc(date)+'</p>'
+      +'<h2 style="font-size:22px;font-weight:900;color:#1a2333;margin:0 0 12px;line-height:1.45;">'+_esc(title)+'</h2>'
+      +(excerpt? '<p style="font-size:14px;color:#5a6880;line-height:1.7;margin:0 0 18px;padding-bottom:18px;border-bottom:1px solid #e8edf5;">'+_esc(excerpt)+'</p>':'')
+      +'<div style="font-size:15px;color:#3a4658;line-height:1.9;">'+(body && body.trim()? body : '<p style="color:#a0aec0;">（內文尚未填寫）</p>')+'</div></div>';
+    document.getElementById('nf-preview-body').innerHTML=html;
+    document.getElementById('nf-preview-overlay').style.display='flex';
+  };
+  window._closePreview = function(){ var o=document.getElementById('nf-preview-overlay'); if(o) o.style.display='none'; };
   // 上傳照片 → 自動縮放＋轉 WebP（純前端 canvas，存成 data URI，免 Firebase Storage / 付費）
   function _fileToWebp(file, maxW, quality){
     return new Promise(function(resolve, reject){
@@ -1658,12 +1699,13 @@
     document.getElementById('nf-title').value='';
     document.getElementById('nf-cat').value='賽事消息';
     document.getElementById('nf-cat-custom').value=''; document.getElementById('nf-cat-custom').style.display='none';
-    const d=new Date(); document.getElementById('nf-date').value = d.getFullYear()+'年'+String(d.getMonth()+1).padStart(2,'0')+'月'+String(d.getDate()).padStart(2,'0')+'日';
+    document.getElementById('nf-date').value = _todayISO();
     document.getElementById('nf-image').value=''; document.getElementById('nf-img-preview').style.display='none';
     document.getElementById('nf-excerpt').value='';
     document.getElementById('nf-body-editor').innerHTML='';
     document.getElementById('nf-published').value='true';
     var _st=document.getElementById('nf-upload-status'); if(_st){ _st.textContent=''; }
+    _nfMsg(''); window._nfCount(); window._nfDirty=false;
     document.getElementById('admin-news-form').style.display='block';
   };
   window._editNews = function(id){
@@ -1673,11 +1715,13 @@
     const cats=['賽事消息','新聞稿','活動公告','協會動態'];
     if(cats.indexOf(p.category)>=0){ document.getElementById('nf-cat').value=p.category; document.getElementById('nf-cat-custom').style.display='none'; }
     else { document.getElementById('nf-cat').value='__custom'; document.getElementById('nf-cat-custom').style.display='block'; document.getElementById('nf-cat-custom').value=p.category||''; }
-    document.getElementById('nf-date').value=p.date||'';
+    document.getElementById('nf-date').value=_toISODate(p.date)||'';
     document.getElementById('nf-image').value=p.image||''; _nfPreview(p.image||'');
     document.getElementById('nf-excerpt').value=p.excerpt||'';
     document.getElementById('nf-body-editor').innerHTML=p.body||'';
     document.getElementById('nf-published').value=String(p.published!==false);
+    var _st2=document.getElementById('nf-upload-status'); if(_st2){ _st2.textContent=''; }
+    _nfMsg(''); window._nfCount(); window._nfDirty=false;
     document.getElementById('admin-news-form').style.display='block';
     document.getElementById('admin-news-form').scrollIntoView({behavior:'smooth',block:'nearest'});
   };
@@ -1694,6 +1738,7 @@
     document.getElementById('nf-body-editor').innerHTML=p.body||'';
     document.getElementById('nf-published').value='false'; // 範本預設草稿，確認後再發佈
     var st=document.getElementById('nf-upload-status'); if(st){ st.textContent='已以「'+(p.title||'')+'」為範本，請修改後儲存為新文章。'; st.style.color='#1a3a6b'; }
+    _nfMsg(''); window._nfCount(); window._nfDirty=true;
     var form=document.getElementById('admin-news-form'); form.style.display='block'; form.scrollIntoView({behavior:'smooth',block:'nearest'});
   };
   window._saveNews = async function(){
@@ -1701,20 +1746,29 @@
     const title=document.getElementById('nf-title').value.trim();
     let category=document.getElementById('nf-cat').value;
     if(category==='__custom') category=document.getElementById('nf-cat-custom').value.trim()||'未分類';
-    const date=document.getElementById('nf-date').value.trim();
+    const isoDate=document.getElementById('nf-date').value;
+    const date=_toDisplayDate(isoDate);
     const image=document.getElementById('nf-image').value.trim();
     const excerpt=document.getElementById('nf-excerpt').value.trim();
     const body=document.getElementById('nf-body-editor').innerHTML.trim();
     const published=document.getElementById('nf-published').value==='true';
-    if(!title){ alert('請輸入標題'); return; }
+    if(!title){ _nfMsg('請填寫「標題」。', false); document.getElementById('nf-title').focus(); return; }
+    if(!isoDate){ _nfMsg('請選擇「日期」。', false); document.getElementById('nf-date').focus(); return; }
+    if(!excerpt){ _nfMsg('請填寫「摘要」（會顯示在卡片上）。', false); document.getElementById('nf-excerpt').focus(); return; }
+    const btn=document.getElementById('nf-save-btn');
+    if(btn && btn.disabled) return;                 // 防重複點擊
+    if(btn){ btn.disabled=true; btn.dataset.txt=btn.textContent; btn.textContent='儲存中…'; }
+    _nfMsg('儲存中…', true);
     const data={ title, category, date, image, excerpt, body, published, ts:_newsTs(date) };
     try{
       if(id){ await updateDoc(doc(db2,'news',id), data); }
       else { await addDoc(collection(db2,'news'), data); }
+      window._nfDirty=false;
       document.getElementById('admin-news-form').style.display='none';
       await window._loadAdminNews(); await window._loadNewsFront();
-      alert('文章已儲存。');
-    }catch(e){ alert('儲存失敗：'+e.message); }
+      _nfMsg('');
+    }catch(e){ _nfMsg('儲存失敗：'+e.message, false); }
+    finally{ if(btn){ btn.disabled=false; btn.textContent=btn.dataset.txt||'儲存文章'; } }
   };
   window._deleteNews = async function(id){
     if(!confirm('確定刪除這篇文章？')) return;
@@ -2882,6 +2936,7 @@
         <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
         使用 Google 帳號登入
       </button>
+      <p id="webview-warn" style="display:none;color:#b45309;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;font-size:12.5px;line-height:1.7;margin-top:10px;text-align:left;">⚠️ 您似乎是用 App 內建瀏覽器（LINE／FB／IG…）開啟，<b>Google 不允許在此登入</b>。請改用 <b>Safari／Chrome</b> 開啟本網站：點右上／右下的「⋯」或分享鈕 →「用瀏覽器開啟」，或直接在瀏覽器輸入 hcdrone.org.tw。</p>
     </div>
 
     <!-- Logged in -->
@@ -2896,9 +2951,9 @@
       <div class="admin-tab-pane" id="tab-news">
         <p class="admin-hint">在這裡發佈與管理「最新消息」文章。每篇可設定分類，前台會顯示分類篩選。</p>
         <button class="admin-add-btn" onclick="_openAddNews()">＋ 新增文章</button>
-        <div id="admin-news-form" style="display:none;">
+        <div id="admin-news-form" style="display:none;" oninput="window._nfDirty=true">
           <input type="hidden" id="nf-id">
-          <label>標題</label>
+          <label>標題 *</label>
           <input type="text" id="nf-title" placeholder="文章標題">
           <label>分類</label>
           <select id="nf-cat" onchange="_nfCatChange()">
@@ -2909,8 +2964,8 @@
             <option value="__custom">其他（自訂）…</option>
           </select>
           <input type="text" id="nf-cat-custom" placeholder="自訂分類名稱" style="display:none; margin-top:6px;">
-          <label>日期</label>
-          <input type="text" id="nf-date" placeholder="例：2026年06月10日">
+          <label>日期 *</label>
+          <input type="date" id="nf-date">
           <label>封面圖片（選填）</label>
           <div style="position:relative;border:2px dashed #dde3ed;border-radius:8px;padding:14px;text-align:center;cursor:pointer;">
             <input type="file" id="nf-file" accept="image/*" onchange="_nfUpload(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
@@ -2920,8 +2975,9 @@
           <div style="text-align:center;font-size:11px;color:#a0aec0;margin:2px 0;">— 或直接填入圖片網址 —</div>
           <input type="url" id="nf-image" placeholder="https://...　或　photo/xxx.jpg" oninput="_nfPreview(this.value)">
           <img id="nf-img-preview" alt="預覽" style="max-height:120px; border-radius:6px; border:1px solid #dde3ed; display:none; margin-top:6px;">
-          <label>摘要（顯示在卡片上）</label>
-          <textarea id="nf-excerpt" style="min-height:60px;"></textarea>
+          <label>摘要 *（顯示在卡片上）</label>
+          <textarea id="nf-excerpt" style="min-height:60px;" oninput="_nfCount()"></textarea>
+          <div id="nf-excerpt-count" style="font-size:11px;color:#a0aec0;text-align:right;margin-top:2px;">0 字</div>
           <label>內文（點「閱讀更多」後顯示）</label>
           <div class="rte-toolbar">
             <button type="button" onmousedown="event.preventDefault()" onclick="_rte('bold')" title="粗體"><b>B</b></button>
@@ -2938,12 +2994,24 @@
             <option value="true">發佈（公開顯示）</option>
             <option value="false">草稿（不顯示）</option>
           </select>
+          <div id="nf-msg" style="font-size:13px;line-height:1.6;margin:10px 0 0;min-height:18px;"></div>
           <div class="admin-form-actions">
-            <button class="admin-save-btn" onclick="_saveNews()">儲存文章</button>
-            <button class="admin-cancel-btn" onclick="document.getElementById('admin-news-form').style.display='none'">取消</button>
+            <button class="admin-save-btn" id="nf-save-btn" onclick="_saveNews()">儲存文章</button>
+            <button type="button" class="admin-cancel-btn" onclick="_previewNews()" style="background:#eef2ff;color:#1a3a6b;">👁 預覽</button>
+            <button type="button" class="admin-cancel-btn" onclick="_cancelNewsForm()">取消</button>
           </div>
         </div>
         <div id="admin-news-list" style="display:flex; flex-direction:column; gap:10px; margin-top:14px;"></div>
+        <!-- 發文即時預覽彈窗 -->
+        <div id="nf-preview-overlay" onclick="if(event.target===this)_closePreview()" style="display:none;position:fixed;inset:0;background:rgba(10,20,40,0.6);z-index:4000;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;">
+          <div style="background:#fff;max-width:680px;width:100%;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:#f0f4f8;">
+              <span style="font-size:13px;color:#5a6880;font-weight:600;">👁 預覽（訪客會看到的樣子）</span>
+              <button type="button" onclick="_closePreview()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#5a6880;line-height:1;">×</button>
+            </div>
+            <div id="nf-preview-body"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Tab: Carousel -->
