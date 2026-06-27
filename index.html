@@ -1139,7 +1139,7 @@
   // ── Auth ──
   const SUPER_ADMIN = "greenmail1011@gmail.com";
   // 初始管理者：主管理者首次登入時，自動寫入 admins 集合（之後可在後台「管理者」分頁移除）
-  const BOOTSTRAP_ADMINS = ["zikai2000@gmail.com", "tomypfchen@gmail.com"];
+  const BOOTSTRAP_ADMINS = ["zikai2000@gmail.com", "tomypfchen@gmail.com", "tomycbf@gmail.com", "tomy@fzt.cc"];
   window._currentUser = null;
   window._isAdmin = false;
 
@@ -1154,21 +1154,26 @@
     catch(e){ return false; }
   }
 
-  // 主管理者登入時，把「初始管理者」寫入 admins 集合（用 bootstrapDone 旗標只做一次；之後手動移除不會再自動加回）
+  // 主管理者登入時，把「初始管理者」寫入 admins 集合。
+  // 用 bootstrapSeeded 清單逐一記錄「已自動加過的 email」：每個只自動加一次（之後手動移除不會再自動加回），
+  // 但日後在 BOOTSTRAP_ADMINS 新增的 email，會在下次主管理者登入時自動補加。
   async function _seedBootstrapAdmins(){
     if(!BOOTSTRAP_ADMINS.length) return;
     try{
       const superRef = doc(db2,'admins',SUPER_ADMIN);
       const superSnap = await getDoc(superRef);
-      if(superSnap.exists() && superSnap.data() && superSnap.data().bootstrapDone) return;
+      const data = (superSnap.exists() && superSnap.data()) ? superSnap.data() : {};
+      const seeded = Array.isArray(data.bootstrapSeeded) ? data.bootstrapSeeded.slice() : [];
+      let changed = false;
       for(const raw of BOOTSTRAP_ADMINS){
         const em = String(raw||'').trim().toLowerCase(); if(!em || em.indexOf('@')<0) continue;
+        if(seeded.indexOf(em) >= 0) continue;               // 這個 email 之前已自動加過 → 略過（尊重日後手動移除）
         const r = doc(db2,'admins',em);
         const s = await getDoc(r);
         if(!s.exists()) await setDoc(r, { addedBy:'系統初始設定', addedAt:Date.now() });
+        seeded.push(em); changed = true;
       }
-      await setDoc(superRef, { bootstrapDone:true }, { merge:true });
-      if(window._loadAdmins) window._loadAdmins();
+      if(changed){ await setDoc(superRef, { bootstrapSeeded: seeded }, { merge:true }); if(window._loadAdmins) window._loadAdmins(); }
     }catch(e){ /* 權限/網路問題則略過，可改用後台「管理者」分頁手動新增 */ }
   }
 
