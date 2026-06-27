@@ -981,7 +981,7 @@
   .c-prev, .c-next { width: 36px; height: 36px; font-size: 18px; }
 }
 /* ── Admin Panel ── */
-#admin-fab { display:none; position:fixed; bottom:28px; left:28px; z-index:2000; width:52px; height:52px; border-radius:50%; background:#1a3a6b; color:white; border:none; font-size:22px; cursor:pointer; box-shadow:0 4px 20px rgba(26,58,107,0.35); align-items:center; justify-content:center; transition:transform 0.2s; }
+#admin-fab { display:flex; position:fixed; bottom:28px; left:28px; z-index:2000; width:52px; height:52px; border-radius:50%; background:#1a3a6b; color:white; border:none; font-size:22px; cursor:pointer; box-shadow:0 4px 20px rgba(26,58,107,0.35); align-items:center; justify-content:center; transition:transform 0.2s; opacity:0.85; }
 #admin-fab:hover { transform:scale(1.08); }
 #admin-panel { display:none; position:fixed; top:0; right:0; bottom:0; width:480px; max-width:100vw; background:white; box-shadow:-4px 0 40px rgba(26,58,107,0.18); z-index:3000; flex-direction:column; overflow:hidden; }
 #admin-panel.open { display:flex; }
@@ -1138,6 +1138,8 @@
 
   // ── Auth ──
   const SUPER_ADMIN = "greenmail1011@gmail.com";
+  // 初始管理者：主管理者首次登入時，自動寫入 admins 集合（之後可在後台「管理者」分頁移除）
+  const BOOTSTRAP_ADMINS = ["zikai2000@gmail.com", "tomypfchen@gmail.com"];
   window._currentUser = null;
   window._isAdmin = false;
 
@@ -1150,6 +1152,24 @@
     if(email.toLowerCase() === SUPER_ADMIN) return true;
     try { const sx = await getDoc(doc(db2,'admins',email.toLowerCase())); return sx.exists(); }
     catch(e){ return false; }
+  }
+
+  // 主管理者登入時，把「初始管理者」寫入 admins 集合（用 bootstrapDone 旗標只做一次；之後手動移除不會再自動加回）
+  async function _seedBootstrapAdmins(){
+    if(!BOOTSTRAP_ADMINS.length) return;
+    try{
+      const superRef = doc(db2,'admins',SUPER_ADMIN);
+      const superSnap = await getDoc(superRef);
+      if(superSnap.exists() && superSnap.data() && superSnap.data().bootstrapDone) return;
+      for(const raw of BOOTSTRAP_ADMINS){
+        const em = String(raw||'').trim().toLowerCase(); if(!em || em.indexOf('@')<0) continue;
+        const r = doc(db2,'admins',em);
+        const s = await getDoc(r);
+        if(!s.exists()) await setDoc(r, { addedBy:'系統初始設定', addedAt:Date.now() });
+      }
+      await setDoc(superRef, { bootstrapDone:true }, { merge:true });
+      if(window._loadAdmins) window._loadAdmins();
+    }catch(e){ /* 權限/網路問題則略過，可改用後台「管理者」分頁手動新增 */ }
   }
 
   let _alertedNonAdmin = false;
@@ -1167,9 +1187,10 @@
       if(hdr) hdr.style.display = 'flex';
       loadAdminSlides();
       if(window._loadAdminNews) window._loadAdminNews();
+      if(user.email && user.email.toLowerCase()===SUPER_ADMIN) _seedBootstrapAdmins();
     } else {
       if (user && !_alertedNonAdmin) { _alertedNonAdmin = true; alert('此 Google 帳號未被授權為管理者：\n' + user.email + '\n請改用已授權的帳號登入，或請主管理者於後台新增您。'); }
-      document.getElementById('admin-fab').style.display = 'none';
+      document.getElementById('admin-fab').style.display = 'flex'; // 一律顯示，未登入者點擊即可開啟登入面板
       document.getElementById('admin-login-area').style.display = 'flex';
       document.getElementById('admin-main').style.display = 'none';
       if(hdr) hdr.style.display = 'none';
@@ -2560,7 +2581,7 @@
       <div class="footer-social">
         <a href="https://www.facebook.com/groups/854653270943726" target="_blank" class="social-btn" title="Facebook">f</a>
       </div>
-      <a href="#" onclick="toggleAdmin();return false;" style="font-size:12px; color:rgba(255,255,255,0.25); text-decoration:none;" title="管理員登入">管理專區</a>
+      <a href="#" onclick="toggleAdmin();return false;" style="font-size:13px; color:rgba(255,255,255,0.7); text-decoration:none;" title="管理員登入" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">⚙️ 管理專區</a>
     </div>
   </div>
 </footer>
