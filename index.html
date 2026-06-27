@@ -1502,6 +1502,7 @@
   };
   function _renderNewsFront(posts){
     const grid = document.querySelector('#news .news-grid'); if(!grid) return;
+    _capturePlaceholders(); // 先記住靜態卡片的分類插圖，供無封面圖的文章重用
     const cats=[]; posts.forEach(function(p){ if(p.category && cats.indexOf(p.category)<0) cats.push(p.category); });
     let bar=document.getElementById('news-filter');
     if(!bar){ bar=document.createElement('div'); bar.id='news-filter'; grid.parentNode.insertBefore(bar, grid); }
@@ -1509,8 +1510,31 @@
     bar.innerHTML = chips.map(function(c,i){ return '<button class="news-chip'+(i===0?' active':'')+'" onclick="_filterNews(this)" data-cat="'+_esc(c)+'">'+_esc(c)+'</button>'; }).join('');
     grid.innerHTML = posts.map(function(p,idx){ return _newsCardHtml(p,idx); }).join('');
   }
+  // 捕捉首頁靜態卡片內建的分類插圖（SVG），給沒有封面圖的動態文章重用，避免顯示空白深藍色塊
+  function _capturePlaceholders(){
+    if(window._newsPlaceholderCache) return;
+    var cache={};
+    document.querySelectorAll('#news .news-grid .news-card').forEach(function(card){
+      var box=card.querySelector('.news-card-img');
+      var svg=box && box.querySelector('svg');
+      var tag=card.querySelector('.news-card-tag');
+      if(box && svg && tag){
+        var cat=(tag.textContent||'').trim();
+        if(cat && !cache[cat]) cache[cat]={ bg:(box.style.background||box.style.backgroundImage||'linear-gradient(135deg,#e0eeff,#c8deff)'), svg:svg.outerHTML };
+      }
+    });
+    window._newsPlaceholderCache=cache;
+  }
+  function _newsPlaceholder(category){
+    var cache=window._newsPlaceholderCache||{};
+    if(category && cache[category]) return cache[category];
+    var fb=cache['活動公告']||cache['協會動態']||cache['新聞稿']||cache['賽事消息'];
+    if(fb) return fb;
+    return { bg:'linear-gradient(135deg,#e0eeff,#c8deff)',
+             svg:'<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><text x="200" y="122" font-size="60" text-anchor="middle">📰</text></svg>' };
+  }
   function _newsCardHtml(p,idx){
-    let img;
+    let img, cardBg='#0d1b3e';
     if(p.image){
       const _st='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
       const _isLocal=/^photo\//i.test(p.image);
@@ -1518,10 +1542,12 @@
       const _tag='<img src="'+_esc(p.image)+'" alt="'+_esc(p.title)+'" loading="lazy" style="'+_st+'">';
       img = _webp ? '<picture><source srcset="'+_esc(encodeURI(_webp))+'" type="image/webp">'+_tag+'</picture>' : _tag;
     } else {
-      img = '<div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a3a6b,#0d1b3e);"></div>';
+      const ph=_newsPlaceholder(p.category);
+      cardBg=ph.bg||cardBg;
+      img=ph.svg||'';
     }
     return '<div class="news-card" data-cat="'+_esc(p.category)+'">'
-      + '<div class="news-card-img" style="background:#0d1b3e;"><div class="news-card-tag">'+_esc(p.category)+'</div>'+img+'</div>'
+      + '<div class="news-card-img" style="background:'+cardBg+';"><div class="news-card-tag">'+_esc(p.category)+'</div>'+img+'</div>'
       + '<div class="news-card-body"><p class="news-date">📅 '+_esc(p.date)+'</p>'
       + '<h3 class="news-title">'+_esc(p.title)+'</h3>'
       + '<p class="news-excerpt">'+_esc(p.excerpt)+'</p>'
@@ -1552,6 +1578,47 @@
     cu.style.display = (sel.value==='__custom') ? 'block' : 'none';
   };
   window._nfPreview = function(url){ const img=document.getElementById('nf-img-preview'); if(url){ img.src=url; img.style.display='block'; } else { img.style.display='none'; } };
+  // 上傳照片 → 自動縮放＋轉 WebP（純前端 canvas，存成 data URI，免 Firebase Storage / 付費）
+  function _fileToWebp(file, maxW, quality){
+    return new Promise(function(resolve, reject){
+      if(!file || !/^image\//.test(file.type||'')){ reject(new Error('請選擇圖片檔（JPG/PNG/WebP）')); return; }
+      var reader=new FileReader();
+      reader.onerror=function(){ reject(new Error('讀取檔案失敗')); };
+      reader.onload=function(){
+        var im=new Image();
+        im.onerror=function(){ reject(new Error('圖片載入失敗')); };
+        im.onload=function(){
+          var w=im.naturalWidth||im.width, h=im.naturalHeight||im.height;
+          if(!w||!h){ reject(new Error('無法讀取圖片尺寸')); return; }
+          if(w>maxW){ h=Math.round(h*maxW/w); w=maxW; }
+          var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+          cv.getContext('2d').drawImage(im,0,0,w,h);
+          var type='image/webp';
+          var url=cv.toDataURL(type, quality);
+          if(url.indexOf('data:image/webp')!==0){ type='image/jpeg'; url=cv.toDataURL(type, quality); } // 舊瀏覽器不支援 WebP → 退回 JPEG
+          var q=quality, guard=0;
+          while(url.length>720000 && guard<6){ q=Math.max(0.4, q-0.12); url=cv.toDataURL(type, q); guard++; } // 壓到 Firestore 1MB 限制內
+          resolve({ url:url, type:(type==='image/webp'?'WebP':'JPEG'), w:w, h:h });
+        };
+        im.src=reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  window._nfUpload = async function(input){
+    var file=input && input.files && input.files[0]; if(!file) return;
+    var st=document.getElementById('nf-upload-status');
+    if(st){ st.textContent='照片優化中…'; st.style.color='#1a3a6b'; }
+    try{
+      var r=await _fileToWebp(file, 1000, 0.82);
+      document.getElementById('nf-image').value=r.url;
+      _nfPreview(r.url);
+      var bytes=Math.round(((r.url.split(',')[1]||'').length)*3/4);
+      var kb=Math.max(1, Math.round(bytes/1024));
+      if(st){ st.textContent='✓ 已優化為 '+r.type+'，'+r.w+'×'+r.h+'，約 '+kb+' KB'; st.style.color='#276749'; }
+    }catch(e){ if(st){ st.textContent='優化失敗：'+e.message; st.style.color='#e53e3e'; } }
+    input.value='';
+  };
   window._rte = function(cmd){ const e=document.getElementById('nf-body-editor'); e.focus(); try{ document.execCommand(cmd,false,null); }catch(err){} };
   window._rteBlock = function(tag){ const e=document.getElementById('nf-body-editor'); e.focus(); try{ document.execCommand('formatBlock',false,tag); }catch(err){} };
   window._rteLink = function(){ const u=prompt('請輸入連結網址：','https://'); if(u){ const e=document.getElementById('nf-body-editor'); e.focus(); try{ document.execCommand('createLink',false,u); }catch(err){} } };
@@ -1565,6 +1632,7 @@
     document.getElementById('nf-excerpt').value='';
     document.getElementById('nf-body-editor').innerHTML='';
     document.getElementById('nf-published').value='true';
+    var _st=document.getElementById('nf-upload-status'); if(_st){ _st.textContent=''; }
     document.getElementById('admin-news-form').style.display='block';
   };
   window._editNews = function(id){
@@ -1581,6 +1649,21 @@
     document.getElementById('nf-published').value=String(p.published!==false);
     document.getElementById('admin-news-form').style.display='block';
     document.getElementById('admin-news-form').scrollIntoView({behavior:'smooth',block:'nearest'});
+  };
+  // 以現有文章為範本，預填一篇新草稿（nf-id 保持空＝新文章）
+  window._cloneNews = function(id){
+    var p=(window._adminNewsCache||[]).find(function(x){ return x.id===id; }); if(!p) return;
+    _openAddNews();
+    document.getElementById('nf-title').value=(p.title||'')+'（副本）';
+    var cats=['賽事消息','新聞稿','活動公告','協會動態'];
+    if(p.category && cats.indexOf(p.category)>=0){ document.getElementById('nf-cat').value=p.category; document.getElementById('nf-cat-custom').style.display='none'; }
+    else if(p.category){ document.getElementById('nf-cat').value='__custom'; var cu=document.getElementById('nf-cat-custom'); cu.style.display='block'; cu.value=p.category; }
+    document.getElementById('nf-image').value=p.image||''; _nfPreview(p.image||'');
+    document.getElementById('nf-excerpt').value=p.excerpt||'';
+    document.getElementById('nf-body-editor').innerHTML=p.body||'';
+    document.getElementById('nf-published').value='false'; // 範本預設草稿，確認後再發佈
+    var st=document.getElementById('nf-upload-status'); if(st){ st.textContent='已以「'+(p.title||'')+'」為範本，請修改後儲存為新文章。'; st.style.color='#1a3a6b'; }
+    var form=document.getElementById('admin-news-form'); form.style.display='block'; form.scrollIntoView({behavior:'smooth',block:'nearest'});
   };
   window._saveNews = async function(){
     const id=document.getElementById('nf-id').value;
@@ -1622,6 +1705,7 @@
           + '<div style="flex:1;min-width:0;"><div style="font-weight:700;">'+_esc(p.title||'(無標題)')+'</div>'
           + '<div style="font-size:12px;color:#8a9ab0;margin-top:2px;">'+_esc(p.category||'')+' · '+_esc(p.date||'')+' · <span style="color:'+(p.published!==false?'#276749':'#b08900')+'">'+(p.published!==false?'已發佈':'草稿')+'</span></div></div>'
           + '<div style="display:flex;gap:6px;flex-shrink:0;">'
+          + '<button style="background:#eef9f0;color:#276749;border:1px solid #c6f0d6;" onclick="_cloneNews(\''+p.id+'\')" title="以這篇為範本，新增一篇草稿">複製</button>'
           + '<button style="background:#eef2ff;color:#1a3a6b;border:1px solid #dde3ed;" onclick="_editNews(\''+p.id+'\')">編輯</button>'
           + '<button onclick="_deleteNews(\''+p.id+'\')">刪除</button></div></div>';
       }).join('');
@@ -2797,7 +2881,13 @@
           <input type="text" id="nf-cat-custom" placeholder="自訂分類名稱" style="display:none; margin-top:6px;">
           <label>日期</label>
           <input type="text" id="nf-date" placeholder="例：2026年06月10日">
-          <label>封面圖片網址（選填）</label>
+          <label>封面圖片（選填）</label>
+          <div style="position:relative;border:2px dashed #dde3ed;border-radius:8px;padding:14px;text-align:center;cursor:pointer;">
+            <input type="file" id="nf-file" accept="image/*" onchange="_nfUpload(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
+            <p style="font-size:13px;color:#8a9ab0;margin:0;">📷 點擊或拖曳照片上傳，系統會自動壓縮並轉成 WebP</p>
+          </div>
+          <div id="nf-upload-status" style="font-size:12px;line-height:1.6;margin:6px 0;min-height:16px;"></div>
+          <div style="text-align:center;font-size:11px;color:#a0aec0;margin:2px 0;">— 或直接填入圖片網址 —</div>
           <input type="url" id="nf-image" placeholder="https://...　或　photo/xxx.jpg" oninput="_nfPreview(this.value)">
           <img id="nf-img-preview" alt="預覽" style="max-height:120px; border-radius:6px; border:1px solid #dde3ed; display:none; margin-top:6px;">
           <label>摘要（顯示在卡片上）</label>
