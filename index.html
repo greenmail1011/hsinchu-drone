@@ -1381,30 +1381,101 @@
     } catch(e){ alert('儲存失敗：'+e.message); }
   };
 
-  // ====== Admins management ======
+  // ====== Admins management（管理者權限）======
+  function _fmtAdminTime(ts){
+    if(ts==null) return '';
+    var ms = (typeof ts==='number') ? ts : (ts && ts.seconds!=null ? ts.seconds*1000 : Date.parse(ts));
+    var d = new Date(ms);
+    if(isNaN(d.getTime())) return '';
+    var p = function(n){ return String(n).padStart(2,'0'); };
+    return d.getFullYear()+'/'+p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+  }
+  function _escAdmin(s){
+    return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function _setAddMsg(text, ok){
+    var el=document.getElementById('admin-add-msg'); if(!el) return;
+    el.textContent = text||'';
+    el.style.color = ok ? '#276749' : '#e53e3e';
+  }
+
   window._loadAdmins = async function(){
     const box=document.getElementById('admin-admins-list'); if(!box) return;
     box.innerHTML='<p class="admin-hint">載入中…</p>';
     try{
       const snap=await getDocs(collection(db2,'admins'));
-      const emails=[]; snap.forEach(function(d){ emails.push(d.id); });
-      if(emails.indexOf(SUPER_ADMIN)===-1) emails.unshift(SUPER_ADMIN);
-      box.innerHTML = emails.map(function(em){
-        const isSuper = (em===SUPER_ADMIN);
-        return '<div class="ac-admin-row"><span>'+em+(isSuper?' <b style="color:#1a3a6b;">（主管理者）</b>':'')+'</span>'+(isSuper?'':'<button onclick="_removeAdmin(\''+em+'\')">移除</button>')+'</div>';
+      const rows=[]; snap.forEach(function(d){ rows.push({ email:d.id, data:(d.data()||{}) }); });
+      rows.sort(function(a,b){ return a.email<b.email?-1:(a.email>b.email?1:0); });
+      // 主管理者永遠存在且排在最前
+      const si=rows.findIndex(function(r){ return r.email===SUPER_ADMIN; });
+      if(si<0) rows.unshift({ email:SUPER_ADMIN, data:{}, _super:true });
+      else if(si>0){ const s=rows.splice(si,1)[0]; rows.unshift(s); }
+      const me=((window._currentUser&&window._currentUser.email)||'').toLowerCase();
+      let html='<p class="admin-hint" style="margin-bottom:10px;">目前共 <b>'+rows.length+'</b> 位可登入後台的管理者：</p>';
+      html += rows.map(function(r){
+        const em=r.email;
+        const isSuper=(em===SUPER_ADMIN);
+        const isMe=(em.toLowerCase()===me);
+        let sub;
+        if(isSuper){ sub='永久權限，無法移除'; }
+        else {
+          const by=r.data.addedBy ? ('由 '+_escAdmin(r.data.addedBy)+' 新增') : '';
+          const at=_fmtAdminTime(r.data.addedAt);
+          sub=[by, at?('於 '+at):''].filter(Boolean).join('　·　') || '已授權';
+        }
+        const tags=(isSuper?' <span style="display:inline-block;background:#e0eeff;color:#1a3a6b;font-size:11px;font-weight:700;padding:1px 8px;border-radius:10px;margin-left:4px;">主管理者</span>':'')
+                 +(isMe?' <span style="display:inline-block;background:#e6f7ee;color:#276749;font-size:11px;font-weight:700;padding:1px 8px;border-radius:10px;margin-left:4px;">您</span>':'');
+        const removeBtn=isSuper ? '' :
+          '<button onclick="_removeAdmin(\''+_escAdmin(em)+'\','+(isMe?'true':'false')+')">移除</button>';
+        return '<div class="ac-admin-row">'
+             +   '<span style="min-width:0;flex:1;">'
+             +     '<span style="font-weight:600;word-break:break-all;">'+_escAdmin(em)+'</span>'+tags
+             +     '<br><span style="font-size:12px;color:#8a9ab0;">'+sub+'</span>'
+             +   '</span>'
+             +   removeBtn
+             + '</div>';
       }).join('');
+      box.innerHTML=html;
     }catch(e){ box.innerHTML='<p class="admin-hint">讀取失敗：'+e.message+'</p>'; }
   };
+
   window._addAdmin = async function(){
     const inp=document.getElementById('admin-new-email');
     const em=(inp.value||'').trim().toLowerCase();
-    if(!em || em.indexOf('@')<0){ alert('請輸入有效的 Google email'); return; }
-    try{ await setDoc(doc(db2,'admins',em),{addedBy:(window._currentUser&&window._currentUser.email)||'',addedAt:Date.now()}); inp.value=''; window._loadAdmins(); }
-    catch(e){ alert('新增失敗：'+e.message); }
+    _setAddMsg('');
+    if(!em){ _setAddMsg('請先輸入對方的 Google 帳號 email。', false); inp.focus(); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ _setAddMsg('email 格式看起來不正確，請再確認一次。', false); inp.focus(); return; }
+    if(em===SUPER_ADMIN){ _setAddMsg('這是主管理者帳號，本來就有權限，不需新增。', false); return; }
+    if(!window._isAdmin){ _setAddMsg('只有管理者可以新增權限。', false); return; }
+    try{
+      const exist=await getDoc(doc(db2,'admins',em));
+      if(exist.exists()){ _setAddMsg('「'+em+'」已經是管理者了，不需重複新增。', false); return; }
+      await setDoc(doc(db2,'admins',em),{
+        addedBy:(window._currentUser&&window._currentUser.email)||'',
+        addedAt:Date.now()
+      });
+      inp.value='';
+      _setAddMsg('✓ 已授權「'+em+'」。請通知對方用「這個 Google 帳號」登入官網，即可進入後台。', true);
+      window._loadAdmins();
+    }
+    catch(e){ _setAddMsg('新增失敗：'+e.message, false); }
   };
-  window._removeAdmin = async function(em){
-    if(!confirm('確定移除管理者 '+em+'？')) return;
-    try{ await deleteDoc(doc(db2,'admins',em)); window._loadAdmins(); }
+
+  window._removeAdmin = async function(em, isMe){
+    if(em===SUPER_ADMIN) return; // 主管理者不可移除
+    const warn = isMe
+      ? '您正要移除「自己」的管理權限。\n移除後您將立即無法管理後台（除非日後被其他管理者重新加回）。\n\n確定要移除嗎？'
+      : '確定要移除管理者「'+em+'」？\n移除後對方將無法再登入後台管理網站。';
+    if(!confirm(warn)) return;
+    try{
+      await deleteDoc(doc(db2,'admins',em));
+      if(isMe && window._currentUser){
+        const stillAdmin=await _checkIsAdmin(window._currentUser.email);
+        window._isAdmin=stillAdmin;
+        if(!stillAdmin){ alert('已移除您的管理權限，將返回官網。'); location.reload(); return; }
+      }
+      window._loadAdmins();
+    }
     catch(e){ alert('移除失敗：'+e.message); }
   };
 
@@ -2794,11 +2865,17 @@
 
       <!-- Tab: Admins -->
       <div class="admin-tab-pane" id="tab-admins" style="display:none;">
-        <p class="admin-hint">新增其他管理者的 Google 帳號 email；被加入者用該帳號登入即可管理。主管理者無法被移除。</p>
-        <div style="display:flex;gap:8px;margin-bottom:16px;">
-          <input id="admin-new-email" type="email" placeholder="someone@gmail.com" style="flex:1;padding:9px 12px;border:1px solid #dde3ed;border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
-          <button class="admin-add-btn" style="width:auto;margin:0;padding:9px 18px;" onclick="_addAdmin()">新增</button>
+        <p class="admin-hint">
+          這裡管理「<b>誰能登入後台</b>」。輸入對方的 <b>Google 帳號 email</b> 後按「新增管理者」，對方用該 Google 帳號登入官網即可進入後台管理。<br>
+          隨時可按「移除」收回權限。主管理者永遠保留權限、無法被移除。
+        </p>
+        <div style="display:flex;gap:8px;margin-bottom:6px;">
+          <input id="admin-new-email" type="email" placeholder="someone@gmail.com" autocomplete="off"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();_addAdmin();}"
+                 style="flex:1;padding:9px 12px;border:1px solid #dde3ed;border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+          <button class="admin-add-btn" style="width:auto;margin:0;padding:9px 18px;white-space:nowrap;" onclick="_addAdmin()">＋ 新增管理者</button>
         </div>
+        <p id="admin-add-msg" style="font-size:12.5px;line-height:1.6;margin:0 0 16px;min-height:18px;"></p>
         <div id="admin-admins-list"></div>
       </div>
     </div>
