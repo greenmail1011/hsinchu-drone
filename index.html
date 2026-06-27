@@ -981,7 +981,7 @@
   .c-prev, .c-next { width: 36px; height: 36px; font-size: 18px; }
 }
 /* ── Admin Panel ── */
-#admin-fab { display:flex; position:fixed; bottom:28px; left:28px; z-index:2000; width:52px; height:52px; border-radius:50%; background:#1a3a6b; color:white; border:none; font-size:22px; cursor:pointer; box-shadow:0 4px 20px rgba(26,58,107,0.35); align-items:center; justify-content:center; transition:transform 0.2s; opacity:0.85; }
+#admin-fab { display:none; position:fixed; bottom:28px; left:28px; z-index:2000; width:52px; height:52px; border-radius:50%; background:#1a3a6b; color:white; border:none; font-size:22px; cursor:pointer; box-shadow:0 4px 20px rgba(26,58,107,0.35); align-items:center; justify-content:center; transition:transform 0.2s; }
 #admin-fab:hover { transform:scale(1.08); }
 #admin-panel { display:none; position:fixed; top:0; right:0; bottom:0; width:480px; max-width:100vw; background:white; box-shadow:-4px 0 40px rgba(26,58,107,0.18); z-index:3000; flex-direction:column; overflow:hidden; }
 #admin-panel.open { display:flex; }
@@ -1190,7 +1190,7 @@
       if(user.email && user.email.toLowerCase()===SUPER_ADMIN) _seedBootstrapAdmins();
     } else {
       if (user && !_alertedNonAdmin) { _alertedNonAdmin = true; alert('此 Google 帳號未被授權為管理者：\n' + user.email + '\n請改用已授權的帳號登入，或請主管理者於後台新增您。'); }
-      document.getElementById('admin-fab').style.display = 'flex'; // 一律顯示，未登入者點擊即可開啟登入面板
+      document.getElementById('admin-fab').style.display = 'none'; // 公開頁面不顯示浮動齒輪；入口改用頁尾「⚙️ 管理專區」
       document.getElementById('admin-login-area').style.display = 'flex';
       document.getElementById('admin-main').style.display = 'none';
       if(hdr) hdr.style.display = 'none';
