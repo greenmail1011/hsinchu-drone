@@ -39,18 +39,27 @@ let isAdmin = false;
 function injectCSS() {
   if (document.getElementById("ag-style")) return;
   const css = `
-  .ag-story{max-width:1000px;margin:44px auto 0;display:flex;flex-direction:column;gap:42px}
-  .ag-block{display:flex;align-items:center;gap:36px}
-  .ag-block:nth-child(even){flex-direction:row-reverse}
-  .ag-ph{flex:0 0 47%;cursor:zoom-in;border-radius:16px;overflow:hidden;box-shadow:0 8px 28px rgba(26,58,107,.16);transition:transform .18s,box-shadow .18s}
-  .ag-ph:hover{transform:translateY(-3px);box-shadow:0 12px 34px rgba(26,58,107,.24)}
-  .ag-ph img{display:block;width:100%;height:300px;object-fit:cover}
-  .ag-tx{flex:1}
-  .ag-tx .ag-num{display:inline-block;font-size:13px;font-weight:700;color:#1a3a6b;letter-spacing:2px;margin-bottom:10px;opacity:.75}
-  .ag-tx h4{font-size:18px;color:#1a2333;margin:0 0 8px;font-weight:700}
-  .ag-tx p{font-size:16px;line-height:1.95;color:#41506a;margin:0}
-  .ag-hint{text-align:center;color:#8a9ab0;font-size:13px;margin-top:22px}
-  @media(max-width:760px){.ag-block,.ag-block:nth-child(even){flex-direction:column;gap:16px}.ag-ph{flex:auto;width:100%}.ag-ph img{height:230px}}
+  .ag-timeline{position:relative;max-width:1040px;margin:48px auto 0}
+  .ag-timeline::before{content:"";position:absolute;top:4px;bottom:24px;left:50%;width:3px;margin-left:-1.5px;background:linear-gradient(#1a3a6b,#c9d6ea)}
+  .ag-tl{position:relative;width:50%;box-sizing:border-box;padding:0 46px 46px 0}
+  .ag-tl:nth-child(even){margin-left:50%;padding:0 0 46px 46px}
+  .ag-dot{position:absolute;top:2px;width:38px;height:38px;border-radius:50%;background:#1a3a6b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:1px;box-shadow:0 0 0 5px #eef3fa;z-index:2}
+  .ag-tl:nth-child(odd) .ag-dot{right:-19px}
+  .ag-tl:nth-child(even) .ag-dot{left:-19px}
+  .ag-ph{cursor:zoom-in;border-radius:14px;overflow:hidden;box-shadow:0 8px 24px rgba(26,58,107,.16);transition:transform .18s,box-shadow .18s}
+  .ag-ph:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(26,58,107,.24)}
+  .ag-ph img{display:block;width:100%;height:224px;object-fit:cover}
+  .ag-tx{margin-top:13px}
+  .ag-tx p{font-size:15px;line-height:1.92;color:#41506a;margin:0}
+  .ag-tl:nth-child(odd) .ag-tx{text-align:right}
+  .ag-hint{text-align:center;color:#8a9ab0;font-size:13px;margin-top:8px}
+  @media(max-width:760px){
+    .ag-timeline::before{left:20px}
+    .ag-tl,.ag-tl:nth-child(even){width:100%;margin-left:0;padding:0 0 38px 54px}
+    .ag-tl:nth-child(odd) .ag-dot,.ag-tl:nth-child(even) .ag-dot{left:1px;right:auto}
+    .ag-tl:nth-child(odd) .ag-tx{text-align:left}
+    .ag-ph img{height:200px}
+  }
   /* 燈箱 */
   .ag-lb{position:fixed;inset:0;background:rgba(8,15,30,.92);display:none;align-items:center;justify-content:center;z-index:3000;padding:24px}
   .ag-lb.open{display:flex}
@@ -123,24 +132,22 @@ function showLb(i) {
 function render() {
   const section = document.getElementById("about");
   if (!section) return;
-  let host = section.querySelector(".ag-story");
+  let host = section.querySelector(".ag-timeline");
   const visible = CURRENT.filter(x => x.active !== false).sort((a, b) => (a.order || 0) - (b.order || 0));
   lbList = visible;
   if (!host) {
-    // 移除原本單張 figure / 舊版三宮格，建立敘事容器
-    const old = section.querySelector("figure") || section.querySelector(".ag-gallery");
+    // 移除原本單張 figure / 舊版版面，建立時間軸容器
+    const old = section.querySelector("figure") || section.querySelector(".ag-story") || section.querySelector(".ag-gallery");
     host = document.createElement("div");
-    host.className = "ag-story";
+    host.className = "ag-timeline";
     if (old) old.replaceWith(host);
     else section.appendChild(host);
   }
   host.innerHTML = visible.map((s, i) => `
-    <div class="ag-block">
+    <div class="ag-tl">
+      <div class="ag-dot">${String(i + 1).padStart(2, '0')}</div>
       <div class="ag-ph" data-i="${i}"><img loading="lazy" src="${s.url}" alt="${(s.caption || '活動照片').replace(/"/g, '')}"></div>
-      <div class="ag-tx">
-        <span class="ag-num">${String(i + 1).padStart(2, '0')}</span>
-        <p>${s.caption || ''}</p>
-      </div>
+      <div class="ag-tx"><p>${s.caption || ''}</p></div>
     </div>`).join("");
   host.querySelectorAll(".ag-ph").forEach(el => {
     el.addEventListener("click", () => showLb(+el.dataset.i));
