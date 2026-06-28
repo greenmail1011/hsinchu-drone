@@ -39,13 +39,18 @@ let isAdmin = false;
 function injectCSS() {
   if (document.getElementById("ag-style")) return;
   const css = `
-  .ag-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:48px auto 0;max-width:980px}
-  .ag-item{margin:0;position:relative;cursor:zoom-in;border-radius:14px;overflow:hidden;box-shadow:0 6px 22px rgba(26,58,107,.14);transition:transform .18s,box-shadow .18s}
-  .ag-item:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(26,58,107,.22)}
-  .ag-item img{display:block;width:100%;height:180px;object-fit:cover}
-  .ag-item figcaption{position:absolute;left:0;right:0;bottom:0;padding:18px 12px 8px;font-size:13px;color:#fff;background:linear-gradient(transparent,rgba(10,22,40,.82))}
-  .ag-hint{text-align:center;color:#8a9ab0;font-size:13px;margin-top:16px}
-  @media(max-width:640px){.ag-gallery{grid-template-columns:1fr 1fr}.ag-item img{height:140px}}
+  .ag-story{max-width:1000px;margin:44px auto 0;display:flex;flex-direction:column;gap:42px}
+  .ag-block{display:flex;align-items:center;gap:36px}
+  .ag-block:nth-child(even){flex-direction:row-reverse}
+  .ag-ph{flex:0 0 47%;cursor:zoom-in;border-radius:16px;overflow:hidden;box-shadow:0 8px 28px rgba(26,58,107,.16);transition:transform .18s,box-shadow .18s}
+  .ag-ph:hover{transform:translateY(-3px);box-shadow:0 12px 34px rgba(26,58,107,.24)}
+  .ag-ph img{display:block;width:100%;height:300px;object-fit:cover}
+  .ag-tx{flex:1}
+  .ag-tx .ag-num{display:inline-block;font-size:13px;font-weight:700;color:#1a3a6b;letter-spacing:2px;margin-bottom:10px;opacity:.75}
+  .ag-tx h4{font-size:18px;color:#1a2333;margin:0 0 8px;font-weight:700}
+  .ag-tx p{font-size:16px;line-height:1.95;color:#41506a;margin:0}
+  .ag-hint{text-align:center;color:#8a9ab0;font-size:13px;margin-top:22px}
+  @media(max-width:760px){.ag-block,.ag-block:nth-child(even){flex-direction:column;gap:16px}.ag-ph{flex:auto;width:100%}.ag-ph img{height:230px}}
   /* 燈箱 */
   .ag-lb{position:fixed;inset:0;background:rgba(8,15,30,.92);display:none;align-items:center;justify-content:center;z-index:3000;padding:24px}
   .ag-lb.open{display:flex}
@@ -118,29 +123,32 @@ function showLb(i) {
 function render() {
   const section = document.getElementById("about");
   if (!section) return;
-  let host = section.querySelector(".ag-gallery");
+  let host = section.querySelector(".ag-story");
   const visible = CURRENT.filter(x => x.active !== false).sort((a, b) => (a.order || 0) - (b.order || 0));
   lbList = visible;
   if (!host) {
-    // 移除原本單張 figure，建立 gallery 容器
-    const oldFig = section.querySelector("figure");
+    // 移除原本單張 figure / 舊版三宮格，建立敘事容器
+    const old = section.querySelector("figure") || section.querySelector(".ag-gallery");
     host = document.createElement("div");
-    host.className = "ag-gallery";
-    if (oldFig) oldFig.replaceWith(host);
+    host.className = "ag-story";
+    if (old) old.replaceWith(host);
     else section.appendChild(host);
   }
   host.innerHTML = visible.map((s, i) => `
-    <figure class="ag-item" data-i="${i}">
-      <img loading="lazy" src="${s.url}" alt="${(s.caption || '活動照片').replace(/"/g, '')}">
-      ${s.caption ? `<figcaption>${s.caption}</figcaption>` : ""}
-    </figure>`).join("");
-  host.querySelectorAll(".ag-item").forEach(el => {
+    <div class="ag-block">
+      <div class="ag-ph" data-i="${i}"><img loading="lazy" src="${s.url}" alt="${(s.caption || '活動照片').replace(/"/g, '')}"></div>
+      <div class="ag-tx">
+        <span class="ag-num">${String(i + 1).padStart(2, '0')}</span>
+        <p>${s.caption || ''}</p>
+      </div>
+    </div>`).join("");
+  host.querySelectorAll(".ag-ph").forEach(el => {
     el.addEventListener("click", () => showLb(+el.dataset.i));
   });
   // 點擊放大提示（只加一次）
   if (!host.nextElementSibling || !host.nextElementSibling.classList.contains("ag-hint")) {
     const hint = document.createElement("div");
-    hint.className = "ag-hint"; hint.textContent = "🔍 點縮圖看完整大圖";
+    hint.className = "ag-hint"; hint.textContent = "🔍 點圖片看完整大圖";
     host.after(hint);
   }
 }
