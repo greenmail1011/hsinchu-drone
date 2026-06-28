@@ -55,9 +55,9 @@ function injectCSS() {
   .ag-lb .ag-x{top:18px;right:24px;font-size:30px;width:46px;height:46px;border-radius:50%;line-height:1}
   .ag-lb .ag-nav{top:50%;transform:translateY(-50%);font-size:26px;width:50px;height:50px;border-radius:50%}
   .ag-lb .ag-prev{left:20px}.ag-lb .ag-next{right:20px}
-  /* 後台 */
-  #ag-admin-fab{position:fixed;bottom:28px;right:28px;z-index:2500;background:#1a3a6b;color:#fff;border:none;border-radius:24px;padding:12px 18px;font-size:14px;cursor:pointer;box-shadow:0 4px 20px rgba(26,58,107,.35);display:none}
-  #ag-admin-fab:hover{background:#234e8f}
+  /* 後台分頁內容 */
+  #tab-aboutgallery .ag-h{margin:0 0 4px;font-size:18px;color:#1a2333;font-weight:700}
+  #tab-aboutgallery .ag-desc{color:#8a9ab0;font-size:13px;margin:0 0 16px}
   .ag-modal{position:fixed;inset:0;background:rgba(10,22,40,.55);z-index:3200;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
   .ag-modal.open{display:flex}
   .ag-panel{background:#fff;border-radius:14px;max-width:680px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
@@ -160,30 +160,59 @@ async function load() {
   render();
 }
 
-/* ---------- 後台管理 ---------- */
-let modalEl;
-function buildAdminUI() {
-  if (document.getElementById("ag-admin-fab")) return;
-  const fab = document.createElement("button");
-  fab.id = "ag-admin-fab"; fab.textContent = "✎ 編輯關於相簿";
-  fab.onclick = openModal;
-  document.body.appendChild(fab);
+/* ---------- 後台管理（整合進既有後台分頁列）---------- */
+let paneEl = null, tabBtnEl = null;
+function injectAdminTab() {
+  const tabs = document.querySelector(".admin-tabs");
+  if (!tabs) return false;
+  if (document.getElementById("ag-admin-tab")) return true;
 
-  modalEl = document.createElement("div");
-  modalEl.className = "ag-modal";
-  modalEl.innerHTML = `<div class="ag-panel">
-      <h3>關於協會 — 相簿管理</h3>
-      <p class="desc">可上傳照片、編輯說明文字、調整排序與顯示。修改後按該列「儲存」。</p>
+  // 分頁按鈕（與「最新消息／輪播照片／管理者」同列）
+  tabBtnEl = document.createElement("button");
+  tabBtnEl.id = "ag-admin-tab";
+  tabBtnEl.className = "admin-tab";
+  tabBtnEl.type = "button";
+  tabBtnEl.textContent = "🖼️ 關於相簿";
+  tabBtnEl.addEventListener("click", showMyTab);
+  tabs.appendChild(tabBtnEl);
+
+  // 分頁內容區
+  const refPane = document.getElementById("tab-carousel") || document.querySelector(".admin-tab-pane");
+  const parent = refPane ? refPane.parentElement : tabs.parentElement;
+  paneEl = document.createElement("div");
+  paneEl.className = "admin-tab-pane";
+  paneEl.id = "tab-aboutgallery";
+  paneEl.style.display = "none";
+  paneEl.innerHTML = `
+      <h3 class="ag-h">關於協會 — 相簿管理</h3>
+      <p class="ag-desc">可上傳照片、編輯說明文字、調整排序與顯示。修改後按該列「儲存」。</p>
       <div id="ag-list"></div>
-      <button class="ag-btn ag-add" id="ag-add">＋ 上傳新照片</button>
-      <input type="file" id="ag-file" accept="image/*" style="display:none">
-      <div class="ag-foot"><button class="ag-btn ag-close" id="ag-close">關閉</button></div>
-    </div>`;
-  document.body.appendChild(modalEl);
-  modalEl.addEventListener("click", e => { if (e.target === modalEl) modalEl.classList.remove("open"); });
-  modalEl.querySelector("#ag-close").onclick = () => modalEl.classList.remove("open");
-  modalEl.querySelector("#ag-add").onclick = () => modalEl.querySelector("#ag-file").click();
-  modalEl.querySelector("#ag-file").addEventListener("change", handleUpload);
+      <button class="ag-btn ag-add" id="ag-add" type="button">＋ 上傳新照片</button>
+      <input type="file" id="ag-file" accept="image/*" style="display:none">`;
+  parent.appendChild(paneEl);
+  paneEl.querySelector("#ag-add").addEventListener("click", () => paneEl.querySelector("#ag-file").click());
+  paneEl.querySelector("#ag-file").addEventListener("change", handleUpload);
+
+  // 點其他分頁時，隱藏本分頁並取消其 active
+  tabs.querySelectorAll(".admin-tab").forEach(b => {
+    if (b !== tabBtnEl) b.addEventListener("click", () => {
+      paneEl.style.display = "none";
+      tabBtnEl.classList.remove("active");
+    });
+  });
+  return true;
+}
+
+function showMyTab() {
+  document.querySelectorAll(".admin-tab-pane").forEach(p => { p.style.display = "none"; });
+  document.querySelectorAll(".admin-tab").forEach(b => b.classList.remove("active"));
+  paneEl.style.display = "block";
+  tabBtnEl.classList.add("active");
+  openManage();
+}
+async function openManage() {
+  await ensureDbItems();
+  renderAdminList();
 }
 
 async function ensureDbItems() {
@@ -196,14 +225,9 @@ async function ensureDbItems() {
   }
 }
 
-async function openModal() {
-  await ensureDbItems();
-  renderAdminList();
-  modalEl.classList.add("open");
-}
-
 function renderAdminList() {
-  const list = modalEl.querySelector("#ag-list");
+  const list = document.getElementById("ag-list");
+  if (!list) return;
   const items = [...CURRENT].sort((a, b) => (a.order || 0) - (b.order || 0));
   list.innerHTML = items.map(s => `
     <div class="ag-row" data-id="${s.id}">
@@ -238,7 +262,7 @@ function renderAdminList() {
 
 async function handleUpload(e) {
   const file = e.target.files[0]; if (!file) return;
-  const btn = modalEl.querySelector("#ag-add");
+  const btn = document.getElementById("ag-add");
   btn.textContent = "上傳中… 0%";
   const { getStorage, ref, uploadBytesResumable, getDownloadURL } =
     await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js");
@@ -266,14 +290,15 @@ function start() {
   load();
   onAuthStateChanged(auth, user => {
     isAdmin = !!user;
-    if (isAdmin) {
-      buildAdminUI();
-      document.getElementById("ag-admin-fab").style.display = "block";
-    } else {
-      const f = document.getElementById("ag-admin-fab");
-      if (f) f.style.display = "none";
-    }
+    if (isAdmin) tryInjectAdmin();
   });
+}
+function tryInjectAdmin() {
+  if (injectAdminTab()) return;
+  // 後台 DOM 可能在登入後才建立，觀察其出現再注入分頁
+  const obs = new MutationObserver(() => { if (injectAdminTab()) obs.disconnect(); });
+  obs.observe(document.body, { childList: true, subtree: true });
+  setTimeout(() => obs.disconnect(), 20000);
 }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
 else start();
