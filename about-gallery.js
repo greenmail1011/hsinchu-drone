@@ -21,7 +21,9 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const COL = "aboutGallery";
+// 存進現有且已具備管理員寫入權限的 content 集合，用 kind 欄位區分（免改 Firestore 規則）
+const COL = "content";
+const KIND = "aboutGallery";
 
 // 預設備援照片（資料庫尚無資料時顯示）
 const DEFAULTS = [
@@ -146,8 +148,11 @@ function render() {
 /* ---------- 載入資料 ---------- */
 async function load() {
   try {
-    const snap = await getDocs(query(collection(db, COL), orderBy("order")));
-    CURRENT = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const snap = await getDocs(collection(db, COL));
+    CURRENT = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(x => x.kind === KIND)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (e) {
     CURRENT = [];
   }
@@ -185,7 +190,7 @@ async function ensureDbItems() {
   // 若目前是備援（無 id），首次進後台時匯入資料庫以便編輯
   if (CURRENT.length && !CURRENT[0].id) {
     for (const d of DEFAULTS) {
-      await addDoc(collection(db, COL), { url: d.url, caption: d.caption, order: d.order, active: true });
+      await addDoc(collection(db, COL), { kind: KIND, url: d.url, caption: d.caption, order: d.order, active: true });
     }
     await load();
   }
@@ -246,7 +251,7 @@ async function handleUpload(e) {
     async () => {
       const url = await getDownloadURL(task.snapshot.ref);
       const maxOrder = CURRENT.reduce((m, x) => Math.max(m, x.order || 0), 0);
-      await addDoc(collection(db, COL), { url, caption: "", order: maxOrder + 1, active: true });
+      await addDoc(collection(db, COL), { kind: KIND, url, caption: "", order: maxOrder + 1, active: true });
       btn.textContent = "＋ 上傳新照片";
       e.target.value = "";
       await load(); renderAdminList();
