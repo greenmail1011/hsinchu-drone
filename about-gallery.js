@@ -41,9 +41,11 @@ function injectCSS() {
   const css = `
   .ag-timeline{position:relative;max-width:1040px;margin:48px auto 0}
   .ag-timeline::before{content:"";position:absolute;top:4px;bottom:24px;left:50%;width:3px;margin-left:-1.5px;background:linear-gradient(#1a3a6b,#c9d6ea)}
-  .ag-tl{position:relative;width:50%;box-sizing:border-box;padding:0 46px 46px 0}
-  .ag-tl:nth-child(even){margin-left:50%;padding:0 0 46px 46px}
-  .ag-dot{position:absolute;top:2px;width:38px;height:38px;border-radius:50%;background:#1a3a6b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:1px;box-shadow:0 0 0 5px #eef3fa;z-index:2}
+  .ag-tl{position:relative;width:50%;box-sizing:border-box;padding:0 46px 46px 0;opacity:0;transform:translateX(-44px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .ag-tl:nth-child(even){margin-left:50%;padding:0 0 46px 46px;transform:translateX(44px)}
+  .ag-tl.in{opacity:1;transform:translateX(0)}
+  .ag-dot{position:absolute;top:2px;width:38px;height:38px;border-radius:50%;background:#1a3a6b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:1px;box-shadow:0 0 0 5px #eef3fa;z-index:2;transform:scale(.35);transition:transform .45s cubic-bezier(.34,1.56,.64,1) .12s}
+  .ag-tl.in .ag-dot{transform:scale(1)}
   .ag-tl:nth-child(odd) .ag-dot{right:-19px}
   .ag-tl:nth-child(even) .ag-dot{left:-19px}
   .ag-ph{cursor:zoom-in;border-radius:14px;overflow:hidden;box-shadow:0 8px 24px rgba(26,58,107,.16);transition:transform .18s,box-shadow .18s}
@@ -152,6 +154,16 @@ function render() {
   host.querySelectorAll(".ag-ph").forEach(el => {
     el.addEventListener("click", () => showLb(+el.dataset.i));
   });
+  // 捲動滑入效果：捲到視窗才淡入＋滑進來
+  const tlItems = host.querySelectorAll(".ag-tl");
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    tlItems.forEach(el => io.observe(el));
+  } else {
+    tlItems.forEach(el => el.classList.add("in"));
+  }
   // 點擊放大提示（只加一次）
   if (!host.nextElementSibling || !host.nextElementSibling.classList.contains("ag-hint")) {
     const hint = document.createElement("div");
