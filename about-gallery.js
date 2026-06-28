@@ -42,8 +42,9 @@ function injectCSS() {
   .ag-timeline{position:relative;max-width:1040px;margin:48px auto 0}
   .ag-timeline::before{content:"";position:absolute;top:4px;bottom:24px;left:50%;width:3px;margin-left:-1.5px;background:linear-gradient(#1a3a6b,#c9d6ea)}
   .ag-tl{position:relative;width:50%;box-sizing:border-box;padding:0 46px 14px 0;opacity:0;transform:translateX(-44px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
-  .ag-tl:nth-child(even){margin-left:50%;margin-top:-110px;padding:0 0 14px 46px;transform:translateX(44px)}
-  .ag-tl:nth-child(2){margin-top:-70px}
+  .ag-tl:nth-child(even){margin-left:50%;margin-top:-200px;padding:0 0 14px 46px;transform:translateX(44px)}
+  .ag-tl:nth-child(odd){margin-top:-200px}
+  .ag-tl:first-child{margin-top:0}
   .ag-tl.in{opacity:1;transform:translateX(0)}
   .ag-dot{position:absolute;top:2px;width:38px;height:38px;border-radius:50%;background:#1a3a6b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:1px;box-shadow:0 0 0 5px #eef3fa;z-index:2;transform:scale(.35);transition:transform .45s cubic-bezier(.34,1.56,.64,1) .12s}
   .ag-tl.in .ag-dot{transform:scale(1)}
@@ -58,7 +59,7 @@ function injectCSS() {
   .ag-hint{text-align:center;color:#8a9ab0;font-size:13px;margin-top:8px}
   @media(max-width:760px){
     .ag-timeline::before{left:20px}
-    .ag-tl,.ag-tl:nth-child(even),.ag-tl:nth-child(2){width:100%;margin-left:0;margin-top:0;padding:0 0 22px 54px}
+    .ag-tl,.ag-tl:nth-child(odd),.ag-tl:nth-child(even){width:100%;margin-left:0;margin-top:0;padding:0 0 22px 54px}
     .ag-tl:nth-child(odd) .ag-dot,.ag-tl:nth-child(even) .ag-dot{left:1px;right:auto}
     .ag-tl:nth-child(odd) .ag-tx{text-align:left}
     .ag-ph img{height:200px}
