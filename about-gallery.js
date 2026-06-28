@@ -55,7 +55,7 @@ function injectCSS() {
   .ag-ph img{display:block;width:100%;height:224px;object-fit:cover}
   .ag-tx{margin-top:13px}
   .ag-tx p{font-size:15px;line-height:1.92;color:#41506a;margin:0}
-  .ag-tl:nth-child(odd) .ag-tx{text-align:right}
+  .ag-tl:nth-child(odd) .ag-tx{text-align:left}
   .ag-hint{text-align:center;color:#8a9ab0;font-size:13px;margin-top:8px}
   @media(max-width:760px){
     .ag-timeline::before{left:20px}
