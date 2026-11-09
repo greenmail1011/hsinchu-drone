@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-<script src="member-config.js?v=1"></script>
+<script src="member-config.js?v=2"></script>
+<script src="https://accounts.google.com/gsi/client" async></script>
 <style>
   :root { --primary:#1a3a6b; --primary-light:#2653a0; --text:#1a2333; --muted:#5a6880; --line:#dde3ed; --bg:#f3f6fb;
           --wait:#b26a00; --wait-bg:#fff3dc; --ok:#1f8a4c; --ok-bg:#e1f5e9; --no:#b3261e; --no-bg:#fde7e5; }
@@ -40,6 +41,11 @@
   .btn.ghost:hover { background:#eef3fa; }
   #login .btn { width:100%; }
   .err { color:var(--no); font-size:14px; font-weight:700; min-height:20px; margin-top:10px; }
+  .g-btn { min-height:44px; display:flex; justify-content:center; margin:4px 0 6px; }
+  .pw-box { margin-top:18px; border-top:1px dashed #c9d3e3; padding-top:14px; text-align:left; }
+  .pw-box summary { cursor:pointer; color:var(--muted); font-weight:700; text-align:center; font-size:14px; }
+  .pw-box form { margin-top:12px; }
+  #who { color:#cfe0ff; font-size:13px; margin-right:6px; }
 
   /* 統計＋篩選 */
   .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
@@ -121,6 +127,7 @@
   <div><h1>入會審核後台</h1><small>新竹市無人機創新科技協會</small></div>
   <span class="sp"></span>
   <span id="topbtns" hidden>
+    <span id="who"></span>
     <button class="tbtn" onclick="load()">↻ 重新整理</button>
     <button class="tbtn" onclick="downloadCsv()">⬇ 下載 CSV</button>
     <a class="tbtn" id="sheetLink" target="_blank" rel="noopener">開啟 Google 試算表</a>
@@ -130,12 +137,16 @@
 
 <section id="login">
   <h2>🔒 管理者登入</h2>
-  <p>輸入入會系統的管理者密碼</p>
-  <form onsubmit="event.preventDefault(); login();">
-    <input id="pw" type="password" autocomplete="current-password" placeholder="管理者密碼">
-    <button class="btn" id="loginBtn">登入</button>
-  </form>
+  <p>新竹市無人機創新科技協會成員<br>請用 Google 帳號登入</p>
+  <div class="g-btn" id="g-btn"><span style="color:var(--muted);font-size:14px">Google 登入按鈕載入中…</span></div>
   <div class="err" id="loginErr"></div>
+  <details class="pw-box" id="pw-box">
+    <summary>沒辦法用 Google 登入？改用備用密碼</summary>
+    <form onsubmit="event.preventDefault(); login();">
+      <input id="pw" type="password" autocomplete="current-password" placeholder="備用密碼">
+      <button class="btn" id="loginBtn">登入</button>
+    </form>
+  </details>
 </section>
 
 <main class="wrap" id="app" hidden>
@@ -153,35 +164,63 @@
 <script>
 const API = (window.HCD_MEMBER || {}).API_URL;
 const STATUSES = ['待審核', '通過', '未通過'];
-let KEY = sessionStorage.getItem('hcd_member_key') || '';
+const CLIENT_ID = (window.HCD_MEMBER || {}).GOOGLE_CLIENT_ID;
+// 登入憑證：{session}（Google 登入後 30 天，記在這台裝置）或 {key}（備用密碼，只記到關掉分頁）或 {idToken}（剛按 Google 登入）
+const CRED_KEY = 'hcd_member_cred';
+function credGet() {
+  try { const v = localStorage.getItem(CRED_KEY); if (v) return JSON.parse(v); } catch (e) {}
+  try { const k = sessionStorage.getItem('hcd_member_key'); if (k) return { key: k }; } catch (e) {}
+  return null;
+}
+function credSet(c) {
+  credDel();
+  try { if (c.session) localStorage.setItem(CRED_KEY, JSON.stringify({ session: c.session })); else if (c.key) sessionStorage.setItem('hcd_member_key', c.key); } catch (e) {}
+}
+function credDel() { try { localStorage.removeItem(CRED_KEY); sessionStorage.removeItem('hcd_member_key'); } catch (e) {} }
+let CRED = credGet();
 let ROWS = [], SHEET = null, FILTER = '待審核', SIGS = {};
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = (id) => document.getElementById(id);
 
 async function api(body) {
-  const r = await fetch(API, { method: 'POST', body: JSON.stringify(body), credentials: 'omit', redirect: 'follow' });
+  const r = await fetch(API, { method: 'POST', body: JSON.stringify(Object.assign({}, body, CRED || {})), credentials: 'omit', redirect: 'follow' });
   return r.json();
 }
 
-async function login() {
-  const k = $('pw').value.trim();
-  if (!k) return;
-  KEY = k;
+function errText(j) {
+  return j.error === 'wrong_key' ? '密碼不對'
+    : j.error === 'locked' ? '密碼錯太多次，請 10 分鐘後再試'
+    : j.error === 'not_admin' ? '這個 Google 帳號（' + (j.email || '') + '）不在管理者名單裡，請洽系統管理員加入'
+    : j.error === 'google_invalid' || j.error === 'session_invalid' ? '登入已過期，請再按一次 Google 登入'
+    : '讀取失敗，請稍後再試';
+}
+
+async function login(cred) {
+  if (!cred) {
+    const k = $('pw').value.trim();
+    if (!k) return;
+    cred = { key: k };
+  }
+  CRED = cred;
   await load(true);
 }
 
 async function load(fromLogin) {
   if (!API) { $('loginErr').textContent = 'member-config.js 的 API_URL 還沒填'; return; }
+  if (!CRED) return showLogin('');
   $('loginBtn').disabled = true;
+  if (fromLogin && (CRED.idToken || CRED.session)) $('loginErr').textContent = '登入中…';
   try {
-    const j = await api({ action: 'data', key: KEY });
+    const j = await api({ action: 'data' });
     if (!j.ok) {
-      KEY = ''; sessionStorage.removeItem('hcd_member_key');
-      showLogin(j.error === 'locked' ? '密碼錯太多次，請 10 分鐘後再試' : (fromLogin ? '密碼不對' : ''));
+      CRED = null; credDel();
+      showLogin(fromLogin ? errText(j) : '');
       return;
     }
-    sessionStorage.setItem('hcd_member_key', KEY);
+    if (j.session) CRED = { session: j.session }; // Google 登入成功 → 改記 30 天憑證
+    credSet(CRED);
+    $('who').textContent = j.who ? j.who : '';
     ROWS = (j.rows || []).slice().reverse(); // 新的在上面
     SHEET = j.sheet;
     if (SHEET) $('sheetLink').href = SHEET.url + '#gid=' + SHEET.gid;
@@ -199,7 +238,29 @@ function showLogin(msg) {
   $('loginErr').textContent = msg || '';
 }
 
-function logout() { KEY = ''; sessionStorage.removeItem('hcd_member_key'); ROWS = []; SIGS = {}; $('pw').value = ''; showLogin(''); }
+function logout() {
+  try { if (CRED && (CRED.session || CRED.idToken) && window.google) google.accounts.id.disableAutoSelect(); } catch (e) {}
+  CRED = null; credDel(); ROWS = []; SIGS = {}; $('pw').value = ''; $('who').textContent = ''; showLogin('');
+}
+
+// ---- Google 登入（Google Identity Services，和社區報名後台同一組用戶端 ID）----
+function initGoogle() {
+  const box = $('g-btn');
+  if (!CLIENT_ID) { box.hidden = true; $('pw-box').open = true; return; }
+  let tries = 0;
+  (function wait() {
+    if (window.google && google.accounts && google.accounts.id) {
+      google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: (resp) => { if (resp && resp.credential) login({ idToken: resp.credential }); },
+        ux_mode: 'popup', auto_select: false, cancel_on_tap_outside: true
+      });
+      box.innerHTML = '';
+      google.accounts.id.renderButton(box, { type: 'standard', theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with', locale: 'zh-TW', width: 280 });
+    } else if (++tries < 60) setTimeout(wait, 250);
+    else { box.innerHTML = '<span style="color:var(--muted);font-size:14px">Google 登入載入失敗，請重新整理頁面，或改用備用密碼</span>'; $('pw-box').open = true; }
+  })();
+}
 
 function ageOf(s) {
   const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -277,7 +338,7 @@ function pick(s) { PICK = s; document.querySelectorAll('.sbtn').forEach((b) => b
 async function loadSig(no) {
   if (SIGS[no]) return showSig(no);
   try {
-    const j = await api({ action: 'sig', key: KEY, no });
+    const j = await api({ action: 'sig', no });
     SIGS[no] = j.ok ? j.dataUrl : '';
   } catch (e) { SIGS[no] = ''; }
   showSig(no);
@@ -291,13 +352,13 @@ async function saveReview() {
   if (!CUR) return;
   const btn = $('saveBtn'); btn.disabled = true; btn.textContent = '儲存中…';
   try {
-    const j = await api({ action: 'review', key: KEY, no: CUR.no, status: PICK, note: $('note').value });
+    const j = await api({ action: 'review', no: CUR.no, status: PICK, note: $('note').value });
     if (!j.ok) throw new Error(j.error);
     Object.assign(CUR, { status: j.status, note: j.note, rtime: j.rtime });
     $('saved').textContent = '✓ 已儲存';
     render();
   } catch (e) {
-    $('saved').textContent = ''; alert('儲存失敗：' + (e.message === 'wrong_key' ? '登入過期，請重新登入' : '請稍後再試'));
+    $('saved').textContent = ''; alert('儲存失敗：' + (['wrong_key', 'session_invalid', 'google_invalid'].includes(e.message) ? '登入過期，請重新登入' : '請稍後再試'));
   } finally { btn.disabled = false; btn.textContent = '儲存審核結果'; }
 }
 
@@ -333,7 +394,8 @@ function downloadCsv() {
   a.click();
 }
 
-if (KEY) load(); else showLogin('');
+initGoogle();
+if (CRED) load(); else showLogin('');
 </script>
 </body>
 </html>
