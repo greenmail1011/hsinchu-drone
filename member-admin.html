@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>入會審核後台｜新竹市無人機創新科技協會</title>
+<link rel="icon" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="member-config.js?v=1"></script>
+<style>
+  :root { --primary:#1a3a6b; --primary-light:#2653a0; --text:#1a2333; --muted:#5a6880; --line:#dde3ed; --bg:#f3f6fb;
+          --wait:#b26a00; --wait-bg:#fff3dc; --ok:#1f8a4c; --ok-bg:#e1f5e9; --no:#b3261e; --no-bg:#fde7e5; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Noto Sans TC', system-ui, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  button, input, textarea, select { font-family:inherit; }
+  .top { background:var(--primary); color:#fff; padding:14px 24px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .top img { width:36px; height:36px; border-radius:8px; background:#fff; object-fit:contain; }
+  .top h1 { font-size:18px; font-weight:900; letter-spacing:1px; }
+  .top small { opacity:.75; font-size:13px; }
+  .top .sp { flex:1; }
+  #topbtns { display:flex; gap:6px; flex-wrap:wrap; }
+  #topbtns[hidden] { display:none; }
+  .tbtn { white-space:nowrap; background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.3); padding:8px 14px; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; }
+  .tbtn:hover { background:rgba(255,255,255,.26); }
+  .wrap { max-width:1100px; margin:0 auto; padding:24px 20px 60px; }
+
+  /* 登入 */
+  #login { max-width:380px; margin:12vh auto 0; background:#fff; border-radius:18px; padding:34px 30px; box-shadow:0 10px 40px rgba(26,58,107,.12); text-align:center; }
+  #login h2 { color:var(--primary); font-size:20px; margin-bottom:6px; }
+  #login p { color:var(--muted); font-size:14px; margin-bottom:20px; }
+  #login input { width:100%; border:1.5px solid #c9d3e3; border-radius:10px; padding:12px 14px; font-size:17px; margin-bottom:12px; }
+  #login input:focus { outline:none; border-color:var(--primary-light); box-shadow:0 0 0 3px rgba(38,83,160,.15); }
+  .btn { background:var(--primary); color:#fff; border:none; padding:12px 22px; border-radius:10px; font-size:15px; font-weight:800; cursor:pointer; }
+  .btn:hover { background:var(--primary-light); }
+  .btn:disabled { background:#8a9bb8; cursor:wait; }
+  .btn.ghost { background:#fff; color:var(--primary); border:1.5px solid #c9d3e3; }
+  .btn.ghost:hover { background:#eef3fa; }
+  #login .btn { width:100%; }
+  .err { color:var(--no); font-size:14px; font-weight:700; min-height:20px; margin-top:10px; }
+
+  /* 統計＋篩選 */
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+  .stat { background:#fff; border-radius:14px; padding:14px 16px; border:2px solid transparent; cursor:pointer; text-align:left; }
+  .stat b { display:block; font-size:28px; font-weight:900; color:var(--primary); line-height:1.1; }
+  .stat span { font-size:13px; color:var(--muted); font-weight:700; }
+  .stat.on { border-color:var(--primary); }
+  .stat.wait b { color:var(--wait); } .stat.ok b { color:var(--ok); } .stat.no b { color:var(--no); }
+  .tools { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .tools input { flex:1; min-width:200px; border:1.5px solid #c9d3e3; border-radius:10px; padding:10px 14px; font-size:15px; background:#fff; }
+  .hint { color:var(--muted); font-size:13px; margin:-4px 0 12px; }
+
+  /* 清單 */
+  .list { background:#fff; border-radius:14px; overflow:hidden; }
+  .row { display:grid; grid-template-columns:96px 1.1fr 1.6fr 1.1fr 130px 92px; gap:12px; align-items:center; padding:13px 18px; border-bottom:1px solid var(--line); cursor:pointer; font-size:14px; }
+  .row:hover { background:#f6f9fd; }
+  .row.head { background:#eef3fa; font-weight:800; color:var(--primary); cursor:default; font-size:13px; }
+  .row .nm { font-weight:800; font-size:15px; }
+  .row .sub { color:var(--muted); font-size:12px; }
+  .badge { display:inline-block; padding:4px 10px; border-radius:999px; font-size:13px; font-weight:800; text-align:center; }
+  .b-待審核 { background:var(--wait-bg); color:var(--wait); } .b-通過 { background:var(--ok-bg); color:var(--ok); } .b-未通過 { background:var(--no-bg); color:var(--no); }
+  .empty { padding:40px; text-align:center; color:var(--muted); }
+
+  /* 詳細 */
+  #detail { position:fixed; inset:0; background:rgba(15,25,45,.5); display:none; align-items:flex-start; justify-content:center; padding:4vh 12px; overflow:auto; z-index:20; }
+  #detail.show { display:flex; }
+  .card { background:#fff; border-radius:18px; width:100%; max-width:720px; padding:26px 28px; position:relative; }
+  .card h3 { color:var(--primary); font-size:20px; font-weight:900; margin-bottom:4px; }
+  .card .meta { color:var(--muted); font-size:13px; margin-bottom:16px; }
+  .x { position:absolute; right:16px; top:14px; border:none; background:#eef3fa; color:var(--primary); width:34px; height:34px; border-radius:50%; font-size:18px; cursor:pointer; }
+  table.f { width:100%; border-collapse:collapse; font-size:14px; margin-bottom:16px; }
+  table.f th { text-align:left; width:150px; background:#f5f7fa; color:var(--primary); font-weight:700; padding:9px 12px; border:1px solid var(--line); vertical-align:top; }
+  table.f td { padding:9px 12px; border:1px solid var(--line); white-space:pre-wrap; word-break:break-word; }
+  .reveal { margin-left:8px; border:1px solid #c9d3e3; background:#fff; color:var(--primary); border-radius:6px; padding:1px 8px; font-size:12px; cursor:pointer; }
+  .sig { min-height:70px; display:flex; align-items:center; }
+  .sig img { max-height:110px; max-width:100%; }
+  .review { background:#f6f9fd; border-radius:14px; padding:16px; }
+  .review h4 { color:var(--primary); font-size:15px; margin-bottom:10px; }
+  .sbtns { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+  .sbtn { flex:1; min-width:90px; border:2px solid #c9d3e3; background:#fff; border-radius:10px; padding:10px; font-size:15px; font-weight:800; cursor:pointer; color:var(--text); }
+  .sbtn.on.s-待審核 { border-color:var(--wait); background:var(--wait-bg); color:var(--wait); }
+  .sbtn.on.s-通過 { border-color:var(--ok); background:var(--ok-bg); color:var(--ok); }
+  .sbtn.on.s-未通過 { border-color:var(--no); background:var(--no-bg); color:var(--no); }
+  .review textarea { width:100%; border:1.5px solid #c9d3e3; border-radius:10px; padding:10px 12px; font-size:14px; min-height:64px; resize:vertical; margin-bottom:10px; }
+  .actions { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; align-items:center; }
+  .saved { color:var(--ok); font-weight:800; font-size:14px; margin-right:auto; }
+
+  @media (max-width: 760px) {
+    .stats { grid-template-columns:repeat(2,1fr); }
+    .row { grid-template-columns:1fr auto; gap:4px 10px; }
+    .row.head { display:none; }
+    .row { grid-template-areas:"nm st" "job job" "ph ph" "no tm"; }
+    .row > :nth-child(1) { grid-area:no; color:var(--muted); font-size:12px; } .row > :nth-child(2) { grid-area:nm; }
+    .row > :nth-child(3) { grid-area:job; } .row > :nth-child(4) { grid-area:ph; }
+    .row > :nth-child(5) { grid-area:tm; text-align:right; } .row > :nth-child(6) { grid-area:st; }
+    .top { padding:12px 16px; } #topbtns { width:100%; } .tbtn { padding:7px 10px; font-size:13px; }
+    table.f th { width:96px; }
+  }
+
+  /* 列印：協會紙本申請書格式 */
+  #print { display:none; }
+  @media print {
+    body > *:not(#print) { display:none !important; }
+    #print { display:block; padding:10mm 4mm; color:#000; font-family:'Noto Sans TC', serif; }
+    #print h2 { text-align:center; font-size:20px; margin-bottom:2px; }
+    #print h3 { text-align:center; font-size:16px; margin-bottom:16px; letter-spacing:2px; }
+    #print table { width:100%; border-collapse:collapse; font-size:13px; }
+    #print th, #print td { border:1px solid #333; padding:8px 10px; text-align:left; vertical-align:top; }
+    #print th { background:#eee; white-space:nowrap; width:13%; }
+    #print .foot { margin-top:14px; font-size:12px; }
+    @page { size:A4; margin:12mm; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <img src="favicon-32x32.png" alt="">
+  <div><h1>入會審核後台</h1><small>新竹市無人機創新科技協會</small></div>
+  <span class="sp"></span>
+  <span id="topbtns" hidden>
+    <button class="tbtn" onclick="load()">↻ 重新整理</button>
+    <button class="tbtn" onclick="downloadCsv()">⬇ 下載 CSV</button>
+    <a class="tbtn" id="sheetLink" target="_blank" rel="noopener">開啟 Google 試算表</a>
+    <button class="tbtn" onclick="logout()">登出</button>
+  </span>
+</header>
+
+<section id="login">
+  <h2>🔒 管理者登入</h2>
+  <p>輸入入會系統的管理者密碼</p>
+  <form onsubmit="event.preventDefault(); login();">
+    <input id="pw" type="password" autocomplete="current-password" placeholder="管理者密碼">
+    <button class="btn" id="loginBtn">登入</button>
+  </form>
+  <div class="err" id="loginErr"></div>
+</section>
+
+<main class="wrap" id="app" hidden>
+  <div class="stats" id="stats"></div>
+  <div class="tools">
+    <input id="q" type="search" placeholder="搜尋姓名、編號、手機、現職…" oninput="render()">
+  </div>
+  <p class="hint">點一列看完整資料、簽名，並設定「通過／未通過」。資料都存在協會的 Google 試算表，只有管理者看得到。</p>
+  <div class="list" id="list"></div>
+</main>
+
+<div id="detail" onclick="if(event.target===this) closeDetail()"><div class="card" id="card"></div></div>
+<div id="print"></div>
+
+<script>
+const API = (window.HCD_MEMBER || {}).API_URL;
+const STATUSES = ['待審核', '通過', '未通過'];
+let KEY = sessionStorage.getItem('hcd_member_key') || '';
+let ROWS = [], SHEET = null, FILTER = '待審核', SIGS = {};
+
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = (id) => document.getElementById(id);
+
+async function api(body) {
+  const r = await fetch(API, { method: 'POST', body: JSON.stringify(body), credentials: 'omit', redirect: 'follow' });
+  return r.json();
+}
+
+async function login() {
+  const k = $('pw').value.trim();
+  if (!k) return;
+  KEY = k;
+  await load(true);
+}
+
+async function load(fromLogin) {
+  if (!API) { $('loginErr').textContent = 'member-config.js 的 API_URL 還沒填'; return; }
+  $('loginBtn').disabled = true;
+  try {
+    const j = await api({ action: 'data', key: KEY });
+    if (!j.ok) {
+      KEY = ''; sessionStorage.removeItem('hcd_member_key');
+      showLogin(j.error === 'locked' ? '密碼錯太多次，請 10 分鐘後再試' : (fromLogin ? '密碼不對' : ''));
+      return;
+    }
+    sessionStorage.setItem('hcd_member_key', KEY);
+    ROWS = (j.rows || []).slice().reverse(); // 新的在上面
+    SHEET = j.sheet;
+    if (SHEET) $('sheetLink').href = SHEET.url + '#gid=' + SHEET.gid;
+    $('login').hidden = true; $('app').hidden = false; $('topbtns').hidden = false;
+    render();
+  } catch (e) {
+    showLogin('連不上入會系統，請稍後再試');
+  } finally {
+    $('loginBtn').disabled = false;
+  }
+}
+
+function showLogin(msg) {
+  $('login').hidden = false; $('app').hidden = true; $('topbtns').hidden = true;
+  $('loginErr').textContent = msg || '';
+}
+
+function logout() { KEY = ''; sessionStorage.removeItem('hcd_member_key'); ROWS = []; SIGS = {}; $('pw').value = ''; showLogin(''); }
+
+function ageOf(s) {
+  const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return '';
+  const now = new Date(); let a = now.getFullYear() - +m[1];
+  if (now.getMonth() + 1 < +m[2] || (now.getMonth() + 1 === +m[2] && now.getDate() < +m[3])) a--;
+  return a;
+}
+const short = (t) => { const m = String(t || '').match(/^\d{4}\/(\d{2})\/(\d{2}) (\d{2}:\d{2})/); return m ? (+m[1]) + '/' + (+m[2]) + ' ' + m[3] : t; };
+const maskId = (s) => s ? s.slice(0, 3) + '****' + s.slice(-3) : '';
+
+function setFilter(f) { FILTER = f; render(); }
+
+function render() {
+  const cnt = { '全部': ROWS.length }; STATUSES.forEach((s) => cnt[s] = ROWS.filter((r) => (r.status || '待審核') === s).length);
+  const cls = { '待審核': 'wait', '通過': 'ok', '未通過': 'no', '全部': '' };
+  $('stats').innerHTML = ['待審核', '通過', '未通過', '全部'].map((s) =>
+    `<button class="stat ${cls[s]} ${FILTER === s ? 'on' : ''}" onclick="setFilter('${s}')"><b>${cnt[s]}</b><span>${s}</span></button>`).join('');
+  const q = $('q').value.trim().toLowerCase();
+  const rows = ROWS.filter((r) => (FILTER === '全部' || (r.status || '待審核') === FILTER) &&
+    (!q || [r.no, r.name, r.phone, r.job, r.edu, r.addr, r.line].join(' ').toLowerCase().includes(q)));
+  let h = '<div class="row head"><div>編號</div><div>姓名</div><div>現職</div><div>手機</div><div>申請時間</div><div>狀態</div></div>';
+  if (!rows.length) h += `<div class="empty">${ROWS.length ? '沒有符合的申請' : '目前還沒有人申請入會'}</div>`;
+  rows.forEach((r) => {
+    h += `<div class="row" onclick="openDetail('${esc(r.no)}')">
+      <div>${esc(r.no)}</div>
+      <div><div class="nm">${esc(r.name)}</div><div class="sub">${esc(r.gender)}・${ageOf(r.birth)} 歲</div></div>
+      <div>${esc(r.job)}</div><div>${esc(r.phone)}</div><div class="sub">${esc(short(r.time))}</div>
+      <div><span class="badge b-${esc(r.status || '待審核')}">${esc(r.status || '待審核')}</span></div></div>`;
+  });
+  $('list').innerHTML = h;
+}
+
+let CUR = null, PICK = null;
+function openDetail(no) {
+  const r = ROWS.find((x) => x.no === no); if (!r) return;
+  CUR = r; PICK = r.status || '待審核';
+  const tr = (k, v) => `<tr><th>${k}</th><td>${v}</td></tr>`;
+  $('card').innerHTML = `
+    <button class="x" onclick="closeDetail()" aria-label="關閉">✕</button>
+    <h3>${esc(r.name)}</h3>
+    <div class="meta">申請編號 ${esc(r.no)}・${esc(r.time)}${r.rtime ? '・最後審核 ' + esc(r.rtime) : ''}</div>
+    <table class="f">
+      ${tr('性別', esc(r.gender))}
+      ${tr('出生日期', esc(r.birth) + (r.birth ? `（${ageOf(r.birth)} 歲）` : ''))}
+      ${tr('身分證字號', `<span id="idv">${esc(maskId(r.idno))}</span><button class="reveal" onclick="revealId()">顯示</button>`)}
+      ${tr('學歷', esc(r.edu))}
+      ${tr('現職', esc(r.job))}
+      ${tr('聯絡地址', esc(r.addr))}
+      ${tr('手機', r.phone ? `<a href="tel:${esc(r.phone)}">${esc(r.phone)}</a>` : '')}
+      ${tr('電話', esc(r.tel))}
+      ${tr('Line ID', esc(r.line))}
+      ${tr('對無人機科技<br>的興趣與期待', esc(r.hope))}
+      ${tr('申請人簽名', '<div class="sig" id="sigbox">讀取中…</div>')}
+    </table>
+    <div class="review">
+      <h4>理事會審核</h4>
+      <div class="sbtns">${STATUSES.map((s) => `<button class="sbtn s-${s} ${PICK === s ? 'on' : ''}" onclick="pick('${s}')">${s}</button>`).join('')}</div>
+      <textarea id="note" placeholder="審核備註（例：第 3 次理事會通過、已繳會費）">${esc(r.note)}</textarea>
+      <div class="actions">
+        <span class="saved" id="saved"></span>
+        <button class="btn ghost" onclick="printApp()">🖨 列印申請書</button>
+        <button class="btn" id="saveBtn" onclick="saveReview()">儲存審核結果</button>
+      </div>
+    </div>`;
+  $('detail').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  loadSig(r.no);
+}
+function closeDetail() { $('detail').classList.remove('show'); document.body.style.overflow = ''; CUR = null; }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDetail(); });
+function revealId() { if (CUR) $('idv').textContent = CUR.idno; }
+function pick(s) { PICK = s; document.querySelectorAll('.sbtn').forEach((b) => b.classList.toggle('on', b.textContent === s)); $('saved').textContent = ''; }
+
+async function loadSig(no) {
+  if (SIGS[no]) return showSig(no);
+  try {
+    const j = await api({ action: 'sig', key: KEY, no });
+    SIGS[no] = j.ok ? j.dataUrl : '';
+  } catch (e) { SIGS[no] = ''; }
+  showSig(no);
+}
+function showSig(no) {
+  const box = $('sigbox'); if (!box || !CUR || CUR.no !== no) return;
+  box.innerHTML = SIGS[no] ? `<img src="${SIGS[no]}" alt="簽名">` : '<span style="color:#b3261e">讀不到簽名檔</span>';
+}
+
+async function saveReview() {
+  if (!CUR) return;
+  const btn = $('saveBtn'); btn.disabled = true; btn.textContent = '儲存中…';
+  try {
+    const j = await api({ action: 'review', key: KEY, no: CUR.no, status: PICK, note: $('note').value });
+    if (!j.ok) throw new Error(j.error);
+    Object.assign(CUR, { status: j.status, note: j.note, rtime: j.rtime });
+    $('saved').textContent = '✓ 已儲存';
+    render();
+  } catch (e) {
+    $('saved').textContent = ''; alert('儲存失敗：' + (e.message === 'wrong_key' ? '登入過期，請重新登入' : '請稍後再試'));
+  } finally { btn.disabled = false; btn.textContent = '儲存審核結果'; }
+}
+
+function printApp() {
+  const r = CUR; if (!r) return;
+  const sig = SIGS[r.no] ? `<img src="${SIGS[r.no]}" style="max-height:70px">` : '';
+  const b = String(r.birth || '').split('-');
+  $('print').innerHTML = `
+    <h2>新竹市無人機創新科技協會</h2><h3>會員入會申請書</h3>
+    <table>
+      <tr><th>姓　　名</th><td>${esc(r.name)}</td><th>性　別</th><td>${esc(r.gender)}</td><th>出生日期</th><td>${b.length === 3 ? `${b[0]} 年 ${+b[1]} 月 ${+b[2]} 日` : esc(r.birth)}</td></tr>
+      <tr><th>身分證字號</th><td>${esc(r.idno)}</td><th>學　歷</th><td>${esc(r.edu)}</td><th>現　　職</th><td>${esc(r.job)}</td></tr>
+      <tr><th>聯絡地址</th><td colspan="5">${esc(r.addr)}</td></tr>
+      <tr><th>電　　話</th><td>${esc(r.tel)}</td><th>手　機</th><td colspan="3">${esc(r.phone)}</td></tr>
+      <tr><th>Line ID</th><td colspan="5">${esc(r.line)}</td></tr>
+      <tr><th>申請人簽名</th><td colspan="5" style="height:80px">${sig}</td></tr>
+      <tr><th>對無人機科技<br>的興趣與期待</th><td colspan="5" style="height:110px; white-space:pre-wrap">${esc(r.hope)}</td></tr>
+      <tr><th>審核結果</th><td colspan="5">${esc(r.status || '待審核')}${r.rtime ? '（' + esc(r.rtime) + '）' : ''}${r.note ? '　' + esc(r.note) : ''}</td></tr>
+    </table>
+    <p class="foot">申請編號：${esc(r.no)}　線上申請時間：${esc(r.time)}　（申請人已勾選贊同本會章程、符合入會資格，並同意個人資料使用）</p>`;
+  window.print();
+}
+
+function downloadCsv() {
+  const cols = [['申請時間', 'time'], ['申請編號', 'no'], ['審核狀態', 'status'], ['姓名', 'name'], ['性別', 'gender'], ['出生日期', 'birth'],
+    ['身分證字號', 'idno'], ['學歷', 'edu'], ['現職', 'job'], ['聯絡地址', 'addr'], ['電話', 'tel'], ['手機', 'phone'], ['Line ID', 'line'],
+    ['對無人機科技的興趣與期待', 'hope'], ['審核備註', 'note'], ['審核時間', 'rtime']];
+  const cell = (v, k) => { v = String(v == null ? '' : v); if (k === 'phone' || k === 'tel') v = v ? '="' + v + '"' : ''; else v = '"' + v.replace(/"/g, '""') + '"'; return v; };
+  const csv = '﻿' + [cols.map((c) => c[0]).join(',')].concat(ROWS.slice().reverse().map((r) => cols.map((c) => cell(r[c[1]], c[1])).join(','))).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = '入會申請_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+}
+
+if (KEY) load(); else showLogin('');
+</script>
+</body>
+</html>

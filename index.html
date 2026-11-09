@@ -1374,7 +1374,7 @@
       const cands=Array.prototype.slice.call(root.querySelectorAll(CONTENT_SEL));
       const leaves=cands.filter(function(el){
         const t=(el.textContent||'').trim(); if(!t) return false;
-        if(el.closest('#admin-panel')) return false;
+        if(el.closest('#admin-panel') || el.closest('[data-no-cms]')) return false;
         return !cands.some(function(o){ return o!==el && el.contains(o); });
       });
       leaves.forEach(function(el,i){
@@ -2343,94 +2343,146 @@
         </li>
         <li style="color:rgba(255,255,255,0.85); font-size:14px; line-height:1.8; display:flex; gap:12px;">
           <span style="color:#7fff00; font-weight:800; flex-shrink:0;">三、</span>
-          <span>請將填妥之申請書寄送至協會辦公室，待審查通過後將主動聯繫。</span>
+          <span>請在下方線上填寫申請書並簽名送出，待理事會審查通過後將主動聯繫。</span>
         </li>
       </ol>
     </div>
 
-    <!-- 申請表 -->
-    <div style="background:white; border-radius:20px; padding:40px 48px; color:#1a2333;" id="apply-form">
+    <!-- 申請表（線上送出 → 入會後台；文字不給 CMS 編輯，避免和舊的 CMS 編號錯位） -->
+    <div style="background:white; border-radius:20px; padding:40px 48px; color:#1a2333;" id="apply-form" data-no-cms>
       <h3 style="text-align:center; font-size:20px; font-weight:900; color:#1a3a6b; margin-bottom:4px; letter-spacing:1px;">新竹市無人機創新科技協會</h3>
-      <h4 style="text-align:center; font-size:16px; font-weight:700; color:#1a3a6b; margin-bottom:32px; letter-spacing:2px;">會員入會須知／申請書</h4>
+      <h4 style="text-align:center; font-size:16px; font-weight:700; color:#1a3a6b; margin-bottom:8px; letter-spacing:2px;">會員入會申請書（線上填寫）</h4>
+      <p class="mf-lead">標 <b class="mf-req">*</b> 為必填。送出後由理事會審查，通過後我們會用你留的手機與你聯繫。</p>
 
-      <!-- 表格 -->
-      <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:16px;">
-        <tr>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; width:12%; white-space:nowrap;">姓　　名</td>
-          <td style="border:1px solid #aab; padding:10px 14px; width:22%;"><div class="form-input-line"></div></td>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; width:10%; white-space:nowrap; text-align:center;">性　別</td>
-          <td style="border:1px solid #aab; padding:10px 14px; width:14%;">□ 男　□ 女</td>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; width:12%; white-space:nowrap;">出生日期</td>
-          <td style="border:1px solid #aab; padding:10px 14px; width:30%;">　　年　　月　　日</td>
-        </tr>
-        <tr>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; white-space:nowrap;">身分證字號</td>
-          <td style="border:1px solid #aab; padding:10px 14px;"><div class="form-input-line"></div></td>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; text-align:center;">學　歷</td>
-          <td style="border:1px solid #aab; padding:10px 14px;"><div class="form-input-line"></div></td>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; white-space:nowrap;">現　　職</td>
-          <td style="border:1px solid #aab; padding:10px 14px;"><div class="form-input-line"></div></td>
-        </tr>
-        <tr>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; white-space:nowrap;">聯絡地址</td>
-          <td colspan="5" style="border:1px solid #aab; padding:10px 14px;"><div class="form-input-line"></div></td>
-        </tr>
-        <tr>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; white-space:nowrap;">電　　話</td>
-          <td style="border:1px solid #aab; padding:10px 14px;"><div class="form-input-line"></div></td>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; text-align:center;">手　　機</td>
-          <td colspan="3" style="border:1px solid #aab; padding:10px 14px;"><div class="form-input-line"></div></td>
-        </tr>
-        <tr>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; white-space:nowrap;">Line ID</td>
-          <td colspan="5" style="border:1px solid #aab; padding:10px 14px;"><div class="form-input-line"></div></td>
-        </tr>
-        <tr>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; white-space:nowrap;">申請人簽名</td>
-          <td colspan="5" style="border:1px solid #aab; padding:28px 14px;"></td>
-        </tr>
-        <tr>
-          <td style="border:1px solid #aab; padding:10px 14px; font-weight:700; background:#f5f7fa; white-space:nowrap; vertical-align:top;">對無人機科技<br>的興趣與期待</td>
-          <td colspan="5" style="border:1px solid #aab; padding:80px 14px 14px;"></td>
-        </tr>
-      </table>
+      <form id="member-form" novalidate autocomplete="on">
+        <div class="mf-grid">
+          <label class="mf-field">
+            <span class="mf-label">姓名 <b class="mf-req">*</b></span>
+            <input name="name" type="text" maxlength="30" autocomplete="name" required>
+          </label>
+          <div class="mf-field">
+            <span class="mf-label">性別 <b class="mf-req">*</b></span>
+            <div class="mf-choices" role="radiogroup" aria-label="性別">
+              <label class="mf-choice"><input type="radio" name="gender" value="男"><span>男</span></label>
+              <label class="mf-choice"><input type="radio" name="gender" value="女"><span>女</span></label>
+            </div>
+          </div>
+          <label class="mf-field">
+            <span class="mf-label">出生日期 <b class="mf-req">*</b></span>
+            <input name="birth" type="date" min="1900-01-01" required>
+          </label>
+          <label class="mf-field">
+            <span class="mf-label">身分證字號 <b class="mf-req">*</b></span>
+            <input name="idno" type="text" maxlength="10" autocapitalize="characters" spellcheck="false" placeholder="例：A123456789" required>
+            <small class="mf-hint">只用於理事會審核與會員名冊，不會公開。</small>
+          </label>
+          <label class="mf-field">
+            <span class="mf-label">學歷 <b class="mf-req">*</b></span>
+            <input name="edu" type="text" maxlength="40" list="mf-edu-list" placeholder="例：大學" required>
+            <datalist id="mf-edu-list"><option value="高中職"><option value="專科"><option value="大學"><option value="碩士"><option value="博士"></datalist>
+          </label>
+          <label class="mf-field">
+            <span class="mf-label">現職 <b class="mf-req">*</b></span>
+            <input name="job" type="text" maxlength="60" autocomplete="organization-title" placeholder="服務單位／職稱" required>
+          </label>
+          <label class="mf-field mf-wide">
+            <span class="mf-label">聯絡地址 <b class="mf-req">*</b></span>
+            <input name="addr" type="text" maxlength="120" autocomplete="street-address" required>
+          </label>
+          <label class="mf-field">
+            <span class="mf-label">手機 <b class="mf-req">*</b></span>
+            <input name="phone" type="tel" inputmode="numeric" maxlength="12" autocomplete="tel" placeholder="09 開頭 10 碼" required>
+          </label>
+          <label class="mf-field">
+            <span class="mf-label">電話（市話）</span>
+            <input name="tel" type="tel" maxlength="30" placeholder="選填">
+          </label>
+          <label class="mf-field mf-wide">
+            <span class="mf-label">Line ID</span>
+            <input name="line" type="text" maxlength="50" spellcheck="false" placeholder="選填">
+          </label>
+          <label class="mf-field mf-wide">
+            <span class="mf-label">對無人機科技的興趣與期待</span>
+            <textarea name="hope" rows="4" maxlength="1000" placeholder="選填，例如想參與的活動、專長、想學的內容"></textarea>
+          </label>
+          <div class="mf-field mf-wide">
+            <span class="mf-label">申請人簽名 <b class="mf-req">*</b></span>
+            <div class="mf-sig-wrap">
+              <canvas id="mf-sig" aria-label="簽名區，用手指或滑鼠簽名"></canvas>
+              <span class="mf-sig-ph" id="mf-sig-ph">請在這裡用手指或滑鼠簽名</span>
+              <button type="button" class="mf-sig-clear" id="mf-sig-clear">清除重簽</button>
+            </div>
+          </div>
+        </div>
 
-      <style>
-        .form-input-line { border-bottom: 1px solid #aab; min-height: 20px; }
-        @media print {
-          nav, footer, #hero, #carousel, #about, #news, #events, #contact, .scroll-top, #mobile-menu { display: none !important; }
-          #membership { padding: 0 !important; background: white !important; }
-          #membership .section-header, #membership > .container > div:first-child { display: none !important; }
-          #apply-form { box-shadow: none !important; padding: 20px !important; }
-          body { background: white !important; }
-          .print-hide { display: none !important; }
-        }
-      </style>
+        <label class="mf-check"><input type="checkbox" name="agree"><span>我贊同本會章程及宗旨，且符合入會資格（年滿二十歲，設籍新竹市或工作地位於新竹市）。 <b class="mf-req">*</b></span></label>
+        <label class="mf-check"><input type="checkbox" name="consent"><span>我同意協會為入會審核、會員名冊及會務聯繫，蒐集、處理及利用以上個人資料。 <b class="mf-req">*</b></span></label>
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+
+        <p class="mf-error" id="mf-error" role="alert"></p>
+        <div style="text-align:center;">
+          <button type="submit" class="mf-submit" id="mf-submit">送出入會申請</button>
+        </div>
+      </form>
+
+      <div class="mf-done" id="mf-done" hidden>
+        <div class="mf-done-icon">✓</div>
+        <h4 id="mf-done-title">已收到你的入會申請！</h4>
+        <p id="mf-done-text"></p>
+      </div>
 
       <!-- 聯絡資訊 -->
       <div style="margin-top:24px; text-align:center; border-top:1px solid #dde3ed; padding-top:20px;">
         <p style="font-size:13px; color:#5a6880; margin-bottom:6px;">
-          【聯絡方式】LINE入會申請群組：<strong><a href="https://line.me/ti/g/-6ggDAz8xX" target="_blank" style="color:#5a6880;text-decoration:underline;">https://line.me/ti/g/-6ggDAz8xX</a></strong>
-        </p>
-        <p style="font-size:13px; color:#5a6880; margin-bottom:6px;">
-          電話：<strong>03-540-3463</strong>　｜　地址：新竹市經國路三段78巷23-6號
+          有問題請來電：<strong>03-540-3463</strong>　｜　地址：新竹市經國路三段78巷23-6號
         </p>
         <p style="font-size:13px; color:#5a6880;">
           網站：<strong>hcdrone.org.tw</strong>
         </p>
       </div>
-
-      <!-- 列印按鈕 -->
-      <div style="text-align:center; margin-top:28px;" class="print-hide">
-        <button onclick="window.print()" style="background:#1a3a6b; color:white; border:none; padding:13px 36px; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.2s; display:inline-flex; align-items:center; gap:8px;" onmouseover="this.style.background='#2653a0'" onmouseout="this.style.background='#1a3a6b'">
-          🖨️ 列印申請單
-        </button>
-        <a href="入會申請書.docx" download style="background:#217346; color:white; border:none; padding:13px 36px; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.2s; display:inline-flex; align-items:center; gap:8px; text-decoration:none; margin-left:16px;" onmouseover="this.style.background='#1a5c35'" onmouseout="this.style.background='#217346'">
-          📄 下載 Word 申請書
-        </a>
-        <p style="font-size:12px; color:#5a6880; margin-top:10px;">列印後填寫，寄送至LINE入會申請群組</p>
-      </div>
     </div>
+
+    <style>
+      #apply-form .mf-lead { text-align:center; font-size:14px; color:#5a6880; margin-bottom:28px; }
+      #apply-form .mf-req { color:#d33; font-weight:800; }
+      #apply-form .mf-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 22px; }
+      #apply-form .mf-field { display:flex; flex-direction:column; gap:6px; min-width:0; }
+      #apply-form .mf-wide { grid-column:1 / -1; }
+      #apply-form .mf-label { font-size:14px; font-weight:700; color:#1a3a6b; }
+      #apply-form input[type=text], #apply-form input[type=tel], #apply-form input[type=date], #apply-form textarea {
+        width:100%; box-sizing:border-box; border:1.5px solid #c9d3e3; border-radius:10px; padding:11px 13px;
+        font-size:16px; font-family:inherit; color:#1a2333; background:#fbfcfe; transition:border-color .15s, box-shadow .15s;
+      }
+      #apply-form textarea { resize:vertical; min-height:96px; line-height:1.6; }
+      #apply-form input:focus, #apply-form textarea:focus { outline:none; border-color:#2653a0; box-shadow:0 0 0 3px rgba(38,83,160,.15); background:#fff; }
+      #apply-form .mf-bad input, #apply-form .mf-bad textarea, #apply-form .mf-bad .mf-sig-wrap, #apply-form .mf-bad .mf-choice span { border-color:#d33 !important; }
+      #apply-form .mf-hint { font-size:12px; color:#7a869a; }
+      #apply-form .mf-choices { display:flex; gap:10px; }
+      #apply-form .mf-choice { flex:1; position:relative; cursor:pointer; }
+      #apply-form .mf-choice input { position:absolute; opacity:0; pointer-events:none; }
+      #apply-form .mf-choice span { display:block; text-align:center; border:1.5px solid #c9d3e3; border-radius:10px; padding:11px 0; font-size:16px; font-weight:700; color:#1a3a6b; background:#fbfcfe; }
+      #apply-form .mf-choice input:checked + span { background:#1a3a6b; border-color:#1a3a6b; color:#fff; }
+      #apply-form .mf-choice input:focus-visible + span { box-shadow:0 0 0 3px rgba(38,83,160,.25); }
+      #apply-form .mf-sig-wrap { position:relative; border:1.5px dashed #9fb0c9; border-radius:12px; background:#fbfcfe; height:180px; touch-action:none; }
+      #apply-form #mf-sig { width:100%; height:100%; display:block; border-radius:12px; cursor:crosshair; touch-action:none; }
+      #apply-form .mf-sig-ph { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#9aa6b8; font-size:15px; pointer-events:none; }
+      #apply-form .mf-sig-clear { position:absolute; right:10px; bottom:10px; border:1px solid #c9d3e3; background:#fff; color:#1a3a6b; border-radius:8px; padding:6px 12px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+      #apply-form .mf-check { display:flex; gap:10px; align-items:flex-start; margin-top:18px; font-size:14px; line-height:1.7; color:#1a2333; cursor:pointer; }
+      #apply-form .mf-check input { width:20px; height:20px; margin-top:3px; flex-shrink:0; accent-color:#1a3a6b; }
+      #apply-form .mf-check.mf-bad span { color:#d33; }
+      #apply-form .mf-error { color:#d33; font-size:14px; font-weight:700; text-align:center; min-height:20px; margin:18px 0 8px; }
+      #apply-form .mf-submit { background:#1a3a6b; color:#fff; border:none; padding:15px 48px; border-radius:12px; font-size:17px; font-weight:800; cursor:pointer; font-family:inherit; transition:background .2s; }
+      #apply-form .mf-submit:hover { background:#2653a0; }
+      #apply-form .mf-submit:disabled { background:#8a9bb8; cursor:wait; }
+      #apply-form .mf-done { text-align:center; padding:24px 0 8px; }
+      #apply-form .mf-done-icon { width:64px; height:64px; margin:0 auto 14px; border-radius:50%; background:#e3f6e8; color:#1f9d55; font-size:34px; font-weight:900; display:flex; align-items:center; justify-content:center; }
+      #apply-form .mf-done h4 { font-size:20px; font-weight:900; color:#1a3a6b; margin-bottom:10px; }
+      #apply-form .mf-done p { font-size:15px; color:#3a4658; line-height:1.9; }
+      @media (max-width: 640px) {
+        #apply-form { padding:28px 20px !important; }
+        #apply-form .mf-grid { grid-template-columns:1fr; }
+      }
+    </style>
   </div>
 </section>
 
@@ -3147,5 +3199,7 @@
   });
 </script>
 <script type="module" src="about-gallery.js"></script>
+<script src="member-config.js?v=1"></script>
+<script src="membership.js?v=1" defer></script>
 </body>
 </html>
