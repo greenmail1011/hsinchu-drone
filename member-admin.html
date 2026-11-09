@@ -282,7 +282,7 @@ function render() {
     `<button class="stat ${cls[s]} ${FILTER === s ? 'on' : ''}" onclick="setFilter('${s}')"><b>${cnt[s]}</b><span>${s}</span></button>`).join('');
   const q = $('q').value.trim().toLowerCase();
   const rows = ROWS.filter((r) => (FILTER === '全部' || (r.status || '待審核') === FILTER) &&
-    (!q || [r.no, r.name, r.phone, r.job, r.edu, r.addr, r.line].join(' ').toLowerCase().includes(q)));
+    (!q || [r.no, r.name, r.phone, r.job, r.edu, r.addr, r.line, r.email].join(' ').toLowerCase().includes(q)));
   let h = '<div class="row head"><div>編號</div><div>姓名</div><div>現職</div><div>手機</div><div>申請時間</div><div>狀態</div></div>';
   if (!rows.length) h += `<div class="empty">${ROWS.length ? '沒有符合的申請' : '目前還沒有人申請入會'}</div>`;
   rows.forEach((r) => {
@@ -313,6 +313,7 @@ function openDetail(no) {
       ${tr('聯絡地址', esc(r.addr))}
       ${tr('手機', r.phone ? `<a href="tel:${esc(r.phone)}">${esc(r.phone)}</a>` : '')}
       ${tr('電話', esc(r.tel))}
+      ${tr('E-mail', r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : '')}
       ${tr('Line ID', esc(r.line))}
       ${tr('對無人機科技<br>的興趣與期待', esc(r.hope))}
       ${tr('申請人簽名', '<div class="sig" id="sigbox">讀取中…</div>')}
@@ -392,6 +393,7 @@ function printApp() {
       <tr><th>身分證字號</th><td>${esc(r.idno)}</td><th>學　歷</th><td>${esc(r.edu)}</td><th>現　　職</th><td>${esc(r.job)}</td></tr>
       <tr><th>聯絡地址</th><td colspan="5">${esc(r.addr)}</td></tr>
       <tr><th>電　　話</th><td>${esc(r.tel)}</td><th>手　機</th><td colspan="3">${esc(r.phone)}</td></tr>
+      <tr><th>E-mail</th><td colspan="5">${esc(r.email)}</td></tr>
       <tr><th>Line ID</th><td colspan="5">${esc(r.line)}</td></tr>
       <tr><th>申請人簽名</th><td colspan="5" style="height:80px">${sig}</td></tr>
       <tr><th>對無人機科技<br>的興趣與期待</th><td colspan="5" style="height:110px; white-space:pre-wrap">${esc(r.hope)}</td></tr>
@@ -403,7 +405,7 @@ function printApp() {
 
 function downloadCsv() {
   const cols = [['申請時間', 'time'], ['申請編號', 'no'], ['審核狀態', 'status'], ['姓名', 'name'], ['性別', 'gender'], ['出生日期', 'birth'],
-    ['身分證字號', 'idno'], ['學歷', 'edu'], ['現職', 'job'], ['聯絡地址', 'addr'], ['電話', 'tel'], ['手機', 'phone'], ['Line ID', 'line'],
+    ['身分證字號', 'idno'], ['學歷', 'edu'], ['現職', 'job'], ['聯絡地址', 'addr'], ['電話', 'tel'], ['手機', 'phone'], ['E-mail', 'email'], ['Line ID', 'line'],
     ['對無人機科技的興趣與期待', 'hope'], ['審核備註', 'note'], ['審核時間', 'rtime']];
   const cell = (v, k) => { v = String(v == null ? '' : v); if (k === 'phone' || k === 'tel') v = v ? '="' + v + '"' : ''; else v = '"' + v.replace(/"/g, '""') + '"'; return v; };
   const csv = '﻿' + [cols.map((c) => c[0]).join(',')].concat(ROWS.slice().reverse().map((r) => cols.map((c) => cell(r[c[1]], c[1])).join(','))).join('\r\n');

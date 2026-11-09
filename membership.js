@@ -88,7 +88,7 @@
   const MSG = {
     name: '請填姓名', gender: '請選性別', birth: '請填正確的出生日期', age: '依本會章程，入會需年滿二十歲',
     idno: '身分證字號格式或檢查碼不正確，請再確認', edu: '請填學歷', job: '請填現職', addr: '請填聯絡地址',
-    phone: '手機請填 09 開頭的 10 碼數字', signature: '請在簽名區簽名', agree: '請勾選贊同章程與入會資格',
+    phone: '手機請填 09 開頭的 10 碼數字', email: 'E-mail 格式不對（不想填可以留空）', signature: '請在簽名區簽名', agree: '請勾選贊同章程與入會資格',
     consent: '請勾選同意個人資料使用'
   };
   const FIELD = { age: 'birth' };
@@ -111,7 +111,7 @@
     return {
       name: v('name'), gender: (form.querySelector('input[name=gender]:checked') || {}).value || '',
       birth: v('birth'), idno: v('idno').toUpperCase().replace(/\s/g, ''), edu: v('edu'), job: v('job'),
-      addr: v('addr'), phone: v('phone').replace(/[^\d]/g, ''), tel: v('tel'), line: v('line'), hope: v('hope'),
+      addr: v('addr'), phone: v('phone').replace(/[^\d]/g, ''), tel: v('tel'), line: v('line'), email: v('email').toLowerCase(), hope: v('hope'),
       agree: f.agree.checked, consent: f.consent.checked, website: v('website')
     };
   }
@@ -126,6 +126,7 @@
     if (!d.job) bad.push('job');
     if (!d.addr) bad.push('addr');
     if (!/^09\d{8}$/.test(d.phone)) bad.push('phone');
+    if (d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) bad.push('email');
     if (!strokes || inkLen < 25) bad.push('signature');
     if (!d.agree) bad.push('agree');
     if (!d.consent) bad.push('consent');
@@ -172,7 +173,8 @@
         '</b><br>不用重複申請，我們會用你留的手機與你聯繫。';
     } else {
       document.getElementById('mf-done-text').innerHTML = esc(d.name) + ' 你好，你的申請編號是 <b>' + esc(j.no) +
-        '</b>。<br>理事會審查通過後，我們會打 <b>' + esc(d.phone) + '</b> 與你聯繫。';
+        '</b>。<br>理事會審查通過後，我們會打 <b>' + esc(d.phone) + '</b> 與你聯繫。' +
+        (j.mailed ? '<br>確認信已寄到 <b>' + esc(d.email) + '</b>（沒收到請看一下垃圾郵件匣）。' : '');
     }
     box.hidden = false;
     box.scrollIntoView({ behavior: 'smooth', block: 'center' });
