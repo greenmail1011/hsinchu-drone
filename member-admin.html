@@ -226,6 +226,7 @@ async function load(fromLogin) {
     if (SHEET) $('sheetLink').href = SHEET.url + '#gid=' + SHEET.gid;
     $('login').hidden = true; $('app').hidden = false; $('topbtns').hidden = false;
     render();
+    prefetchSigs();
   } catch (e) {
     showLogin('連不上入會系統，請稍後再試');
   } finally {
@@ -335,17 +336,35 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDetai
 function revealId() { if (CUR) $('idv').textContent = CUR.idno; }
 function pick(s) { PICK = s; document.querySelectorAll('.sbtn').forEach((b) => b.classList.toggle('on', b.textContent === s)); $('saved').textContent = ''; }
 
+// 簽名：列表載入後就在背景先抓（待審核的優先），點開時通常已經好了；同一張只抓一次
+const SIG_REQ = {};
+function fetchSig(no) {
+  if (no in SIGS) return Promise.resolve();
+  if (!SIG_REQ[no]) {
+    SIG_REQ[no] = api({ action: 'sig', no })
+      .then((j) => { if (j.ok) SIGS[no] = j.dataUrl; else if (j.error === 'not_found') SIGS[no] = ''; })
+      .catch(() => {})
+      .finally(() => { delete SIG_REQ[no]; });
+  }
+  return SIG_REQ[no];
+}
 async function loadSig(no) {
-  if (SIGS[no]) return showSig(no);
-  try {
-    const j = await api({ action: 'sig', no });
-    SIGS[no] = j.ok ? j.dataUrl : '';
-  } catch (e) { SIGS[no] = ''; }
+  await fetchSig(no);
   showSig(no);
+}
+let PREFETCH_RUN = 0;
+async function prefetchSigs() {
+  const run = ++PREFETCH_RUN;
+  const isWait = (r) => (r.status || '待審核') === '待審核';
+  const queue = ROWS.filter(isWait).concat(ROWS.filter((r) => !isWait(r))).slice(0, 30).map((r) => r.no);
+  const worker = async () => {
+    while (queue.length && run === PREFETCH_RUN && CRED) await fetchSig(queue.shift());
+  };
+  await Promise.all([worker(), worker(), worker()]); // 同時 3 張
 }
 function showSig(no) {
   const box = $('sigbox'); if (!box || !CUR || CUR.no !== no) return;
-  box.innerHTML = SIGS[no] ? `<img src="${SIGS[no]}" alt="簽名">` : '<span style="color:#b3261e">讀不到簽名檔</span>';
+  box.innerHTML = SIGS[no] ? `<img src="${SIGS[no]}" alt="簽名">` : (no in SIGS ? '<span style="color:#b3261e">沒有簽名檔</span>' : '<span style="color:#b3261e">讀不到簽名檔（網路問題），關掉再點一次試試</span>');
 }
 
 async function saveReview() {
