@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>入會申請進度查詢｜新竹市無人機創新科技協會</title>
+<meta name="description" content="新竹市無人機創新科技協會入會申請進度查詢：輸入身分證字號與申請時留的手機，即可查看審核狀態。">
+<link rel="icon" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="member-config.js?v=2"></script>
+<style>
+  :root { --primary:#1a3a6b; --primary-light:#2653a0; --text:#1a2333; --muted:#5a6880; --line:#dde3ed; --bg:#f3f6fb;
+          --wait:#b26a00; --wait-bg:#fff3dc; --ok:#1f8a4c; --ok-bg:#e1f5e9; --no:#b3261e; --no-bg:#fde7e5; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Noto Sans TC', system-ui, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  button, input { font-family:inherit; }
+  .top { background:var(--primary); color:#fff; padding:14px 24px; display:flex; align-items:center; gap:14px; }
+  .top img { width:36px; height:36px; border-radius:8px; background:#fff; object-fit:contain; }
+  .top h1 { font-size:18px; font-weight:900; letter-spacing:1px; }
+  .top small { opacity:.75; font-size:13px; }
+  .top a { color:#fff; }
+  .top .sp { flex:1; }
+  .top .home { font-size:14px; font-weight:700; text-decoration:none; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); padding:7px 12px; border-radius:9px; white-space:nowrap; }
+
+  .card { max-width:440px; margin:8vh auto 0; background:#fff; border-radius:18px; padding:32px 30px; box-shadow:0 10px 40px rgba(26,58,107,.12); }
+  .card h2 { color:var(--primary); font-size:21px; font-weight:900; text-align:center; margin-bottom:6px; }
+  .card .sub { color:var(--muted); font-size:14px; text-align:center; margin-bottom:22px; line-height:1.7; }
+  label { display:block; font-weight:700; font-size:14px; margin-bottom:6px; color:var(--primary); }
+  input { width:100%; border:1.5px solid #c9d3e3; border-radius:10px; padding:12px 14px; font-size:17px; margin-bottom:14px; }
+  input:focus { outline:none; border-color:var(--primary-light); box-shadow:0 0 0 3px rgba(38,83,160,.15); }
+  .btn { width:100%; background:var(--primary); color:#fff; border:none; padding:13px 22px; border-radius:10px; font-size:16px; font-weight:800; cursor:pointer; }
+  .btn:hover { background:var(--primary-light); }
+  .btn:disabled { background:#8a9bb8; cursor:wait; }
+  .err { color:var(--no); font-size:14px; font-weight:700; min-height:20px; margin-top:12px; text-align:center; line-height:1.6; }
+
+  #result { margin-top:22px; }
+  .app { border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:12px; }
+  .app .st { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .badge { display:inline-block; padding:5px 14px; border-radius:999px; font-size:15px; font-weight:900; }
+  .b-待審核 { background:var(--wait-bg); color:var(--wait); } .b-通過 { background:var(--ok-bg); color:var(--ok); } .b-未通過 { background:var(--no-bg); color:var(--no); }
+  .app table { width:100%; border-collapse:collapse; font-size:14px; }
+  .app th { text-align:left; color:var(--muted); font-weight:500; padding:4px 0; width:92px; vertical-align:top; }
+  .app td { padding:4px 0; }
+  .app .msg { margin-top:12px; font-size:14px; line-height:1.8; background:var(--bg); border-radius:10px; padding:10px 12px; }
+  .foot { max-width:440px; margin:18px auto 40px; text-align:center; font-size:13px; color:var(--muted); line-height:1.9; padding:0 16px; }
+  .foot a { color:var(--primary-light); }
+  @media (max-width:520px) {
+    .top { padding:12px 16px; } .top small { display:none; }
+    .card { margin:24px 16px 0; padding:26px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <img src="favicon-32x32.png" alt="">
+  <div><h1>入會申請進度查詢</h1><small>新竹市無人機創新科技協會</small></div>
+  <span class="sp"></span>
+  <a class="home" href="./#membership">回官網</a>
+</header>
+
+<section class="card">
+  <h2>🔎 查詢審核進度</h2>
+  <p class="sub">請輸入申請時填寫的<br><b>身分證字號</b>與<b>手機</b></p>
+  <form id="f" autocomplete="off">
+    <label for="idno">身分證字號</label>
+    <input id="idno" name="idno" maxlength="10" placeholder="例：O123456789" autocapitalize="characters" spellcheck="false" inputmode="text">
+    <label for="phone">手機</label>
+    <input id="phone" name="phone" maxlength="12" placeholder="例：0912345678" inputmode="numeric">
+    <button class="btn" id="btn">查詢</button>
+  </form>
+  <div class="err" id="err" role="alert"></div>
+  <div id="result"></div>
+</section>
+
+<p class="foot">
+  還沒申請？<a href="./#membership">前往線上入會申請</a><br>
+  有問題請來電 <span id="phoneNo">03-540-3463</span>　或寄信 hcdrone168@gmail.com
+</p>
+
+<script>
+(function () {
+  const CFG = window.HCD_MEMBER || {};
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  if (CFG.PHONE) $('phoneNo').textContent = CFG.PHONE;
+  const tel = CFG.PHONE || '03-540-3463';
+
+  $('idno').addEventListener('blur', (e) => { e.target.value = e.target.value.toUpperCase().replace(/\s/g, ''); });
+
+  const MSG = {
+    '待審核': '理事會審查中。審查通過後，協會會打你申請時留的手機與你聯繫，請留意來電。',
+    '通過': '恭喜！你的入會申請已通過，歡迎加入新竹市無人機創新科技協會！協會會與你聯繫後續事宜。',
+    '未通過': '很抱歉，這次的入會申請未通過。如有疑問，歡迎來電 ' + tel + ' 洽詢。'
+  };
+  const short = (t) => { const m = String(t || '').match(/^(\d{4})\/(\d{2})\/(\d{2}) (\d{2}:\d{2})/); return m ? m[1] + '/' + (+m[2]) + '/' + (+m[3]) + ' ' + m[4] : (t || ''); };
+
+  $('f').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const idno = $('idno').value.toUpperCase().replace(/\s/g, '');
+    const phone = $('phone').value.replace(/[^\d]/g, '');
+    $('err').textContent = ''; $('result').innerHTML = '';
+    if (!/^[A-Z][A-D0-9]\d{8}$/.test(idno)) { $('err').textContent = '身分證字號格式不對（1 個英文字母＋9 個數字）'; return; }
+    if (!/^09\d{8}$/.test(phone)) { $('err').textContent = '手機請填 09 開頭的 10 碼數字'; return; }
+    if (!CFG.API_URL) { $('err').textContent = '查詢系統尚未開放，請來電 ' + tel; return; }
+    const btn = $('btn'); btn.disabled = true; btn.textContent = '查詢中…';
+    try {
+      const r = await fetch(CFG.API_URL, { method: 'POST', body: JSON.stringify({ action: 'status', idno, phone }), credentials: 'omit', redirect: 'follow' });
+      const j = await r.json();
+      if (!j.ok) {
+        $('err').textContent = j.error === 'not_found' ? '查不到申請資料。請確認身分證字號與手機是否和申請時填的一樣。'
+          : j.error === 'locked' ? '查詢錯誤太多次，請 10 分鐘後再試'
+          : j.error === 'busy' ? '目前查詢人數較多，請稍後再試'
+          : j.error === 'invalid' ? '身分證字號或手機格式不對'
+          : '查詢失敗，請稍後再試或來電 ' + tel;
+        return;
+      }
+      $('result').innerHTML = (j.apps || []).map((a) => `
+        <div class="app">
+          <div class="st"><span class="badge b-${esc(a.status)}">${esc(a.status)}</span></div>
+          <table>
+            <tr><th>申請編號</th><td><b>${esc(a.no)}</b></td></tr>
+            <tr><th>申請人</th><td>${esc(a.name)}</td></tr>
+            <tr><th>申請時間</th><td>${esc(short(a.time))}</td></tr>
+            ${a.rtime ? `<tr><th>審核時間</th><td>${esc(short(a.rtime))}</td></tr>` : ''}
+          </table>
+          <div class="msg">${esc(MSG[a.status] || '')}</div>
+        </div>`).join('');
+      $('f').reset();
+    } catch (err) {
+      $('err').textContent = '網路連線有問題，請稍後再試';
+    } finally {
+      btn.disabled = false; btn.textContent = '查詢';
+    }
+  });
+})();
+</script>
+</body>
+</html>
