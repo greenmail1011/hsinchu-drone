@@ -3004,6 +3004,7 @@
       <div class="admin-tabs">
         <button class="admin-tab active" data-tab="news" onclick="showAdminTab('news')">📰 最新消息</button>
         <button class="admin-tab" data-tab="carousel" onclick="showAdminTab('carousel')">🖼️ 輪播照片</button>
+        <button class="admin-tab" data-tab="members" onclick="showAdminTab('members')">📝 入會審核<span id="member-badge" hidden style="display:inline-block;margin-left:6px;background:#d97706;color:#fff;font-size:11px;font-weight:800;line-height:18px;min-width:18px;padding:0 6px;border-radius:9px;text-align:center;"></span></button>
         <button class="admin-tab" data-tab="admins" onclick="showAdminTab('admins')">👤 管理者</button>
       </div>
 
@@ -3111,6 +3112,12 @@
         <div id="admin-slide-grid" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
 
+      <!-- Tab: 入會審核（嵌入 member-admin.html；資料在 Google 試算表，登入名單是入會系統 Apps Script 的 ADMIN_EMAILS） -->
+      <div class="admin-tab-pane" id="tab-members" style="display:none;">
+        <p class="admin-hint">審核官網的線上入會申請：點一筆看完整資料與簽名，設定「通過／未通過」。第一次請按裡面的 Google 登入（之後 30 天免登入）。　<a href="member-admin.html" target="_blank" rel="noopener" style="color:#2653a0;font-weight:700;">在新分頁開啟 ↗</a></p>
+        <iframe id="member-frame" title="入會審核" style="display:block;width:100%;height:calc(100vh - 230px);min-height:520px;border:1px solid #e2e8f0;border-radius:12px;background:#f3f6fb;"></iframe>
+      </div>
+
       <!-- Tab: Admins -->
       <div class="admin-tab-pane" id="tab-admins" style="display:none;">
         <p class="admin-hint">
@@ -3145,7 +3152,14 @@
     var pane=document.getElementById('tab-'+name); if(pane) pane.style.display='block';
     if(name==='admins' && window._loadAdmins) window._loadAdmins();
     if(name==='news' && window._loadAdminNews) window._loadAdminNews();
+    if(name==='members'){ var mf=document.getElementById('member-frame'); if(mf && !mf.getAttribute('src')) mf.src='member-admin.html?embed=1'; }
   }
+  // 入會審核分頁的「待審核」數字（由 member-admin.html 傳過來）
+  window.addEventListener('message', function(e){
+    if(e.origin!==location.origin || !e.data || e.data.type!=='hcd-member') return;
+    var b=document.getElementById('member-badge'); if(!b) return;
+    var n=Number(e.data.pending)||0; b.textContent=n; b.hidden=!n; b.style.display=n?'inline-block':'none';
+  });
 </script>
 
 <script>
