@@ -2320,6 +2320,119 @@
   </div>
 </section>
 
+<!-- 社區報名場次：自動讀取 community-signup 報名系統的 config.js（新增場次只要改報名系統，不必改官網） -->
+<style>
+  .event-item.sig-auto .sig-poster { width:84px; height:105px; border-radius:10px; overflow:hidden; flex-shrink:0; border:1px solid var(--border); background:#fff; display:block; }
+  .event-item.sig-auto .sig-poster img { width:100%; height:100%; object-fit:cover; display:block; }
+  .event-item.sig-auto .sig-org { font-size:13px; color:var(--text-muted); margin:2px 0 8px; }
+  .event-item.sig-auto .sig-btns { margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; }
+  .event-item.sig-auto .sig-btn { display:inline-block; padding:9px 20px; border-radius:8px; text-decoration:none; font-size:14px; font-weight:700; white-space:nowrap; }
+  .event-item.sig-auto .sig-btn.go { background:#F26B0F; color:#fff; }
+  .event-item.sig-auto .sig-btn.ghost { background:transparent; color:var(--text-muted); border:1.5px solid var(--border); font-weight:500; font-size:13px; }
+  @media (max-width:600px) { .event-item.sig-auto .sig-poster { display:none; } }
+</style>
+<script>
+(function () {
+  var BASE = 'https://greenmail1011.github.io/community-signup/';
+  var MON = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  var s = document.createElement('script');
+  s.src = BASE + 'config.js?t=' + Math.floor(Date.now() / 600000);  // 每 10 分鐘換一次，跟 GitHub Pages 快取一致
+  s.onload = function () {
+    var go = function () { try { render(window.APP_CONFIG || {}); } catch (e) { console.warn('[社區場次]', e); } };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+  };
+  document.head.appendChild(s);
+
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function today0() { var d = new Date(); d.setHours(0,0,0,0); return d; }
+  // date 欄位（YYYY-MM-DD）優先；沒有就從 time 的「11/6」推算年份（距今最近的那一年）
+  function parseDate(c) {
+    var m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(c.date || '');
+    if (m) return new Date(+m[1], m[2] - 1, +m[3]);
+    m = /(\d{1,2})\/(\d{1,2})/.exec(c.time || '');
+    if (!m) return null;
+    var t = today0(), best = null;
+    [-1, 0, 1].forEach(function (k) {
+      var d = new Date(t.getFullYear() + k, m[1] - 1, +m[2]);
+      if (!best || Math.abs(d - t) < Math.abs(best - t)) best = d;
+    });
+    return best;
+  }
+  function title(cfg, c) {
+    if (c.subtitle) return c.subtitle;                       // 例：師訓
+    return (cfg.EVENT_TITLE || '青銀飛行趣') + '｜' + c.name;
+  }
+
+  function render(cfg) {
+    var up = document.getElementById('events-upcoming'), past = document.getElementById('events-past');
+    if (!up || !past) return;
+    var t = today0(), list = [];
+    Object.keys(cfg.COMMUNITIES || {}).forEach(function (code) {
+      var c = cfg.COMMUNITIES[code];
+      if (!c || c.hidden) return;
+      var d = parseDate(c);
+      if (d) list.push({ code: code, c: c, d: d, past: d < t });
+    });
+    list.sort(function (a, b) { return a.d - b.d; });
+
+    list.forEach(function (it) {
+      var c = it.c, code = it.code, el = document.createElement('div');
+      var signup = BASE + '?c=' + encodeURIComponent(code), poster = BASE + 'poster-' + code + '.jpg';
+      var isTeacher = !!c.subtitle;
+      el.className = 'event-item sig-auto';
+      el.setAttribute('data-end', it.d.getFullYear() + '-' + ('0' + (it.d.getMonth() + 1)).slice(-2) + '-' + ('0' + it.d.getDate()).slice(-2));
+      el.setAttribute('data-code', code);
+      if (it.past) el.style.opacity = '0.75';
+      el.innerHTML =
+        '<div class="event-date-block" style="background:' + (it.past ? '#5a6880' : '#F26B0F') + '">' +
+          '<div class="month">' + MON[it.d.getMonth()] + '</div><div class="day">' + ('0' + it.d.getDate()).slice(-2) + '</div></div>' +
+        '<a class="sig-poster" href="' + poster + '" target="_blank" rel="noopener" title="看活動海報"><img loading="lazy" alt="活動海報" src="' + poster + '" onerror="this.parentNode.style.display=\'none\'"></a>' +
+        '<div class="event-info" style="flex:1; min-width:220px;">' +
+          '<h3>' + esc(title(cfg, c)) + '</h3>' +
+          '<div class="sig-org">' + (isTeacher ? '主辦：新竹市無人機創新科技協會' : '新竹市無人機創新科技協會 攜手 ' + esc(c.name)) + '</div>' +
+          '<div class="event-meta">' +
+            (c.time ? '<span>🕐 ' + esc(c.time) + '</span>' : '') +
+            (c.place ? '<span>📍 ' + esc(c.place) + '</span>' : '') +
+            (isTeacher ? '<span>👥 對象：學校教師</span>' : '<span>🎟️ 免費參加・零經驗也能玩</span>') +
+          '</div>' +
+          (it.past ? '' : '<div class="sig-btns"><a class="sig-btn go" href="' + signup + '" target="_blank" rel="noopener">立即報名 →</a>' +
+                          '<a class="sig-btn ghost" href="' + poster + '" target="_blank" rel="noopener">🖼️ 活動海報</a></div>') +
+        '</div>' +
+        (it.past ? '<span class="event-tag past" style="align-self:flex-start;">已結束</span>'
+                 : '<span class="event-tag" style="background:rgba(220,38,38,0.12);color:#dc2626;align-self:flex-start;">報名中</span>');
+      insertSorted(it.past ? past : up, el, it.past);
+    });
+
+    // 背景向報名系統確認：沒在「開放報名」名單裡的即將舉辦場次 → 報名截止
+    if (cfg.API_URL && list.some(function (x) { return !x.past; })) {
+      fetch(cfg.API_URL + '?action=communities', { credentials: 'omit' })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (!j || !j.ok || !j.communities) return;
+          var open = {}; j.communities.forEach(function (x) { open[x.code] = 1; });
+          up.querySelectorAll('.sig-auto[data-code]').forEach(function (el) {
+            if (open[el.getAttribute('data-code')]) return;
+            var tag = el.querySelector('.event-tag'), btn = el.querySelector('.sig-btn.go');
+            if (tag) { tag.textContent = '報名截止'; tag.style.background = 'rgba(90,104,128,0.12)'; tag.style.color = '#5a6880'; }
+            if (btn) btn.remove();
+          });
+        })
+        .catch(function () {});
+    }
+  }
+
+  // 即將舉辦：日期近的在上；歷史活動：日期新的在上（沒有 data-end 的舊卡片視為最舊）
+  function insertSorted(box, el, desc) {
+    var my = el.getAttribute('data-end'), kids = box.children;
+    for (var i = 0; i < kids.length; i++) {
+      var o = kids[i].getAttribute('data-end') || (desc ? '0000' : '9999');
+      if (desc ? my > o : my < o) { box.insertBefore(el, kids[i]); return; }
+    }
+    box.appendChild(el);
+  }
+})();
+</script>
+
 <!-- Membership -->
 <section id="membership">
   <div class="container">
@@ -2906,6 +3019,7 @@
         el.style.opacity = '0.75';
         var tag = el.querySelector('.event-tag');
         if (tag) { tag.className = 'event-tag past'; tag.textContent = '已結束'; tag.removeAttribute('style'); }
+        el.querySelectorAll('a').forEach(function (a) { if (/立即報名/.test(a.textContent)) a.style.display = 'none'; });
         past.insertBefore(el, past.firstChild);
       }
     });
