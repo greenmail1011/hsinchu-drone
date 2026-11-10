@@ -1521,7 +1521,10 @@
   };
 
   // ====== News / 最新消息 ======
+  // 分類（篩選鈕依此順序；沒有文章的分類不顯示）
+  window.NEWS_CATS = ['青銀社區發展','培力課程教育','競賽','裁判培訓','協會動態','新聞稿'];
   window._newsPosts = [];
+  window._newsPostsDb = null;
   window._adminNewsCache = [];
   function _newsTs(dateStr){
     if(!dateStr) return 0;
@@ -1537,14 +1540,24 @@
       const posts=[]; snap.forEach(function(d){ posts.push(Object.assign({id:d.id}, d.data())); });
       if(!posts.length) return; // keep static fallback
       posts.sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
-      window._newsPosts = posts;
-      _renderNewsFront(posts);
+      window._newsPostsDb = posts;
+      window._renderNewsAll();
     }catch(e){ /* keep static */ }
+  };
+  // Firestore 文章 ＋ 報名系統「報名中」場次（window._signupNews，由活動專區程式提供），報名中的排最前面
+  window._renderNewsAll = function(){
+    if(!window._newsPostsDb) return;
+    var auto=(window._signupNews||[]).slice();
+    var posts=auto.concat(window._newsPostsDb);
+    window._newsPosts = posts;
+    _renderNewsFront(posts);
   };
   function _renderNewsFront(posts){
     const grid = document.querySelector('#news .news-grid'); if(!grid) return;
     _capturePlaceholders(); // 先記住靜態卡片的分類插圖，供無封面圖的文章重用
-    const cats=[]; posts.forEach(function(p){ if(p.category && cats.indexOf(p.category)<0) cats.push(p.category); });
+    const have={}; posts.forEach(function(p){ if(p.category) have[p.category]=1; });
+    const cats=window.NEWS_CATS.filter(function(c){ return have[c]; });
+    Object.keys(have).forEach(function(c){ if(cats.indexOf(c)<0) cats.push(c); });
     let bar=document.getElementById('news-filter');
     if(!bar){ bar=document.createElement('div'); bar.id='news-filter'; grid.parentNode.insertBefore(bar, grid); }
     const chips=['全部'].concat(cats);
@@ -1569,6 +1582,8 @@
   function _newsPlaceholder(category){
     var cache=window._newsPlaceholderCache||{};
     if(category && cache[category]) return cache[category];
+    var alias={'競賽':'賽事消息','裁判培訓':'活動公告','培力課程教育':'新聞稿','青銀社區發展':'協會動態'};
+    if(category && alias[category] && cache[alias[category]]) return cache[alias[category]];
     var fb=cache['活動公告']||cache['協會動態']||cache['新聞稿']||cache['賽事消息'];
     if(fb) return fb;
     return { bg:'linear-gradient(135deg,#e0eeff,#c8deff)',
@@ -1589,7 +1604,7 @@
     }
     return '<div class="news-card" data-cat="'+_esc(p.category)+'">'
       + '<div class="news-card-img" style="background:'+cardBg+';"><div class="news-card-tag">'+_esc(p.category)+'</div>'+img+'</div>'
-      + '<div class="news-card-body"><p class="news-date">📅 '+_esc(p.date)+'</p>'
+      + '<div class="news-card-body"><p class="news-date">📅 '+_esc(p.date)+(p.signup?' <span style="margin-left:6px;background:rgba(220,38,38,0.12);color:#dc2626;font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;">報名中</span>':'')+'</p>'
       + '<h3 class="news-title">'+_esc(p.title)+'</h3>'
       + '<p class="news-excerpt">'+_esc(p.excerpt)+'</p>'
       + '<a href="#" class="news-link" onclick="_openDynNews('+idx+');return false;">閱讀更多 →</a></div></div>';
@@ -1697,7 +1712,7 @@
   window._openAddNews = function(){
     document.getElementById('nf-id').value='';
     document.getElementById('nf-title').value='';
-    document.getElementById('nf-cat').value='賽事消息';
+    document.getElementById('nf-cat').value='協會動態';
     document.getElementById('nf-cat-custom').value=''; document.getElementById('nf-cat-custom').style.display='none';
     document.getElementById('nf-date').value = _todayISO();
     document.getElementById('nf-image').value=''; document.getElementById('nf-img-preview').style.display='none';
@@ -1712,7 +1727,7 @@
     const p = (window._adminNewsCache||[]).find(function(x){ return x.id===id; }); if(!p) return;
     document.getElementById('nf-id').value=p.id;
     document.getElementById('nf-title').value=p.title||'';
-    const cats=['賽事消息','新聞稿','活動公告','協會動態'];
+    const cats=window.NEWS_CATS;
     if(cats.indexOf(p.category)>=0){ document.getElementById('nf-cat').value=p.category; document.getElementById('nf-cat-custom').style.display='none'; }
     else { document.getElementById('nf-cat').value='__custom'; document.getElementById('nf-cat-custom').style.display='block'; document.getElementById('nf-cat-custom').value=p.category||''; }
     document.getElementById('nf-date').value=_toISODate(p.date)||'';
@@ -1730,7 +1745,7 @@
     var p=(window._adminNewsCache||[]).find(function(x){ return x.id===id; }); if(!p) return;
     _openAddNews();
     document.getElementById('nf-title').value=(p.title||'')+'（副本）';
-    var cats=['賽事消息','新聞稿','活動公告','協會動態'];
+    var cats=window.NEWS_CATS;
     if(p.category && cats.indexOf(p.category)>=0){ document.getElementById('nf-cat').value=p.category; document.getElementById('nf-cat-custom').style.display='none'; }
     else if(p.category){ document.getElementById('nf-cat').value='__custom'; var cu=document.getElementById('nf-cat-custom'); cu.style.display='block'; cu.value=p.category; }
     document.getElementById('nf-image').value=p.image||''; _nfPreview(p.image||'');
@@ -2378,10 +2393,11 @@
     list.forEach(function (it) {
       var c = it.c, code = it.code, el = document.createElement('div');
       var signup = BASE + '?c=' + encodeURIComponent(code), poster = BASE + 'poster-' + code + '.jpg';
-      var isTeacher = !!c.subtitle;
+      var isTeacher = !!c.subtitle, internal = !!c.internal;  // internal：校內場次，不對外報名
       el.className = 'event-item sig-auto';
       el.setAttribute('data-end', it.d.getFullYear() + '-' + ('0' + (it.d.getMonth() + 1)).slice(-2) + '-' + ('0' + it.d.getDate()).slice(-2));
       el.setAttribute('data-code', code);
+      if (internal) el.setAttribute('data-internal', '1');
       if (it.past) el.style.opacity = '0.75';
       el.innerHTML =
         '<div class="event-date-block" style="background:' + (it.past ? '#5a6880' : '#F26B0F') + '">' +
@@ -2395,13 +2411,36 @@
             (c.place ? '<span>📍 ' + esc(c.place) + '</span>' : '') +
             (isTeacher ? '<span>👥 對象：學校教師</span>' : '<span>🎟️ 免費參加・零經驗也能玩</span>') +
           '</div>' +
-          (it.past ? '' : '<div class="sig-btns"><a class="sig-btn go" href="' + signup + '" target="_blank" rel="noopener">立即報名 →</a>' +
+          (it.past || internal ? '' : '<div class="sig-btns"><a class="sig-btn go" href="' + signup + '" target="_blank" rel="noopener">立即報名 →</a>' +
                           '<a class="sig-btn ghost" href="' + poster + '" target="_blank" rel="noopener">🖼️ 活動海報</a></div>') +
         '</div>' +
         (it.past ? '<span class="event-tag past" style="align-self:flex-start;">已結束</span>'
+                 : internal ? '<span class="event-tag upcoming" style="align-self:flex-start;">校內場次</span>'
                  : '<span class="event-tag" style="background:rgba(220,38,38,0.12);color:#dc2626;align-self:flex-start;">報名中</span>');
       insertSorted(it.past ? past : up, el, it.past);
     });
+
+    // 最新消息：每個「報名中」的對外場次各一張卡（日期近的在前）
+    window._signupNews = list.filter(function (x) { return !x.past && !x.c.internal; }).map(function (x) {
+      var c = x.c, code = x.code, d = x.d, md = (d.getMonth() + 1) + '/' + d.getDate();
+      var signup = BASE + '?c=' + encodeURIComponent(code), poster = BASE + 'poster-' + code + '.jpg';
+      var head = c.subtitle ? c.subtitle : (cfg.EVENT_TITLE || '青銀飛行趣') + ' × ' + c.name;
+      var with_ = c.subtitle ? '新竹市無人機創新科技協會' : '新竹市無人機創新科技協會攜手' + c.name;
+      return {
+        signup: true, code: code,
+        category: c.category || (c.subtitle ? '培力課程教育' : '青銀社區發展'),
+        date: d.getFullYear() + '年' + ('0' + (d.getMonth() + 1)).slice(-2) + '月' + ('0' + d.getDate()).slice(-2) + '日',
+        title: head + '｜' + md + ' 開放報名',
+        excerpt: with_ + '，' + (c.time || md) + (c.place ? '在' + c.place : '') + (c.subtitle ? '辦理。' : '帶大家動手飛無人機足球，免費參加、零經驗也能玩！'),
+        image: poster,
+        body: '<p>' + esc(with_) + (c.subtitle ? '辦理' + esc(c.subtitle) + '。' : '，邀請長輩、爸媽和孩子一起來體驗無人機足球：真的拿遙控器起飛、懸停、闖關，最後讓球型無人機飛過穿越環「射門」！') + '</p>' +
+              '<ul><li>時間：' + esc(c.time || md) + '</li>' + (c.place ? '<li>地點：' + esc(c.place) + '</li>' : '') +
+              (c.subtitle ? '' : '<li>費用：免費參加</li>') + '<li>洽詢：' + esc(cfg.ORG_PHONE || '03-540-3463') + '</li></ul>' +
+              '<p style="margin:22px 0;"><a href="' + signup + '" target="_blank" rel="noopener" style="display:inline-block;padding:12px 28px;background:#F26B0F;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;">立即報名 →</a></p>' +
+              '<p><img src="' + poster + '" alt="活動海報" style="width:100%;max-width:540px;border-radius:12px;display:block;" onerror="this.style.display=\'none\'"></p>'
+      };
+    });
+    if (window._renderNewsAll) window._renderNewsAll();
 
     // 背景向報名系統確認：沒在「開放報名」名單裡的即將舉辦場次 → 報名截止
     if (cfg.API_URL && list.some(function (x) { return !x.past; })) {
@@ -2410,7 +2449,7 @@
         .then(function (j) {
           if (!j || !j.ok || !j.communities) return;
           var open = {}; j.communities.forEach(function (x) { open[x.code] = 1; });
-          up.querySelectorAll('.sig-auto[data-code]').forEach(function (el) {
+          up.querySelectorAll('.sig-auto[data-code]:not([data-internal])').forEach(function (el) {
             if (open[el.getAttribute('data-code')]) return;
             var tag = el.querySelector('.event-tag'), btn = el.querySelector('.sig-btn.go');
             if (tag) { tag.textContent = '報名截止'; tag.style.background = 'rgba(90,104,128,0.12)'; tag.style.color = '#5a6880'; }
@@ -3132,10 +3171,12 @@
           <input type="text" id="nf-title" placeholder="文章標題">
           <label>分類</label>
           <select id="nf-cat" onchange="_nfCatChange()">
-            <option>賽事消息</option>
-            <option>新聞稿</option>
-            <option>活動公告</option>
+            <option>青銀社區發展</option>
+            <option>培力課程教育</option>
+            <option>競賽</option>
+            <option>裁判培訓</option>
             <option>協會動態</option>
+            <option>新聞稿</option>
             <option value="__custom">其他（自訂）…</option>
           </select>
           <input type="text" id="nf-cat-custom" placeholder="自訂分類名稱" style="display:none; margin-top:6px;">
