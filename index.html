@@ -2083,7 +2083,7 @@
           <h4>追風少年課程</h4>
           <p>與陽明交大、新竹市政府聯合推動的 K–12 科技培力，把半導體與無人機帶進教室。</p>
         </div>
-        <div class="value-card">
+        <div class="value-card" style="cursor:pointer" title="看無人機足球零件拆解" onclick="document.getElementById('drone-soccer').scrollIntoView({behavior:'smooth'})">
           <span class="icon"><i class="ico ico-ball"></i></span>
           <h4>無人機足球</h4>
           <p>推廣 3v3 空中競技，設國小到國高中組，結合操控、團隊合作與科技競技。</p>
@@ -2108,6 +2108,111 @@
 </section>
 
 <div class="divider"></div>
+
+<!-- 無人機足球｜零件拆解（捲動驅動 3D，程式在 drone-explode.js，進入畫面前才載入） -->
+<style>
+  #drone-soccer { position:relative; height:560vh; padding:0; background:#05070d; color:#fff; }
+  #drone-soccer .ds-stage { position:sticky; top:0; height:100vh; height:100svh; overflow:hidden;
+    background: radial-gradient(60% 55% at 68% 48%, #12305f 0%, #0a1730 42%, #05070d 78%); }
+  #drone-soccer canvas { position:absolute; inset:0; width:100%; height:100%; display:block; opacity:0; transition:opacity .8s; }
+  #drone-soccer.ds-ready canvas { opacity:1; }
+  #drone-soccer .ds-copy { position:absolute; left:max(6vw, calc((100vw - 1152px) / 2)); top:50%; width:min(420px, 38vw); }
+  #drone-soccer .ds-step { position:absolute; left:0; top:0; width:100%; transform:translateY(calc(-50% + 18px)); opacity:0; pointer-events:none; transition:opacity .45s, transform .45s; }
+  #drone-soccer .ds-step.on { opacity:1; transform:translateY(-50%); pointer-events:auto; }
+  #drone-soccer .ds-eyebrow { font-size:13px; font-weight:700; letter-spacing:.22em; color:#6fb0ff; margin-bottom:16px; }
+  #drone-soccer h2 { font-size:clamp(34px, 4.6vw, 60px); line-height:1.15; font-weight:900; letter-spacing:.01em; margin:0 0 20px; color:#fff; }
+  #drone-soccer p { font-size:clamp(15px, 1.25vw, 18px); line-height:1.85; color:rgba(255,255,255,.72); margin:0; }
+  #drone-soccer .ds-hint { margin-top:34px; font-size:13px; letter-spacing:.12em; color:rgba(255,255,255,.5); display:flex; align-items:center; gap:10px; }
+  #drone-soccer .ds-hint::before { content:""; width:1px; height:34px; background:linear-gradient(#6fb0ff, transparent); animation:dsHint 1.8s ease-in-out infinite; transform-origin:top; }
+  @keyframes dsHint { 0%{transform:scaleY(0)} 50%{transform:scaleY(1)} 100%{transform:scaleY(1); opacity:0} }
+  #drone-soccer .ds-facts { display:flex; gap:28px; margin-top:28px; }
+  #drone-soccer .ds-facts b { display:block; font-size:clamp(26px, 2.6vw, 36px); font-weight:900; color:#fff; line-height:1.1; }
+  #drone-soccer .ds-facts span { font-size:13px; color:rgba(255,255,255,.55); }
+  #drone-soccer .ds-cta { display:flex; gap:12px; flex-wrap:wrap; margin-top:30px; }
+  #drone-soccer .ds-cta a { padding:12px 24px; border-radius:999px; font-size:15px; font-weight:700; text-decoration:none; }
+  #drone-soccer .ds-cta a.go { background:#F26B0F; color:#fff; }
+  #drone-soccer .ds-cta a.ghost { border:1px solid rgba(255,255,255,.35); color:#fff; }
+  #drone-soccer .ds-labels { position:absolute; inset:0; pointer-events:none; }
+  #drone-soccer .ds-label { position:absolute; left:0; top:0; opacity:0; will-change:transform, opacity; }
+  #drone-soccer .ds-label i { position:absolute; left:-4px; top:-4px; width:8px; height:8px; border-radius:50%; background:#fff; box-shadow:0 0 0 4px rgba(255,255,255,.18); }
+  #drone-soccer .ds-label span { position:absolute; left:64px; top:-22px; width:max-content; max-width:230px; }
+  #drone-soccer .ds-label span::before { content:""; position:absolute; left:-56px; top:22px; width:48px; height:1px; background:rgba(255,255,255,.45); }
+  #drone-soccer .ds-label.left span { left:auto; right:64px; text-align:right; }
+  #drone-soccer .ds-label.left span::before { left:auto; right:-56px; }
+  #drone-soccer .ds-label b { display:block; font-size:16px; font-weight:800; color:#fff; }
+  #drone-soccer .ds-label em { display:block; font-style:normal; font-size:13px; line-height:1.55; color:rgba(255,255,255,.62); margin-top:2px; }
+  #drone-soccer .ds-bar { position:absolute; left:0; right:0; bottom:0; height:2px; background:rgba(255,255,255,.08); }
+  #drone-soccer .ds-bar i { display:block; height:100%; background:linear-gradient(90deg, #2f86ff, #F26B0F); transform-origin:left; transform:scaleX(0); }
+  #drone-soccer.ds-nogl { height:auto; } #drone-soccer.ds-nogl .ds-stage { position:relative; height:auto; padding:90px 0; }
+  #drone-soccer.ds-nogl canvas, #drone-soccer.ds-nogl .ds-labels, #drone-soccer.ds-nogl .ds-hint { display:none; }
+  #drone-soccer.ds-nogl .ds-copy { position:relative; top:auto; width:auto; margin:0 6vw; }
+  #drone-soccer.ds-nogl .ds-step { position:relative; opacity:1; transform:none; margin-bottom:48px; }
+  @media (max-width: 860px) {
+    #drone-soccer .ds-stage { background: radial-gradient(90% 46% at 50% 36%, #12305f 0%, #0a1730 46%, #05070d 82%); }
+    #drone-soccer .ds-copy { left:22px; right:22px; width:auto; top:auto; bottom:40px; height:0; }
+    #drone-soccer .ds-step { top:auto; bottom:0; transform:translateY(14px); }
+    #drone-soccer .ds-step.on { transform:none; }
+    #drone-soccer h2 { margin-bottom:12px; } #drone-soccer h2 br { display:none; } #drone-soccer .ds-eyebrow { margin-bottom:10px; }
+    #drone-soccer .ds-hint { margin-top:18px; } #drone-soccer .ds-facts { margin-top:16px; gap:20px; } #drone-soccer .ds-cta { margin-top:18px; }
+    #drone-soccer .ds-label span { left:26px; top:-12px; max-width:150px; } #drone-soccer .ds-label span::before { left:-20px; top:12px; width:14px; }
+    #drone-soccer .ds-label.left span { right:26px; } #drone-soccer .ds-label.left span::before { right:-20px; }
+    #drone-soccer .ds-label b { font-size:13px; } #drone-soccer .ds-label em { display:none; }
+  }
+</style>
+<section id="drone-soccer" data-no-cms aria-label="無人機足球零件拆解">
+  <div class="ds-stage">
+    <canvas></canvas>
+    <div class="ds-labels"></div>
+    <div class="ds-copy">
+      <div class="ds-step on">
+        <div class="ds-eyebrow">DRONE SOCCER</div>
+        <h2>一顆<br>會飛的球</h2>
+        <p>把四軸無人機裝進球殼裡，三對三，在空中把自己飛進對方的圓環，就是得分。</p>
+        <div class="ds-hint">往下捲，把它拆開</div>
+      </div>
+      <div class="ds-step">
+        <div class="ds-eyebrow">01　防護球殼</div>
+        <h2>撞了，<br>還能繼續飛</h2>
+        <p>足球紋路的框架把槳葉整個包在裡面。場上的碰撞是戰術的一部分，也因為有這層殼，小學生和阿公阿嬤都能放心上手。</p>
+      </div>
+      <div class="ds-step">
+        <div class="ds-eyebrow">02　動力</div>
+        <h2>四顆馬達，<br>兩種槳</h2>
+        <p>相鄰的槳轉向相反，機身才不會自己打轉。分清 A 槳和 B 槳、學會自己換槳，是每位選手的第一堂維修課。</p>
+      </div>
+      <div class="ds-step">
+        <div class="ds-eyebrow">03　核心</div>
+        <h2>大腦、電力<br>和隊伍的顏色</h2>
+        <p>飛控板不斷感測姿態、修正馬達轉速；電池供應一整局的電力；燈條的紅與藍，讓裁判和隊友一眼認出誰是誰。</p>
+      </div>
+      <div class="ds-step">
+        <div class="ds-eyebrow">04　全部攤開</div>
+        <h2>懂飛，<br>更要懂修</h2>
+        <p>協會的課程不只教操控。認識每個零件為什麼在那裡、壞了怎麼換，才是把興趣練成能力的開始。</p>
+        <div class="ds-facts"><div><b>250g</b><span>以內，室內就能練</span></div><div><b>3 v 3</b><span>一攻擊手、兩防守</span></div></div>
+      </div>
+      <div class="ds-step">
+        <div class="ds-eyebrow">READY</div>
+        <h2>組回去，<br>上場</h2>
+        <p>從社區體驗、校園課程到正式賽事，協會陪你從第一次起飛開始。</p>
+        <div class="ds-cta"><a class="go" href="#events">看近期活動</a><a class="ghost" href="#contact">課程與合作洽詢</a></div>
+      </div>
+    </div>
+    <div class="ds-bar"><i></i></div>
+  </div>
+</section>
+<script>
+  // 接近這一區才載入 3D 程式（three.js 約 670KB，不拖慢首頁）
+  (function () {
+    var el = document.getElementById('drone-soccer'), done = false;
+    function load() {
+      if (done) return; done = true;
+      import('./drone-explode.js?v=1').catch(function (e) { console.warn('[拆解]', e); el.classList.add('ds-nogl'); });
+    }
+    if (!('IntersectionObserver' in window)) return load();
+    new IntersectionObserver(function (es, io) { if (es[0].isIntersecting) { io.disconnect(); load(); } }, { rootMargin: '1200px' }).observe(el);
+  })();
+</script>
 
 <!-- News -->
 <section id="news">
