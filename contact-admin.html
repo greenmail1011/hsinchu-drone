@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>聯絡訊息後台｜新竹市無人機創新科技協會</title>
+<link rel="icon" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script>if (/[?&]embed\b/.test(location.search) && window.parent !== window) document.documentElement.classList.add('embed');</script>
+<script src="member-config.js?v=2"></script>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+  :root { --primary:#1a3a6b; --primary-light:#2653a0; --text:#1a2333; --muted:#5a6880; --line:#dde3ed; --bg:#f3f6fb;
+          --wait:#b26a00; --wait-bg:#fff3dc; --ok:#1f8a4c; --ok-bg:#e1f5e9; --no:#b3261e; --no-bg:#fde7e5; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Noto Sans TC', system-ui, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  button, input, textarea, select { font-family:inherit; }
+  .top { background:var(--primary); color:#fff; padding:14px 24px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .top img { width:36px; height:36px; border-radius:8px; background:#fff; object-fit:contain; }
+  .top h1 { font-size:18px; font-weight:900; letter-spacing:1px; }
+  .top small { opacity:.75; font-size:13px; }
+  .top .sp { flex:1; }
+  #topbtns { display:flex; gap:6px; flex-wrap:wrap; }
+  #topbtns[hidden] { display:none; }
+  .tbtn { white-space:nowrap; background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.3); padding:8px 14px; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; }
+  .tbtn:hover { background:rgba(255,255,255,.26); }
+  .wrap { max-width:1100px; margin:0 auto; padding:24px 20px 60px; }
+  /* 嵌在官網「管理專區」分頁裡：不顯示標題列，按鈕改淺色 */
+  .embed body { background:#f3f6fb; }
+  .embed .top { background:transparent; padding:10px 16px 0; }
+  .embed .top > img, .embed .top > div { display:none; }
+  .embed .tbtn { background:#fff; color:var(--primary); border-color:#c9d3e3; }
+  .embed #who { color:var(--muted); }
+  .embed .wrap { padding:12px 16px 30px; }
+  .embed #login { margin-top:5vh; box-shadow:0 4px 18px rgba(26,58,107,.10); }
+
+  /* 登入 */
+  #login { max-width:380px; margin:12vh auto 0; background:#fff; border-radius:18px; padding:34px 30px; box-shadow:0 10px 40px rgba(26,58,107,.12); text-align:center; }
+  #login h2 { color:var(--primary); font-size:20px; margin-bottom:6px; }
+  #login p { color:var(--muted); font-size:14px; margin-bottom:20px; }
+  #login input { width:100%; border:1.5px solid #c9d3e3; border-radius:10px; padding:12px 14px; font-size:17px; margin-bottom:12px; }
+  #login input:focus { outline:none; border-color:var(--primary-light); box-shadow:0 0 0 3px rgba(38,83,160,.15); }
+  .btn { background:var(--primary); color:#fff; border:none; padding:12px 22px; border-radius:10px; font-size:15px; font-weight:800; cursor:pointer; }
+  .btn:hover { background:var(--primary-light); }
+  .btn:disabled { background:#8a9bb8; cursor:wait; }
+  .btn.ghost { background:#fff; color:var(--primary); border:1.5px solid #c9d3e3; }
+  .btn.ghost:hover { background:#eef3fa; }
+  #login .btn { width:100%; }
+  .err { color:var(--no); font-size:14px; font-weight:700; min-height:20px; margin-top:10px; }
+  .g-btn { min-height:44px; display:flex; justify-content:center; margin:4px 0 6px; }
+  .pw-box { margin-top:18px; border-top:1px dashed #c9d3e3; padding-top:14px; text-align:left; }
+  .pw-box summary { cursor:pointer; color:var(--muted); font-weight:700; text-align:center; font-size:14px; }
+  .pw-box form { margin-top:12px; }
+  #who { color:#cfe0ff; font-size:13px; margin-right:6px; }
+
+  /* 統計＋篩選 */
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+  .stat { background:#fff; border-radius:14px; padding:14px 16px; border:2px solid transparent; cursor:pointer; text-align:left; }
+  .stat b { display:block; font-size:28px; font-weight:900; color:var(--primary); line-height:1.1; }
+  .stat span { font-size:13px; color:var(--muted); font-weight:700; }
+  .stat.on { border-color:var(--primary); }
+  .stat.wait b { color:var(--wait); } .stat.ok b { color:var(--ok); } .stat.no b { color:var(--no); }
+  .tools { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .tools input { flex:1; min-width:200px; border:1.5px solid #c9d3e3; border-radius:10px; padding:10px 14px; font-size:15px; background:#fff; }
+  .hint { color:var(--muted); font-size:13px; margin:-4px 0 12px; }
+
+  /* 清單 */
+  .list { background:#fff; border-radius:14px; overflow:hidden; }
+  .row { display:grid; grid-template-columns:96px 1.1fr 1.6fr 1.1fr 130px 92px; gap:12px; align-items:center; padding:13px 18px; border-bottom:1px solid var(--line); cursor:pointer; font-size:14px; }
+  .row:hover { background:#f6f9fd; }
+  .row.head { background:#eef3fa; font-weight:800; color:var(--primary); cursor:default; font-size:13px; }
+  .row .nm { font-weight:800; font-size:15px; }
+  .row .sub { color:var(--muted); font-size:12px; }
+  .badge { display:inline-block; padding:4px 10px; border-radius:999px; font-size:13px; font-weight:800; text-align:center; }
+  .b-待審核 { background:var(--wait-bg); color:var(--wait); } .b-通過 { background:var(--ok-bg); color:var(--ok); } .b-未通過 { background:var(--no-bg); color:var(--no); }
+  .empty { padding:40px; text-align:center; color:var(--muted); }
+
+  /* 詳細 */
+  #detail { position:fixed; inset:0; background:rgba(15,25,45,.5); display:none; align-items:flex-start; justify-content:center; padding:4vh 12px; overflow:auto; z-index:20; }
+  #detail.show { display:flex; }
+  .card { background:#fff; border-radius:18px; width:100%; max-width:720px; padding:26px 28px; position:relative; }
+  .card h3 { color:var(--primary); font-size:20px; font-weight:900; margin-bottom:4px; }
+  .card .meta { color:var(--muted); font-size:13px; margin-bottom:16px; }
+  .x { position:absolute; right:16px; top:14px; border:none; background:#eef3fa; color:var(--primary); width:34px; height:34px; border-radius:50%; font-size:18px; cursor:pointer; }
+  table.f { width:100%; border-collapse:collapse; font-size:14px; margin-bottom:16px; }
+  table.f th { text-align:left; width:150px; background:#f5f7fa; color:var(--primary); font-weight:700; padding:9px 12px; border:1px solid var(--line); vertical-align:top; }
+  table.f td { padding:9px 12px; border:1px solid var(--line); white-space:pre-wrap; word-break:break-word; }
+  .reveal { margin-left:8px; border:1px solid #c9d3e3; background:#fff; color:var(--primary); border-radius:6px; padding:1px 8px; font-size:12px; cursor:pointer; }
+  .sig { min-height:70px; display:flex; align-items:center; }
+  .sig img { max-height:110px; max-width:100%; }
+  .review { background:#f6f9fd; border-radius:14px; padding:16px; }
+  .review h4 { color:var(--primary); font-size:15px; margin-bottom:10px; }
+  .sbtns { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+  .sbtn { flex:1; min-width:90px; border:2px solid #c9d3e3; background:#fff; border-radius:10px; padding:10px; font-size:15px; font-weight:800; cursor:pointer; color:var(--text); }
+  .sbtn.on.s-待審核 { border-color:var(--wait); background:var(--wait-bg); color:var(--wait); }
+  .sbtn.on.s-通過 { border-color:var(--ok); background:var(--ok-bg); color:var(--ok); }
+  .sbtn.on.s-未通過 { border-color:var(--no); background:var(--no-bg); color:var(--no); }
+  .review textarea { width:100%; border:1.5px solid #c9d3e3; border-radius:10px; padding:10px 12px; font-size:14px; min-height:64px; resize:vertical; margin-bottom:10px; }
+  .actions { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; align-items:center; }
+  .saved { color:var(--ok); font-weight:800; font-size:14px; margin-right:auto; }
+
+  @media (max-width: 760px) {
+    .stats { grid-template-columns:repeat(2,1fr); }
+    .row { grid-template-columns:1fr auto; gap:4px 10px; }
+    .row.head { display:none; }
+    .row { grid-template-areas:"nm st" "job job" "ph ph" "no tm"; }
+    .row > :nth-child(1) { grid-area:no; color:var(--muted); font-size:12px; } .row > :nth-child(2) { grid-area:nm; }
+    .row > :nth-child(3) { grid-area:job; } .row > :nth-child(4) { grid-area:ph; }
+    .row > :nth-child(5) { grid-area:tm; text-align:right; } .row > :nth-child(6) { grid-area:st; }
+    .top { padding:12px 16px; } #topbtns { width:100%; } .tbtn { padding:7px 10px; font-size:13px; }
+    table.f th { width:96px; }
+  }
+
+  .b-未處理 { background:var(--no-bg); color:var(--no); } .b-已處理 { background:var(--ok-bg); color:var(--ok); }
+  .stat.todo b { color:var(--no); } .stat.done b { color:var(--ok); }
+  .stats { grid-template-columns:repeat(3,1fr); }
+  .row { grid-template-columns:120px 1fr 110px 2.4fr 92px; }
+  .row .msg { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sbtn.on.s-未處理 { border-color:var(--no); background:var(--no-bg); color:var(--no); }
+  .sbtn.on.s-已處理 { border-color:var(--ok); background:var(--ok-bg); color:var(--ok); }
+  .msgbox { background:#f6f9fd; border-radius:12px; padding:14px 16px; white-space:pre-wrap; word-break:break-word; font-size:15px; line-height:1.8; margin-bottom:16px; }
+  @media (max-width: 760px) {
+    .stats { grid-template-columns:repeat(3,1fr); }
+    .row { grid-template-areas:"nm st" "msg msg" "tp tm"; }
+    .row > :nth-child(1) { grid-area:tm; text-align:right; color:var(--muted); font-size:12px; } .row > :nth-child(2) { grid-area:nm; }
+    .row > :nth-child(3) { grid-area:tp; color:var(--muted); font-size:12px; } .row > :nth-child(4) { grid-area:msg; }
+    .row > :nth-child(5) { grid-area:st; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <img src="favicon-32x32.png" alt="">
+  <div><h1>聯絡訊息後台</h1><small>新竹市無人機創新科技協會</small></div>
+  <span class="sp"></span>
+  <span id="topbtns" hidden>
+    <span id="who"></span>
+    <button class="tbtn" onclick="load()">重新整理</button>
+    <a class="tbtn" id="sheetLink" target="_blank" rel="noopener">開啟 Google 試算表</a>
+    <button class="tbtn" onclick="logout()">登出</button>
+  </span>
+</header>
+
+<section id="login" hidden>
+  <h2>管理者登入</h2>
+  <p>新竹市無人機創新科技協會成員<br>請用 Google 帳號登入（和入會審核同一組帳號）</p>
+  <div class="g-btn" id="g-btn"><span style="color:var(--muted);font-size:14px">Google 登入按鈕載入中…</span></div>
+  <div class="err" id="loginErr"></div>
+  <details class="pw-box" id="pw-box">
+    <summary>沒辦法用 Google 登入？改用備用密碼</summary>
+    <form onsubmit="event.preventDefault(); login();">
+      <input id="pw" type="password" autocomplete="current-password" placeholder="備用密碼">
+      <button class="btn" id="loginBtn">登入</button>
+    </form>
+  </details>
+</section>
+
+<main class="wrap" id="app" hidden>
+  <div class="stats" id="stats"></div>
+  <div class="tools"><input id="q" type="search" placeholder="搜尋姓名、Email、電話、內容…" oninput="render()"></div>
+  <p class="hint">每則新留言都會寄信到管理者信箱，直接回信就能回覆對方。回覆後點進來標記「已處理」，其他管理者就知道了。</p>
+  <div class="list" id="list"></div>
+</main>
+
+<div id="detail" onclick="if(event.target===this) closeDetail()"><div class="card" id="card"></div></div>
+
+<script>
+const API = (window.HCD_MEMBER || {}).API_URL;
+const CLIENT_ID = (window.HCD_MEMBER || {}).GOOGLE_CLIENT_ID;
+const STATUSES = ['未處理', '已處理'];
+// 登入憑證和入會審核後台共用（同一個 localStorage key），在其中一邊登入，另一邊就不用再登入
+const CRED_KEY = 'hcd_member_cred';
+function credGet() {
+  try { const v = localStorage.getItem(CRED_KEY); if (v) return JSON.parse(v); } catch (e) {}
+  try { const k = sessionStorage.getItem('hcd_member_key'); if (k) return { key: k }; } catch (e) {}
+  return null;
+}
+function credSet(c) {
+  credDel();
+  try { if (c.session) localStorage.setItem(CRED_KEY, JSON.stringify({ session: c.session })); else if (c.key) sessionStorage.setItem('hcd_member_key', c.key); } catch (e) {}
+}
+function credDel() { try { localStorage.removeItem(CRED_KEY); sessionStorage.removeItem('hcd_member_key'); } catch (e) {} }
+let CRED = credGet();
+let ROWS = [], FILTER = '未處理', CUR = null, PICK = '';
+
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = (id) => document.getElementById(id);
+async function api(body) {
+  const r = await fetch(API, { method: 'POST', body: JSON.stringify(Object.assign({}, body, CRED || {})), credentials: 'omit', redirect: 'follow' });
+  return r.json();
+}
+function errText(j) {
+  return j.error === 'wrong_key' ? '密碼不對'
+    : j.error === 'locked' ? '密碼錯太多次，請 10 分鐘後再試'
+    : j.error === 'not_admin' ? '這個 Google 帳號（' + (j.email || '') + '）不在管理者名單裡'
+    : j.error === 'google_invalid' || j.error === 'session_invalid' ? '登入已過期，請再按一次 Google 登入'
+    : '讀取失敗，請稍後再試';
+}
+async function login(cred) {
+  if (!cred) { const k = $('pw').value.trim(); if (!k) return; cred = { key: k }; }
+  CRED = cred;
+  // Google 剛登入：先走入會系統的登入（action:data）換成 30 天憑證
+  if (CRED.idToken || CRED.key) {
+    $('loginErr').textContent = '登入中…';
+    try {
+      const j = await api({ action: 'data' });
+      if (!j.ok) { CRED = null; credDel(); return showLogin(errText(j)); }
+      if (j.session) CRED = { session: j.session };
+      credSet(CRED);
+      if (j.who) $('who').textContent = j.who;
+    } catch (e) { return showLogin('連不上系統，請稍後再試'); }
+  }
+  await load(true);
+}
+async function load(fromLogin) {
+  if (!API) return showLogin('member-config.js 的 API_URL 還沒填');
+  if (!CRED) return showLogin('');
+  try {
+    const j = await api({ action: 'contacts' });
+    if (!j.ok) { CRED = null; credDel(); return showLogin(fromLogin ? errText(j) : ''); }
+    ROWS = (j.rows || []).slice().reverse();
+    if (j.sheet) $('sheetLink').href = j.sheet.url + '#gid=' + j.sheet.gid;
+    $('login').hidden = true; $('app').hidden = false; $('topbtns').hidden = false;
+    render();
+  } catch (e) { showLogin('連不上系統，請稍後再試'); }
+}
+function showLogin(msg) { $('login').hidden = false; $('app').hidden = true; $('topbtns').hidden = true; $('loginErr').textContent = msg || ''; }
+function logout() {
+  try { if (window.google) google.accounts.id.disableAutoSelect(); } catch (e) {}
+  CRED = null; credDel(); ROWS = []; $('who').textContent = ''; showLogin('');
+}
+function initGoogle() {
+  const box = $('g-btn');
+  if (!CLIENT_ID) { box.hidden = true; $('pw-box').open = true; return; }
+  let tries = 0;
+  (function wait() {
+    if (window.google && google.accounts && google.accounts.id) {
+      google.accounts.id.initialize({ client_id: CLIENT_ID, callback: (resp) => { if (resp && resp.credential) login({ idToken: resp.credential }); }, ux_mode: 'popup', auto_select: false, cancel_on_tap_outside: true });
+      box.innerHTML = '';
+      google.accounts.id.renderButton(box, { type: 'standard', theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with', locale: 'zh-TW', width: 280 });
+    } else if (++tries < 60) setTimeout(wait, 250);
+    else { box.innerHTML = '<span style="color:var(--muted);font-size:14px">Google 登入載入失敗，請重新整理，或改用備用密碼</span>'; $('pw-box').open = true; }
+  })();
+}
+const short = (t) => { const m = String(t || '').match(/^\d{4}\/(\d{2})\/(\d{2}) (\d{2}:\d{2})/); return m ? (+m[1]) + '/' + (+m[2]) + ' ' + m[3] : t; };
+function setFilter(f) { FILTER = f; render(); }
+function render() {
+  const cnt = { '全部': ROWS.length }; STATUSES.forEach((s) => cnt[s] = ROWS.filter((r) => (r.status || '未處理') === s).length);
+  try { if (window.parent !== window) window.parent.postMessage({ type: 'hcd-contact', pending: cnt['未處理'] }, location.origin); } catch (e) {}
+  const cls = { '未處理': 'todo', '已處理': 'done', '全部': '' };
+  $('stats').innerHTML = ['未處理', '已處理', '全部'].map((s) =>
+    `<button class="stat ${cls[s]} ${FILTER === s ? 'on' : ''}" onclick="setFilter('${s}')"><b>${cnt[s]}</b><span>${s}</span></button>`).join('');
+  const q = $('q').value.trim().toLowerCase();
+  const rows = ROWS.filter((r) => (FILTER === '全部' || (r.status || '未處理') === FILTER) &&
+    (!q || [r.no, r.name, r.email, r.tel, r.topic, r.msg].join(' ').toLowerCase().includes(q)));
+  let h = '<div class="row head"><div>時間</div><div>姓名</div><div>類別</div><div>內容</div><div>狀態</div></div>';
+  if (!rows.length) h += `<div class="empty">${ROWS.length ? '沒有符合的留言' : '目前還沒有人留言'}</div>`;
+  rows.forEach((r) => {
+    h += `<div class="row" onclick="openDetail('${esc(r.no)}')">
+      <div>${esc(short(r.time))}</div>
+      <div><div class="nm">${esc(r.name)}</div><div class="sub">${esc(r.email)}</div></div>
+      <div>${esc(r.topic)}</div>
+      <div class="msg">${esc(r.msg)}</div>
+      <div><span class="badge b-${esc(r.status || '未處理')}">${esc(r.status || '未處理')}</span></div></div>`;
+  });
+  $('list').innerHTML = h;
+}
+function openDetail(no) {
+  const r = ROWS.find((x) => x.no === no); if (!r) return;
+  CUR = r; PICK = r.status || '未處理';
+  const subj = encodeURIComponent('回覆：' + (r.topic || '您的留言') + '｜新竹市無人機創新科技協會');
+  $('card').innerHTML = `<button class="x" onclick="closeDetail()">✕</button>
+    <h3>${esc(r.name)}</h3><p class="meta">${esc(r.no)}　${esc(r.time)}　${esc(r.topic)}</p>
+    <table class="f">
+      <tr><th>E-mail</th><td><a href="mailto:${esc(r.email)}?subject=${subj}">${esc(r.email)}</a></td></tr>
+      <tr><th>電話</th><td>${r.tel ? `<a href="tel:${esc(r.tel)}">${esc(r.tel)}</a>` : '（未填）'}</td></tr>
+    </table>
+    <div class="msgbox">${esc(r.msg)}</div>
+    <div class="review"><h4>處理狀態</h4>
+      <div class="sbtns">${STATUSES.map((s) => `<button class="sbtn s-${s} ${PICK === s ? 'on' : ''}" onclick="pick('${s}')">${s}</button>`).join('')}</div>
+      <textarea id="note" placeholder="處理備註（例如：已由誰回覆、回了什麼）">${esc(r.note)}</textarea>
+      <div class="actions"><span class="saved" id="saved">${r.dtime ? '上次更新：' + esc(r.dtime) : ''}</span>
+        <a class="btn ghost" href="mailto:${esc(r.email)}?subject=${subj}" style="text-decoration:none">回信</a>
+        <button class="btn" id="saveBtn" onclick="save()">儲存</button></div></div>`;
+  $('detail').classList.add('show');
+}
+function pick(s) { PICK = s; document.querySelectorAll('.sbtn').forEach((b) => b.classList.toggle('on', b.textContent === s)); }
+function closeDetail() { $('detail').classList.remove('show'); CUR = null; }
+async function save() {
+  if (!CUR) return;
+  const btn = $('saveBtn'); btn.disabled = true; btn.textContent = '儲存中…';
+  try {
+    const j = await api({ action: 'contactSave', no: CUR.no, status: PICK, note: $('note').value });
+    if (!j.ok) throw new Error(j.error);
+    CUR.status = PICK; CUR.note = $('note').value; CUR.dtime = '剛剛';
+    render(); closeDetail();
+  } catch (e) {
+    $('saved').textContent = ''; alert('儲存失敗：' + (['wrong_key', 'session_invalid', 'google_invalid'].includes(e.message) ? '登入過期，請重新登入' : '請稍後再試'));
+  } finally { btn.disabled = false; btn.textContent = '儲存'; }
+}
+initGoogle();
+if (CRED) load(); else showLogin('');
+</script>
+</body>
+</html>

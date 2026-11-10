@@ -543,6 +543,33 @@
 
   .news-link:hover { gap: 8px; }
 
+
+  /* 線條圖示（取代 emoji；顏色跟著文字） */
+  .ico { display:inline-block; width:1.05em; height:1.05em; vertical-align:-0.17em; margin-right:.38em; background:currentColor; -webkit-mask:var(--i) center/contain no-repeat; mask:var(--i) center/contain no-repeat; flex-shrink:0; }
+  .ico-time { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E"); }
+  .ico-place { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z'/%3E%3Ccircle cx='12' cy='9.5' r='2.5'/%3E%3C/svg%3E"); }
+  .ico-people { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='8' r='3.5'/%3E%3Cpath d='M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5'/%3E%3Cpath d='M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.7.8 2.8 2.5 3 5.2'/%3E%3C/svg%3E"); }
+  .ico-date { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='2'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4'/%3E%3C/svg%3E"); }
+  .ico-money { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.5' y='6' width='19' height='12' rx='2'/%3E%3Ccircle cx='12' cy='12' r='2.8'/%3E%3Cpath d='M6 9.5v5M18 9.5v5'/%3E%3C/svg%3E"); }
+  .ico-doc { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 3v5h5M9 13h6M9 17h6'/%3E%3C/svg%3E"); }
+  .ico-link { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2'/%3E%3Cpath d='M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2'/%3E%3C/svg%3E"); }
+  .ico-mail { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='M3.5 6.5 12 13l8.5-6.5'/%3E%3C/svg%3E"); }
+  .ico-phone { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3.5h3.2l1.6 4.2-2.2 1.5a11 11 0 0 0 5.2 5.2l1.5-2.2 4.2 1.6V17a2 2 0 0 1-2.2 2C10 18.5 5.5 14 5 6.7A2 2 0 0 1 5 3.5z'/%3E%3C/svg%3E"); }
+  .ico-building { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='3' width='16' height='18' rx='1.5'/%3E%3Cpath d='M9 21v-4h6v4M8.5 7h1M14.5 7h1M8.5 11h1M14.5 11h1'/%3E%3C/svg%3E"); }
+  .ico-check { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='m8 12.5 2.8 2.8L16.5 9.5'/%3E%3C/svg%3E"); }
+  .ico-image { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Ccircle cx='9' cy='10' r='1.8'/%3E%3Cpath d='m21 16-5-5-8 9'/%3E%3C/svg%3E"); }
+  .ico-trophy { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 4h8v5a4 4 0 0 1-8 0zM8 6H4.5a3 3 0 0 0 3.5 4M16 6h3.5a3 3 0 0 1-3.5 4M12 13v4M8.5 20.5h7M10 17h4'/%3E%3C/svg%3E"); }
+  .ico-school { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10 12 5l9 5-9 5z'/%3E%3Cpath d='M7 12.2V17c1.4 1.3 3.1 2 5 2s3.6-.7 5-2v-4.8M21 10v5'/%3E%3C/svg%3E"); }
+  .ico-plane { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 19.5h19M4 14.5l3 1.2 12.6-5a1.8 1.8 0 0 0-1.3-3.4l-4.6 1.8L7 5.5 5.3 6.3l4.3 4.1-3.7 1.5-2.2-1.5-1.2.5z'/%3E%3C/svg%3E"); }
+  .ico-hands { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 17.5 13 19.5a1.6 1.6 0 0 0 2.3-2.3M14 16.5l2 2a1.6 1.6 0 0 0 2.3-2.3l-3.9-4'/%3E%3Cpath d='m12.5 7.5-3.3 3.3a1.6 1.6 0 0 0 2.3 2.3l2.5-2.4 5 5 2-2V6.5l-2-1-3.5 1.5-3-1.5-2 1M3 6.5v7.2l2 2 3 3a1.6 1.6 0 0 0 2.3-2.3'/%3E%3C/svg%3E"); }
+  .ico-drone { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='5.5' cy='5.5' r='2.5'/%3E%3Ccircle cx='18.5' cy='5.5' r='2.5'/%3E%3Ccircle cx='5.5' cy='18.5' r='2.5'/%3E%3Ccircle cx='18.5' cy='18.5' r='2.5'/%3E%3Crect x='9' y='9' width='6' height='6' rx='1.5'/%3E%3Cpath d='m7.3 7.3 1.7 1.7M16.7 7.3 15 9M7.3 16.7 9 15M16.7 16.7 15 15'/%3E%3C/svg%3E"); }
+  .ico-ball { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='m12 7.5 3.8 2.8-1.5 4.4H9.7l-1.5-4.4zM12 3v4.5M15.8 10.3l4.3-1.4M14.3 14.7l2.7 3.6M9.7 14.7 7 18.3M8.2 10.3 3.9 8.9'/%3E%3C/svg%3E"); }
+  .ico-flag { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 21V4M5 4h11l-2 4 2 4H5'/%3E%3C/svg%3E"); }
+  .ico-cap { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 9.5 12 5l9.5 4.5L12 14z'/%3E%3Cpath d='M6.5 11.5v4.3c1.6 1.5 3.4 2.2 5.5 2.2s3.9-.7 5.5-2.2v-4.3'/%3E%3C/svg%3E"); }
+  .ico-gear { --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z'/%3E%3C/svg%3E"); }
+  .feature-icon .ico, .events-mini .icon .ico, .contact-icon .ico, .modal-icon .ico { width:26px; height:26px; margin:0; vertical-align:middle; }
+  .feature-icon .ico, .contact-icon .ico { background:#fff; }
+  .modal-icon .ico { width:56px; height:56px; color:#1f8a4c; }
   /* ── Events ── */
   #events { background: var(--bg); }
 
@@ -1075,7 +1102,7 @@
   import { getFirestore, collection, getDocs, getDoc, addDoc, setDoc, updateDoc, deleteDoc, doc, orderBy, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  // ⚠️ 請在此填入您的 Firebase 設定
+  // 請在此填入您的 Firebase 設定
   const firebaseConfig = {
     apiKey: "AIzaSyD2rqiTQjgYQN4JrLlVFJZbmgLuQvliySk",
     authDomain: "hsinchu-drone.firebaseapp.com",
@@ -1200,7 +1227,7 @@
       if(user.email && user.email.toLowerCase()===SUPER_ADMIN) _seedBootstrapAdmins();
     } else {
       if (user && !_alertedNonAdmin) { _alertedNonAdmin = true; alert('此 Google 帳號未被授權為管理者：\n' + user.email + '\n請改用已授權的帳號登入，或請主管理者於後台新增您。'); }
-      document.getElementById('admin-fab').style.display = 'none'; // 公開頁面不顯示浮動齒輪；入口改用頁尾「⚙️ 管理專區」
+      document.getElementById('admin-fab').style.display = 'none'; // 公開頁面不顯示浮動齒輪；入口改用頁尾「管理專區」
       document.getElementById('admin-login-area').style.display = 'flex';
       var ww=document.getElementById('webview-warn'); if(ww) ww.style.display = _isInAppBrowser() ? 'block' : 'none';
       document.getElementById('admin-main').style.display = 'none';
@@ -1254,7 +1281,7 @@
     if (!slides.length) { grid.innerHTML = '<p style="color:#8a9ab0;padding:20px 0;">尚無輪播照片</p>'; return; }
     window._adminSlides = slides;
     grid.innerHTML =
-      '<p style="font-size:12px;color:#8a9ab0;margin:0 0 10px;">💡 拖曳卡片即可調整順序，放開後自動儲存並更新首頁。</p>' +
+      '<p style="font-size:12px;color:#8a9ab0;margin:0 0 10px;">拖曳卡片即可調整順序，放開後自動儲存並更新首頁。</p>' +
       slides.map((s, i) => `
       <div class="admin-slide-row" draggable="true" data-idx="${i}"
         ondragstart="slideDragStart(event)" ondragover="slideDragOver(event)" ondrop="slideDrop(event)" ondragend="slideDragEnd(event)"
@@ -1587,7 +1614,7 @@
     var fb=cache['活動公告']||cache['協會動態']||cache['新聞稿']||cache['賽事消息'];
     if(fb) return fb;
     return { bg:'linear-gradient(135deg,#e0eeff,#c8deff)',
-             svg:'<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><text x="200" y="122" font-size="60" text-anchor="middle">📰</text></svg>' };
+             svg:'<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><g transform="translate(170 70) scale(2.5)" fill="none" stroke="#1a3a6b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity=".55"><circle cx="5.5" cy="5.5" r="2.5"/><circle cx="18.5" cy="5.5" r="2.5"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/><path d="m7.3 7.3 1.7 1.7M16.7 7.3 15 9M7.3 16.7 9 15M16.7 16.7 15 15"/></g></svg>' };
   }
   function _newsCardHtml(p,idx){
     let img, cardBg='#0d1b3e';
@@ -1604,7 +1631,7 @@
     }
     return '<div class="news-card" data-cat="'+_esc(p.category)+'">'
       + '<div class="news-card-img" style="background:'+cardBg+';"><div class="news-card-tag">'+_esc(p.category)+'</div>'+img+'</div>'
-      + '<div class="news-card-body"><p class="news-date">📅 '+_esc(p.date)+(p.signup?' <span style="margin-left:6px;background:rgba(220,38,38,0.12);color:#dc2626;font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;">報名中</span>':'')+'</p>'
+      + '<div class="news-card-body"><p class="news-date"><i class="ico ico-date"></i>'+_esc(p.date)+(p.signup?' <span style="margin-left:6px;background:rgba(220,38,38,0.12);color:#dc2626;font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;">報名中</span>':'')+'</p>'
       + '<h3 class="news-title">'+_esc(p.title)+'</h3>'
       + '<p class="news-excerpt">'+_esc(p.excerpt)+'</p>'
       + '<a href="#" class="news-link" onclick="_openDynNews('+idx+');return false;">閱讀更多 →</a></div></div>';
@@ -1657,7 +1684,7 @@
     else { var ph=_newsPlaceholder(cat); cover='<div style="height:220px;position:relative;background:'+ph.bg+';">'+ph.svg+'</div>'; }
     var html=cover+'<div style="padding:24px 28px 32px;">'
       +'<span style="display:inline-block;background:#1a3a6b;color:#fff;font-size:12px;font-weight:600;padding:3px 12px;border-radius:20px;">'+_esc(cat)+'</span>'
-      +'<p style="font-size:12px;color:#8a9ab0;margin:14px 0 6px;">📅 '+_esc(date)+'</p>'
+      +'<p style="font-size:12px;color:#8a9ab0;margin:14px 0 6px;"><i class="ico ico-date"></i>'+_esc(date)+'</p>'
       +'<h2 style="font-size:22px;font-weight:900;color:#1a2333;margin:0 0 12px;line-height:1.45;">'+_esc(title)+'</h2>'
       +(excerpt? '<p style="font-size:14px;color:#5a6880;line-height:1.7;margin:0 0 18px;padding-bottom:18px;border-bottom:1px solid #e8edf5;">'+_esc(excerpt)+'</p>':'')
       +'<div style="font-size:15px;color:#3a4658;line-height:1.9;">'+(body && body.trim()? body : '<p style="color:#a0aec0;">（內文尚未填寫）</p>')+'</div></div>';
@@ -2028,21 +2055,21 @@
         </p>
         <div class="about-feature-list">
           <div class="about-feature">
-            <div class="feature-icon">🏫</div>
+            <div class="feature-icon"><i class="ico ico-school"></i></div>
             <div class="feature-content">
               <h4>在地扎根，服務新竹</h4>
               <p>以新竹的學生、教師與飛手社群為核心，把資源與機會留在地方。</p>
             </div>
           </div>
           <div class="about-feature">
-            <div class="feature-icon">🛫</div>
+            <div class="feature-icon"><i class="ico ico-plane"></i></div>
             <div class="feature-content">
               <h4>從校園到競技</h4>
               <p>從入門課程、校園社團到正式賽事，提供完整的學習路徑與舞台。</p>
             </div>
           </div>
           <div class="about-feature">
-            <div class="feature-icon">🤝</div>
+            <div class="feature-icon"><i class="ico ico-hands"></i></div>
             <div class="feature-content">
               <h4>產官學協作</h4>
               <p>串連新竹市政府、國立陽明交通大學與在地企業，一起把事情做起來。</p>
@@ -2052,22 +2079,22 @@
       </div>
       <div class="about-values">
         <div class="value-card">
-          <span class="icon">🛸</span>
+          <span class="icon"><i class="ico ico-drone"></i></span>
           <h4>追風少年課程</h4>
           <p>與陽明交大、新竹市政府聯合推動的 K–12 科技培力，把半導體與無人機帶進教室。</p>
         </div>
         <div class="value-card">
-          <span class="icon">⚽</span>
+          <span class="icon"><i class="ico ico-ball"></i></span>
           <h4>無人機足球</h4>
           <p>推廣 3v3 空中競技，設國小到國高中組，結合操控、團隊合作與科技競技。</p>
         </div>
         <div class="value-card">
-          <span class="icon">🏁</span>
+          <span class="icon"><i class="ico ico-flag"></i></span>
           <h4>RoboRAVE 新竹 Rally</h4>
           <p>2026 年於玄奘大學登場，與台灣青少年機器人協會共同承辦的賽事。</p>
         </div>
         <div class="value-card">
-          <span class="icon">🎓</span>
+          <span class="icon"><i class="ico ico-cap"></i></span>
           <h4>裁判與師資培訓</h4>
           <p>推動無人機足球的裁判與教練培訓，把人才扎根在地校園。</p>
         </div>
@@ -2102,7 +2129,7 @@
           </picture>
         </div>
         <div class="news-card-body">
-          <p class="news-date">📅 2026年06月10日</p>
+          <p class="news-date"><i class="ico ico-date"></i>2026年06月10日</p>
           <h3 class="news-title">2026 RoboRAVE 新竹市無人機足球競賽開放報名！</h3>
           <p class="news-excerpt">無人機足球競賽結合操控、團隊合作與科技競技，3v3空中激鬥！設國小組與國高中組，每隊3人（可備2名替補），每隊報名費 NT$3,000，各組限額12隊，新竹市學生優先錄取。報名截止 7/19。</p>
           <a href="#news-dronesoccer" class="news-link" onclick="openNewsModal('news-dronesoccer');return false;">查看詳情 →</a>
@@ -2114,7 +2141,7 @@
           <img src="photo/image (1).jpeg" alt="追風少年科技培力課程啟動記者會" loading="lazy">
         </div>
         <div class="news-card-body">
-          <p class="news-date">📅 2026年06月03日</p>
+          <p class="news-date"><i class="ico ico-date"></i>2026年06月03日</p>
           <h3 class="news-title">追風少年科技培力課程啟動！協會攜手市府讓新竹孩子從校園起飛</h3>
           <p class="news-excerpt">新竹市無人機創新科技協會聯合國立陽明交通大學與市府共同推動「K-12追風少年科技培力課程」，以半導體與無人機為核心，辦理時間115年6月1日至8月31日，招收幼兒園至高中學生，讓科技教育向下扎根。民富國小五年級學生於啟動記者會現場進行無人機足球操控表演，展現學習成果。</p>
           <a href="#news-chasing" class="news-link" onclick="openNewsModal('news-chasing');return false;">閱讀更多 →</a>
@@ -2163,7 +2190,7 @@
           </svg>
         </div>
         <div class="news-card-body">
-          <p class="news-date">📅 2026年04月15日</p>
+          <p class="news-date"><i class="ico ico-date"></i>2026年04月15日</p>
           <h3 class="news-title">足球無人機裁判培訓即將登場，4月25日開課</h3>
           <p class="news-excerpt">新竹市政府將於4月25日至26日在虎林製造中心辦理足球無人機裁判培訓，招收30名學員，對象以國中小教師為優先，課程含理論與實務操作共14小時。</p>
           <a href="#events" class="news-link">查看活動詳情 →</a>
@@ -2218,7 +2245,7 @@
           </svg>
         </div>
         <div class="news-card-body">
-          <p class="news-date">📅 2026年02月11日</p>
+          <p class="news-date"><i class="ico ico-date"></i>2026年02月11日</p>
           <h3 class="news-title">新竹市無人機創新科技協會 正式成立大會圓滿落幕</h3>
           <p class="news-excerpt">本會於115年2月11日假新竹市家欣樓餐廳召開第一次會員大會，出席31人，通過115年度工作計畫與預算，並選出第一屆理事長陳炳富及理監事，協會正式展開運作。</p>
           <a href="#news-founding" class="news-link" onclick="openNewsModal('news-founding');return false;">閱讀更多 →</a>
@@ -2252,9 +2279,9 @@
         <div class="event-info">
           <h3>無人機夏令營（與交大AI辦公室合辦）</h3>
           <div class="event-meta">
-            <span>🕐 7月6日 – 7月10日　09:00 – 16:00</span>
-            <span>📍 陽明交通大學校內場地</span>
-            <span>👥 對象：國小、國中學生</span>
+            <span><i class="ico ico-time"></i>7月6日 – 7月10日　09:00 – 16:00</span>
+            <span><i class="ico ico-place"></i>陽明交通大學校內場地</span>
+            <span><i class="ico ico-people"></i>對象：國小、國中學生</span>
           </div>
           <div style="margin-top:14px;">
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSdlwDwKxb-38jKBp1ftdgu5xbivTmOxkZVsK3jwkq5X8WlsJw/viewform?usp=header" target="_blank" style="display:inline-block; padding:10px 22px; background:var(--accent); color:#fff; border-radius:8px; text-decoration:none; font-size:14px; font-weight:600; white-space:nowrap;">立即報名 →</a>
@@ -2271,15 +2298,15 @@
           <h3>RoboRAVE 2026 新竹 Rally</h3>
           <p style="font-size:13px; color:var(--text-muted); margin:4px 0 8px;">主辦：RoboRAVE Taiwan　承辦：台灣青少年機器人協會 × 新竹市無人機創新科技協會</p>
           <div class="event-meta">
-            <span>🕐 2026年7月26日（日）</span>
-            <span>📍 玄奘大學元亨堂（香山區玄奘路48號）</span>
+            <span><i class="ico ico-time"></i>2026年7月26日（日）</span>
+            <span><i class="ico ico-place"></i>玄奘大學元亨堂（香山區玄奘路48號）</span>
             <span>⏰ 報名截止：6月30日</span>
-            <span>💰 無人機足球 NT$3,000/隊　其他組別 NT$1,000/人</span>
+            <span><i class="ico ico-money"></i>無人機足球 NT$3,000/隊　其他組別 NT$1,000/人</span>
           </div>
           <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
             <a href="https://docs.google.com/forms/d/e/1FAIpQLScNEX9a-Yd8uifri-CLN8sivrG70bQd8tYjG9mf0cBgnpXKbg/viewform" target="_blank" style="display:inline-block; padding:8px 20px; background:var(--primary); color:white; border-radius:8px; text-decoration:none; font-size:13px; font-weight:700;">立即報名 →</a>
-<a href="2026 RoboRave 新竹 Rally 簡章V7.pdf" target="_blank" style="display:inline-block; padding:8px 20px; background:transparent; color:var(--text-muted); border:1.5px solid var(--border); border-radius:8px; text-decoration:none; font-size:13px;">📄 下載簡章</a>
-            <a href="RoboRAVE2026_規則修正版_p11-14.pdf" target="_blank" style="display:inline-block; padding:8px 20px; background:transparent; color:var(--text-muted); border:1.5px solid var(--border); border-radius:8px; text-decoration:none; font-size:13px;">📄 下載規則</a>
+<a href="2026 RoboRave 新竹 Rally 簡章V7.pdf" target="_blank" style="display:inline-block; padding:8px 20px; background:transparent; color:var(--text-muted); border:1.5px solid var(--border); border-radius:8px; text-decoration:none; font-size:13px;"><i class="ico ico-doc"></i>下載簡章</a>
+            <a href="RoboRAVE2026_規則修正版_p11-14.pdf" target="_blank" style="display:inline-block; padding:8px 20px; background:transparent; color:var(--text-muted); border:1.5px solid var(--border); border-radius:8px; text-decoration:none; font-size:13px;"><i class="ico ico-doc"></i>下載規則</a>
           </div>
         </div>
         <span class="event-tag" style="background:rgba(220,38,38,0.12);color:#dc2626;align-self:flex-start;">報名中</span>
@@ -2294,9 +2321,9 @@
         <div class="event-info">
           <h3>足球無人機裁判培訓</h3>
           <div class="event-meta">
-            <span>🕐 4月25日 – 4月26日</span>
-            <span>📍 虎林製造中心</span>
-            <span>👥 限額30人（國中小教師優先）</span>
+            <span><i class="ico ico-time"></i>4月25日 – 4月26日</span>
+            <span><i class="ico ico-place"></i>虎林製造中心</span>
+            <span><i class="ico ico-people"></i>限額30人（國中小教師優先）</span>
           </div>
         </div>
         <span class="event-tag past">已結束</span>
@@ -2309,9 +2336,9 @@
         <div class="event-info">
           <h3>第一屆第三次理監事聯席會議</h3>
           <div class="event-meta">
-            <span>🕐 19:00 – 21:30</span>
-            <span>📍 富志科技（新竹市經國路三段78巷23-6號）</span>
-            <span>👥 出席10人</span>
+            <span><i class="ico ico-time"></i>19:00 – 21:30</span>
+            <span><i class="ico ico-place"></i>富志科技（新竹市經國路三段78巷23-6號）</span>
+            <span><i class="ico ico-people"></i>出席10人</span>
           </div>
         </div>
         <span class="event-tag past">已結束</span>
@@ -2324,9 +2351,9 @@
         <div class="event-info">
           <h3>第一次會員大會暨成立大會</h3>
           <div class="event-meta">
-            <span>🕐 18:00</span>
-            <span>📍 新竹市家欣樓餐廳（經國路二段399號）</span>
-            <span>👥 出席31人（含委託4人）</span>
+            <span><i class="ico ico-time"></i>18:00</span>
+            <span><i class="ico ico-place"></i>新竹市家欣樓餐廳（經國路二段399號）</span>
+            <span><i class="ico ico-people"></i>出席31人（含委託4人）</span>
           </div>
         </div>
         <span class="event-tag past">已結束</span>
@@ -2407,12 +2434,12 @@
           '<h3>' + esc(title(cfg, c)) + '</h3>' +
           '<div class="sig-org">' + (isTeacher ? '主辦：新竹市無人機創新科技協會' : '新竹市無人機創新科技協會 攜手 ' + esc(c.name)) + '</div>' +
           '<div class="event-meta">' +
-            (c.time ? '<span>🕐 ' + esc(c.time) + '</span>' : '') +
-            (c.place ? '<span>📍 ' + esc(c.place) + '</span>' : '') +
-            (isTeacher ? '<span>👥 對象：學校教師</span>' : '<span>🎟️ 免費參加・零經驗也能玩</span>') +
+            (c.time ? '<span><i class="ico ico-time"></i>' + esc(c.time) + '</span>' : '') +
+            (c.place ? '<span><i class="ico ico-place"></i>' + esc(c.place) + '</span>' : '') +
+            (isTeacher ? '<span><i class="ico ico-people"></i>對象：學校教師</span>' : '<span><i class="ico ico-check"></i>免費參加・零經驗也能玩</span>') +
           '</div>' +
           (it.past || internal ? '' : '<div class="sig-btns"><a class="sig-btn go" href="' + signup + '" target="_blank" rel="noopener">立即報名 →</a>' +
-                          '<a class="sig-btn ghost" href="' + poster + '" target="_blank" rel="noopener">🖼️ 活動海報</a></div>') +
+                          '<a class="sig-btn ghost" href="' + poster + '" target="_blank" rel="noopener"><i class="ico ico-image"></i>活動海報</a></div>') +
         '</div>' +
         (it.past ? '<span class="event-tag past" style="align-self:flex-start;">已結束</span>'
                  : internal ? '<span class="event-tag upcoming" style="align-self:flex-start;">校內場次</span>'
@@ -2483,7 +2510,7 @@
 
     <!-- 入會須知 -->
     <div style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:16px; padding:28px 32px; margin-bottom:40px; backdrop-filter:blur(8px);">
-      <h3 style="color:white; font-size:17px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px;">📋 入會須知</h3>
+      <h3 style="color:white; font-size:17px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px;">入會須知</h3>
       <ol style="list-style:none; display:flex; flex-direction:column; gap:10px; padding:0;">
         <li style="color:rgba(255,255,255,0.85); font-size:14px; line-height:1.8; display:flex; gap:12px;">
           <span style="color:#7fff00; font-weight:800; flex-shrink:0;">一、</span>
@@ -2586,7 +2613,7 @@
         <div class="mf-done-icon">✓</div>
         <h4 id="mf-done-title">已收到你的入會申請！</h4>
         <p id="mf-done-text"></p>
-        <p style="margin-top:12px;"><a href="member-status.html" style="display:inline-block; background:#1a3a6b; color:#fff; padding:11px 26px; border-radius:10px; font-weight:800; text-decoration:none;">🔎 隨時查詢審核進度</a></p>
+        <p style="margin-top:12px;"><a href="member-status.html" style="display:inline-block; background:#1a3a6b; color:#fff; padding:11px 26px; border-radius:10px; font-weight:800; text-decoration:none;">隨時查詢審核進度</a></p>
         <p style="font-size:13px; color:#5a6880; margin-top:6px;">（輸入身分證字號與手機即可查詢）</p>
       </div>
 
@@ -2657,35 +2684,35 @@
       <div>
         <div class="contact-info-list">
           <div class="contact-info-item">
-            <div class="contact-icon">📍</div>
+            <div class="contact-icon"><i class="ico ico-place"></i></div>
             <div>
               <h4>地址</h4>
               <p>新竹市經國路三段78巷23-6號</p>
             </div>
           </div>
           <div class="contact-info-item">
-            <div class="contact-icon">📞</div>
+            <div class="contact-icon"><i class="ico ico-phone"></i></div>
             <div>
               <h4>電話</h4>
               <p>03-540-3463</p>
             </div>
           </div>
           <div class="contact-info-item">
-            <div class="contact-icon">✉️</div>
+            <div class="contact-icon"><i class="ico ico-mail"></i></div>
             <div>
-              <h4>Email</h4>
-              <p>hcdrone168@gmail.com</p>
+              <h4>線上留言</h4>
+              <p>填寫右側表單，協會會以 Email 回覆您</p>
             </div>
           </div>
           <div class="contact-info-item">
-            <div class="contact-icon">🏢</div>
+            <div class="contact-icon"><i class="ico ico-building"></i></div>
             <div>
               <h4>統一編號</h4>
               <p>61396508</p>
             </div>
           </div>
           <div class="contact-info-item">
-            <div class="contact-icon">🕐</div>
+            <div class="contact-icon"><i class="ico ico-time"></i></div>
             <div>
               <h4>辦公時間</h4>
               <p>週一至週五　09:00 – 18:00</p>
@@ -2695,27 +2722,29 @@
       </div>
       <div class="contact-form-wrap">
         <h3 class="form-title">傳送訊息給我們</h3>
-        <form onsubmit="handleSubmit(event)">
+        <form id="contact-form" onsubmit="handleSubmit(event)" data-no-cms>
           <div class="form-row">
             <div class="form-group">
               <label>姓名 *</label>
-              <input type="text" placeholder="請輸入您的姓名" required>
+              <input type="text" name="name" maxlength="40" placeholder="請輸入您的姓名" required>
             </div>
             <div class="form-group">
               <label>電話</label>
-              <input type="tel" placeholder="09XX-XXX-XXX">
+              <input type="tel" name="tel" maxlength="30" placeholder="09XX-XXX-XXX">
             </div>
           </div>
           <div class="form-group">
             <label>電子郵件 *</label>
-            <input type="email" placeholder="example@email.com" required>
+            <input type="email" name="email" maxlength="120" placeholder="example@email.com" required>
           </div>
+          <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
           <div class="form-group">
             <label>詢問類別</label>
-            <select>
+            <select name="topic">
               <option value="">請選擇詢問類別</option>
               <option>入會申請</option>
               <option>活動報名</option>
+              <option>課程合作</option>
               <option>企業合作</option>
               <option>媒體採訪</option>
               <option>其他</option>
@@ -2723,9 +2752,10 @@
           </div>
           <div class="form-group">
             <label>訊息內容 *</label>
-            <textarea placeholder="請描述您的問題或需求..." required></textarea>
+            <textarea name="msg" maxlength="3000" placeholder="請描述您的問題或需求..." required></textarea>
           </div>
-          <button type="submit" class="form-submit">送出訊息 ✉️</button>
+          <p id="contact-err" style="display:none;color:#c53030;font-size:14px;margin:0 0 12px;"></p>
+          <button type="submit" class="form-submit">送出訊息</button>
         </form>
       </div>
     </div>
@@ -2736,7 +2766,7 @@
 <div id="modal-roborave" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9000; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto;" onclick="if(event.target===this)closeNewsModal('news-roborave')">
   <div style="background:white; border-radius:20px; max-width:720px; width:100%; padding:40px; position:relative;">
     <div style="position:absolute; top:16px; right:20px; display:flex; align-items:center; gap:8px;">
-      <button id="share-btn-news-roborave" onclick="copyNewsLink('news-roborave')" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;">🔗 複製連結</button>
+      <button id="share-btn-news-roborave" onclick="copyNewsLink('news-roborave')" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;"><i class="ico ico-link"></i>複製連結</button>
       <button onclick="closeNewsModal('news-roborave')" style="background:none; border:none; font-size:24px; cursor:pointer; color:#888;">×</button>
     </div>
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
@@ -2815,8 +2845,8 @@
 
     <div style="display:flex; gap:12px; flex-wrap:wrap;">
       <a href="https://docs.google.com/forms/d/e/1FAIpQLScNEX9a-Yd8uifri-CLN8sivrG70bQd8tYjG9mf0cBgnpXKbg/viewform" target="_blank" style="flex:1; min-width:160px; display:block; padding:14px 20px; background:#0d5e2a; color:white; border-radius:10px; text-decoration:none; font-size:15px; font-weight:800; text-align:center;">立即線上報名 →</a>
-      <a href="2026 RoboRave 新竹 Rally 簡章V7.pdf" target="_blank" style="padding:14px 20px; border:1.5px solid var(--border); color:var(--text-muted); border-radius:10px; text-decoration:none; font-size:14px; font-weight:600; white-space:nowrap;">📄 下載簡章</a>
-      <a href="RoboRAVE2026_規則修正版_p11-14.pdf" target="_blank" style="padding:14px 20px; border:1.5px solid var(--border); color:var(--text-muted); border-radius:10px; text-decoration:none; font-size:14px; font-weight:600; white-space:nowrap;">📄 下載規則</a>
+      <a href="2026 RoboRave 新竹 Rally 簡章V7.pdf" target="_blank" style="padding:14px 20px; border:1.5px solid var(--border); color:var(--text-muted); border-radius:10px; text-decoration:none; font-size:14px; font-weight:600; white-space:nowrap;"><i class="ico ico-doc"></i>下載簡章</a>
+      <a href="RoboRAVE2026_規則修正版_p11-14.pdf" target="_blank" style="padding:14px 20px; border:1.5px solid var(--border); color:var(--text-muted); border-radius:10px; text-decoration:none; font-size:14px; font-weight:600; white-space:nowrap;"><i class="ico ico-doc"></i>下載規則</a>
     </div>
   </div>
 </div>
@@ -2856,7 +2886,7 @@
       <div class="footer-social">
         <a href="https://www.facebook.com/groups/854653270943726" target="_blank" class="social-btn" title="Facebook">f</a>
       </div>
-      <a href="#" onclick="toggleAdmin();return false;" style="font-size:13px; color:rgba(255,255,255,0.7); text-decoration:none;" title="管理員登入" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">⚙️ 管理專區</a>
+      <a href="#" onclick="toggleAdmin();return false;" style="font-size:13px; color:rgba(255,255,255,0.7); text-decoration:none;" title="管理員登入" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">管理專區</a>
     </div>
   </div>
 </footer>
@@ -2867,13 +2897,13 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
       <span style="background:rgba(220,38,38,0.12); color:#dc2626; font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px; letter-spacing:.05em;">賽事消息</span>
       <div style="display:flex; align-items:center; gap:8px;">
-        <button id="share-btn-news-dronesoccer" onclick="copyNewsLink('news-dronesoccer')" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;">🔗 複製連結</button>
+        <button id="share-btn-news-dronesoccer" onclick="copyNewsLink('news-dronesoccer')" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;"><i class="ico ico-link"></i>複製連結</button>
         <button onclick="closeNewsModal('news-dronesoccer');" style="background:none; border:none; font-size:24px; cursor:pointer; color:#5a6880;">×</button>
       </div>
     </div>
-    <p style="color:#5a6880; font-size:14px; margin-bottom:8px;">📅 2026年06月10日</p>
+    <p style="color:#5a6880; font-size:14px; margin-bottom:8px;"><i class="ico ico-date"></i>2026年06月10日</p>
     <h2 style="font-size:22px; font-weight:700; color:#1a2333; line-height:1.5; margin-bottom:8px;">2026 RoboRAVE 新竹市無人機足球競賽</h2>
-    <p style="font-size:16px; font-weight:600; color:#dc2626; margin-bottom:24px;">飛越極限，球定勝負！⚽ 開放報名！</p>
+    <p style="font-size:16px; font-weight:600; color:#dc2626; margin-bottom:24px;">飛越極限，球定勝負！開放報名！</p>
     <div style="color:#3a4a60; line-height:1.9; font-size:15px;">
       <picture>
         <source srcset="photo/dronesoccer-poster.webp" type="image/webp">
@@ -2883,16 +2913,16 @@
       <p style="margin-bottom:16px;">無人機足球競賽結合無人機操控、團隊合作與科技競技，是目前最具臨場感的新興科技運動。3v3 的空中激鬥，等你和隊友一起來挑戰！</p>
 
       <div style="background:#fff8f8; border:1.5px solid #fecaca; border-radius:14px; padding:24px; margin:24px 0;">
-        <p style="font-size:14px; font-weight:700; color:#dc2626; margin:0 0 14px;">⚠️ 名額有限，要搶要快！各組僅12隊</p>
+        <p style="font-size:14px; font-weight:700; color:#dc2626; margin:0 0 14px;">名額有限，要搶要快！各組僅12隊</p>
         <div class="ds-info-grid">
-          <p style="font-size:14px; color:#3a4a60; margin:0;">📅 <strong>日期</strong>｜2026/07/26（日）</p>
-          <p style="font-size:14px; color:#3a4a60; margin:0;">🕚 <strong>時間</strong>｜11:00 – 16:00</p>
-          <p style="font-size:14px; color:#3a4a60; margin:0; grid-column:span 2;">📍 <strong>地點</strong>｜玄奘大學 元亨堂（新竹市香山區玄奘路48號）</p>
-          <p style="font-size:14px; color:#3a4a60; margin:0;">👦 <strong>參賽組別</strong>｜國小組、國高中組</p>
-          <p style="font-size:14px; color:#3a4a60; margin:0;">⚽ <strong>無人機規格</strong>｜有刷</p>
-          <p style="font-size:14px; color:#3a4a60; margin:0;">👥 <strong>隊伍人數</strong>｜3人一隊（可備2名替補）</p>
-          <p style="font-size:14px; color:#3a4a60; margin:0;">💰 <strong>報名費用</strong>｜每隊 NT$3,000</p>
-          <p style="font-size:14px; color:#3a4a60; margin:0; grid-column:span 2;">🏆 <strong>限額</strong>｜國小組：限額12隊　國高中組：限額12隊　（以新竹市選手隊伍為優先名額）</p>
+          <p style="font-size:14px; color:#3a4a60; margin:0;"><i class="ico ico-date"></i><strong>日期</strong>｜2026/07/26（日）</p>
+          <p style="font-size:14px; color:#3a4a60; margin:0;"><i class="ico ico-time"></i><strong>時間</strong>｜11:00 – 16:00</p>
+          <p style="font-size:14px; color:#3a4a60; margin:0; grid-column:span 2;"><i class="ico ico-place"></i><strong>地點</strong>｜玄奘大學 元亨堂（新竹市香山區玄奘路48號）</p>
+          <p style="font-size:14px; color:#3a4a60; margin:0;"><i class="ico ico-people"></i><strong>參賽組別</strong>｜國小組、國高中組</p>
+          <p style="font-size:14px; color:#3a4a60; margin:0;"><i class="ico ico-ball"></i><strong>無人機規格</strong>｜有刷</p>
+          <p style="font-size:14px; color:#3a4a60; margin:0;"><i class="ico ico-people"></i><strong>隊伍人數</strong>｜3人一隊（可備2名替補）</p>
+          <p style="font-size:14px; color:#3a4a60; margin:0;"><i class="ico ico-money"></i><strong>報名費用</strong>｜每隊 NT$3,000</p>
+          <p style="font-size:14px; color:#3a4a60; margin:0; grid-column:span 2;"><i class="ico ico-trophy"></i><strong>限額</strong>｜國小組：限額12隊　國高中組：限額12隊　（以新竹市選手隊伍為優先名額）</p>
           <p style="font-size:14px; color:#dc2626; margin:0; font-weight:700; grid-column:span 2;">⏰ <strong>報名截止</strong>｜2026/07/19（日）</p>
         </div>
       </div>
@@ -2900,9 +2930,9 @@
       <p style="margin-bottom:16px;">比賽採小組循環賽制，晉級後角逐四強賽。無人機足球採國際 FAI F9A-B 無人機足球賽事規範，標準球場與計分系統，公平競技。</p>
 
       <div style="display:flex; gap:12px; flex-wrap:wrap; margin:24px 0;">
-        <a href="https://supr.link/U64NI" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:12px 24px; background:#dc2626; color:white; border-radius:10px; text-decoration:none; font-size:14px; font-weight:700;">📜 立即報名 →</a>
-        <a href="RoboRAVE2026_規則修正版_p11-14.pdf" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:12px 20px; background:transparent; color:#1a3a6b; border:1.5px solid #1a3a6b; border-radius:10px; text-decoration:none; font-size:14px; font-weight:600;">📄 下載競賽規則</a>
-        <a href="2026 RoboRave 新竹 Rally 簡章V7.pdf" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:12px 20px; background:transparent; color:#5a6880; border:1.5px solid #dde3ed; border-radius:10px; text-decoration:none; font-size:14px;">📄 下載簡章</a>
+        <a href="https://supr.link/U64NI" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:12px 24px; background:#dc2626; color:white; border-radius:10px; text-decoration:none; font-size:14px; font-weight:700;">立即報名 →</a>
+        <a href="RoboRAVE2026_規則修正版_p11-14.pdf" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:12px 20px; background:transparent; color:#1a3a6b; border:1.5px solid #1a3a6b; border-radius:10px; text-decoration:none; font-size:14px; font-weight:600;"><i class="ico ico-doc"></i>下載競賽規則</a>
+        <a href="2026 RoboRave 新竹 Rally 簡章V7.pdf" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:12px 20px; background:transparent; color:#5a6880; border:1.5px solid #dde3ed; border-radius:10px; text-decoration:none; font-size:14px;"><i class="ico ico-doc"></i>下載簡章</a>
       </div>
 
       <p style="color:#5a6880; font-size:13px;">#新竹 #無人機足球 #DroneSoccer #科技運動 #新竹市無人機創新科技協會</p>
@@ -2916,11 +2946,11 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
       <span style="background:#fff5e0; color:#92400e; font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px; letter-spacing:.05em;">協會動態</span>
       <div style="display:flex; align-items:center; gap:8px;">
-        <button id="share-btn-news-founding" onclick="copyNewsLink('news-founding')" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;">🔗 複製連結</button>
+        <button id="share-btn-news-founding" onclick="copyNewsLink('news-founding')" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;"><i class="ico ico-link"></i>複製連結</button>
         <button onclick="closeNewsModal('news-founding');" style="background:none; border:none; font-size:24px; cursor:pointer; color:#5a6880;">×</button>
       </div>
     </div>
-    <p style="color:#5a6880; font-size:14px; margin-bottom:8px;">📅 2026年02月11日</p>
+    <p style="color:#5a6880; font-size:14px; margin-bottom:8px;"><i class="ico ico-date"></i>2026年02月11日</p>
     <h2 style="font-size:22px; font-weight:700; color:#1a2333; line-height:1.5; margin-bottom:24px;">新竹市無人機創新科技協會 正式成立大會圓滿落幕</h2>
     <div style="color:#3a4a60; line-height:1.9; font-size:15px;">
       <p style="margin-bottom:16px;">新竹市無人機創新科技協會於民國115年2月11日（除夕前一日），假新竹市家欣樓餐廳（經國路二段399號）召開第一次會員大會暨成立大會，共出席31人（含委託4人），正式宣告協會成立運作。</p>
@@ -2929,10 +2959,10 @@
       <p style="margin-bottom:16px;">成立大會的舉辦標誌著協會正式進入組織運作階段，未來將持續與市府、學校及產學單位緊密合作，共同推動新竹市無人機科技教育的永續發展。</p>
       <div style="background:#f0f4ff; border-radius:12px; padding:20px 24px; margin:24px 0;">
         <p style="font-size:13px; font-weight:700; color:#1a3a6b; margin:0 0 10px;">大會基本資料</p>
-        <p style="font-size:14px; color:#3a4a60; margin:4px 0;">📅 日期：民國115年2月11日</p>
-        <p style="font-size:14px; color:#3a4a60; margin:4px 0;">📍 地點：新竹市家欣樓餐廳（經國路二段399號）</p>
-        <p style="font-size:14px; color:#3a4a60; margin:4px 0;">👥 出席人數：31人（含委託4人）</p>
-        <p style="font-size:14px; color:#3a4a60; margin:4px 0;">👤 當選理事長：陳炳富</p>
+        <p style="font-size:14px; color:#3a4a60; margin:4px 0;"><i class="ico ico-date"></i>日期：民國115年2月11日</p>
+        <p style="font-size:14px; color:#3a4a60; margin:4px 0;"><i class="ico ico-place"></i>地點：新竹市家欣樓餐廳（經國路二段399號）</p>
+        <p style="font-size:14px; color:#3a4a60; margin:4px 0;"><i class="ico ico-people"></i>出席人數：31人（含委託4人）</p>
+        <p style="font-size:14px; color:#3a4a60; margin:4px 0;"><i class="ico ico-people"></i>當選理事長：陳炳富</p>
       </div>
       <p style="color:#5a6880; font-size:13px;">#新竹市無人機創新科技協會 #成立大會 #無人機教育 #新竹科技 #協會動態</p>
     </div>
@@ -2945,11 +2975,11 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
       <span style="background:#e0eeff; color:#1a3a6b; font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px; letter-spacing:.05em;">新聞稿</span>
       <div style="display:flex; align-items:center; gap:8px;">
-        <button id="share-btn-news-chasing" onclick="copyNewsLink('news-chasing')" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;">🔗 複製連結</button>
+        <button id="share-btn-news-chasing" onclick="copyNewsLink('news-chasing')" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;"><i class="ico ico-link"></i>複製連結</button>
         <button onclick="closeNewsModal('news-chasing');" style="background:none; border:none; font-size:24px; cursor:pointer; color:#5a6880;">×</button>
       </div>
     </div>
-    <p style="color:#5a6880; font-size:14px; margin-bottom:8px;">📅 2026年06月03日</p>
+    <p style="color:#5a6880; font-size:14px; margin-bottom:8px;"><i class="ico ico-date"></i>2026年06月03日</p>
     <h2 style="font-size:22px; font-weight:700; color:#1a2333; line-height:1.5; margin-bottom:24px;">新竹市無人機創新科技協會攜手市府推動「追風少年科技培力課程」<br>讓科技之城的孩子從校園起飛，培養下一代科技之星</h2>
     <div style="color:#3a4a60; line-height:1.9; font-size:15px;">
 
@@ -3007,9 +3037,9 @@
 <!-- Modal -->
 <div class="modal-overlay" id="modal">
   <div class="modal-box">
-    <div class="modal-icon">✅</div>
+    <div class="modal-icon"><i class="ico ico-check"></i></div>
     <h3>訊息已送出！</h3>
-    <p>感謝您的來信！我們將於2個工作天內回覆您，請留意您的電子郵件。</p>
+    <p>感謝您的留言！我們將於 2 個工作天內以 Email 回覆您，請留意您的信箱。</p>
     <button class="modal-close" onclick="closeModal()">確認</button>
   </div>
 </div>
@@ -3039,10 +3069,28 @@
     document.getElementById('events-past').style.display = type === 'past' ? 'flex' : 'none';
   }
 
-  function handleSubmit(e) {
+  // 聯絡表單 → 入會申請系統的 Apps Script（action:contact）→ 試算表「聯絡我們」＋ 寄信給管理者
+  async function handleSubmit(e) {
     e.preventDefault();
-    document.getElementById('modal').classList.add('show');
-    e.target.reset();
+    var f = e.target, btn = f.querySelector('.form-submit'), err = document.getElementById('contact-err');
+    var api = (window.HCD_MEMBER || {}).API_URL;
+    var v = function (n) { return ((f.elements[n] || {}).value || '').trim(); };
+    err.style.display = 'none';
+    if (!api) { err.textContent = '系統設定中，請先來電 03-540-3463。'; err.style.display = 'block'; return; }
+    var old = btn.textContent; btn.disabled = true; btn.textContent = '送出中…';
+    try {
+      var r = await fetch(api, { method: 'POST', credentials: 'omit', redirect: 'follow',
+        body: JSON.stringify({ action: 'contact', name: v('name'), tel: v('tel'), email: v('email'), topic: v('topic') || '其他', msg: v('msg'), website: v('website') }) });
+      var j = await r.json();
+      if (!j.ok) throw new Error(j.error || 'fail');
+      f.reset();
+      document.getElementById('modal').classList.add('show');
+    } catch (ex) {
+      err.textContent = ex.message === 'email' ? 'Email 格式好像不對，請再確認一下。'
+        : ex.message === 'missing' ? '請填寫姓名和訊息內容。'
+        : '送出失敗，請稍後再試，或來電 03-540-3463。';
+      err.style.display = 'block';
+    } finally { btn.disabled = false; btn.textContent = old; }
   }
 
   function closeModal() { document.getElementById('modal').classList.remove('show'); }
@@ -3124,7 +3172,7 @@
 </div>
 
 <!-- Admin FAB -->
-<button id="admin-fab" title="後台管理" onclick="toggleAdmin()">⚙️</button>
+<button id="admin-fab" title="後台管理" onclick="toggleAdmin()"><i class="ico ico-gear"></i></button>
 
 <!-- Admin Overlay -->
 <div class="admin-overlay" id="admin-overlay" onclick="closeAdmin()"></div>
@@ -3132,7 +3180,7 @@
 <!-- Admin Panel (full page) -->
 <div id="admin-panel">
   <div class="admin-panel-header">
-    <h2>⚙️ 後台管理</h2>
+    <h2>後台管理</h2>
     <div class="admin-user-mini" id="admin-main-header" style="display:none;">
       <img id="admin-user-avatar" src="" alt="">
       <span id="admin-user-name"></span>
@@ -3149,16 +3197,17 @@
         <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
         使用 Google 帳號登入
       </button>
-      <p id="webview-warn" style="display:none;color:#b45309;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;font-size:12.5px;line-height:1.7;margin-top:10px;text-align:left;">⚠️ 您似乎是用 App 內建瀏覽器（LINE／FB／IG…）開啟，<b>Google 不允許在此登入</b>。請改用 <b>Safari／Chrome</b> 開啟本網站：點右上／右下的「⋯」或分享鈕 →「用瀏覽器開啟」，或直接在瀏覽器輸入 hcdrone.org.tw。</p>
+      <p id="webview-warn" style="display:none;color:#b45309;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;font-size:12.5px;line-height:1.7;margin-top:10px;text-align:left;">您似乎是用 App 內建瀏覽器（LINE／FB／IG…）開啟，<b>Google 不允許在此登入</b>。請改用 <b>Safari／Chrome</b> 開啟本網站：點右上／右下的「⋯」或分享鈕 →「用瀏覽器開啟」，或直接在瀏覽器輸入 hcdrone.org.tw。</p>
     </div>
 
     <!-- Logged in -->
     <div id="admin-main">
       <div class="admin-tabs">
-        <button class="admin-tab active" data-tab="news" onclick="showAdminTab('news')">📰 最新消息</button>
-        <button class="admin-tab" data-tab="carousel" onclick="showAdminTab('carousel')">🖼️ 輪播照片</button>
-        <button class="admin-tab" data-tab="members" onclick="showAdminTab('members')">📝 入會審核<span id="member-badge" hidden style="display:inline-block;margin-left:6px;background:#d97706;color:#fff;font-size:11px;font-weight:800;line-height:18px;min-width:18px;padding:0 6px;border-radius:9px;text-align:center;"></span></button>
-        <button class="admin-tab" data-tab="admins" onclick="showAdminTab('admins')">👤 管理者</button>
+        <button class="admin-tab active" data-tab="news" onclick="showAdminTab('news')">最新消息</button>
+        <button class="admin-tab" data-tab="carousel" onclick="showAdminTab('carousel')">輪播照片</button>
+        <button class="admin-tab" data-tab="contacts" onclick="showAdminTab('contacts')">聯絡訊息<span id="contact-badge" hidden style="display:none;margin-left:6px;background:#dc2626;color:#fff;font-size:11px;font-weight:800;line-height:18px;min-width:18px;padding:0 6px;border-radius:9px;text-align:center;"></span></button>
+        <button class="admin-tab" data-tab="members" onclick="showAdminTab('members')">入會審核<span id="member-badge" hidden style="display:inline-block;margin-left:6px;background:#d97706;color:#fff;font-size:11px;font-weight:800;line-height:18px;min-width:18px;padding:0 6px;border-radius:9px;text-align:center;"></span></button>
+        <button class="admin-tab" data-tab="admins" onclick="showAdminTab('admins')">管理者</button>
       </div>
 
       <!-- Tab: News -->
@@ -3185,7 +3234,7 @@
           <label>封面圖片（選填）</label>
           <div style="position:relative;border:2px dashed #dde3ed;border-radius:8px;padding:14px;text-align:center;cursor:pointer;">
             <input type="file" id="nf-file" accept="image/*" onchange="_nfUpload(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
-            <p style="font-size:13px;color:#8a9ab0;margin:0;">📷 點擊或拖曳照片上傳，系統會自動壓縮並轉成 WebP</p>
+            <p style="font-size:13px;color:#8a9ab0;margin:0;">點擊或拖曳照片上傳，系統會自動壓縮並轉成 WebP</p>
           </div>
           <div id="nf-upload-status" style="font-size:12px;line-height:1.6;margin:6px 0;min-height:16px;"></div>
           <div style="text-align:center;font-size:11px;color:#a0aec0;margin:2px 0;">— 或直接填入圖片網址 —</div>
@@ -3201,7 +3250,7 @@
             <button type="button" onmousedown="event.preventDefault()" onclick="_rteBlock('H3')" title="小標題">標題</button>
             <button type="button" onmousedown="event.preventDefault()" onclick="_rteBlock('P')" title="一般段落">段落</button>
             <button type="button" onmousedown="event.preventDefault()" onclick="_rte('insertUnorderedList')" title="項目清單">• 清單</button>
-            <button type="button" onmousedown="event.preventDefault()" onclick="_rteLink()" title="插入連結">🔗 連結</button>
+            <button type="button" onmousedown="event.preventDefault()" onclick="_rteLink()" title="插入連結"><i class="ico ico-link"></i>連結</button>
             <button type="button" onmousedown="event.preventDefault()" onclick="_rte('removeFormat')" title="清除格式">清除格式</button>
           </div>
           <div id="nf-body-editor" class="rte-editor" contenteditable="true"></div>
@@ -3213,7 +3262,7 @@
           <div id="nf-msg" style="font-size:13px;line-height:1.6;margin:10px 0 0;min-height:18px;"></div>
           <div class="admin-form-actions">
             <button class="admin-save-btn" id="nf-save-btn" onclick="_saveNews()">儲存文章</button>
-            <button type="button" class="admin-cancel-btn" onclick="_previewNews()" style="background:#eef2ff;color:#1a3a6b;">👁 預覽</button>
+            <button type="button" class="admin-cancel-btn" onclick="_previewNews()" style="background:#eef2ff;color:#1a3a6b;">預覽</button>
             <button type="button" class="admin-cancel-btn" onclick="_cancelNewsForm()">取消</button>
           </div>
         </div>
@@ -3222,7 +3271,7 @@
         <div id="nf-preview-overlay" onclick="if(event.target===this)_closePreview()" style="display:none;position:fixed;inset:0;background:rgba(10,20,40,0.6);z-index:4000;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;">
           <div style="background:#fff;max-width:680px;width:100%;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
             <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:#f0f4f8;">
-              <span style="font-size:13px;color:#5a6880;font-weight:600;">👁 預覽（訪客會看到的樣子）</span>
+              <span style="font-size:13px;color:#5a6880;font-weight:600;">預覽（訪客會看到的樣子）</span>
               <button type="button" onclick="_closePreview()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#5a6880;line-height:1;">×</button>
             </div>
             <div id="nf-preview-body"></div>
@@ -3267,6 +3316,11 @@
         <div id="admin-slide-grid" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
 
+      <!-- Tab: 聯絡訊息（嵌入 contact-admin.html；官網聯絡表單的留言，存在入會系統試算表「聯絡我們」分頁，新留言會寄信給管理者） -->
+      <div class="admin-tab-pane" id="tab-contacts" style="display:none;">
+        <p class="admin-hint">官網「聯絡我們」的留言。每則新留言都會寄信到管理者信箱，直接回信即可；回覆後在這裡標記「已處理」。　<a href="contact-admin.html" target="_blank" rel="noopener" style="color:#2653a0;font-weight:700;">在新分頁開啟 ↗</a></p>
+        <iframe id="contact-frame" title="聯絡訊息" style="display:block;width:100%;height:calc(100vh - 230px);min-height:520px;border:1px solid #e2e8f0;border-radius:12px;background:#f3f6fb;"></iframe>
+      </div>
       <!-- Tab: 入會審核（嵌入 member-admin.html；資料在 Google 試算表，登入名單是入會系統 Apps Script 的 ADMIN_EMAILS） -->
       <div class="admin-tab-pane" id="tab-members" style="display:none;">
         <p class="admin-hint">審核官網的線上入會申請：點一筆看完整資料與簽名，設定「通過／未通過」。第一次請按裡面的 Google 登入（之後 30 天免登入）。　<a href="member-admin.html" target="_blank" rel="noopener" style="color:#2653a0;font-weight:700;">在新分頁開啟 ↗</a></p>
@@ -3307,12 +3361,13 @@
     var pane=document.getElementById('tab-'+name); if(pane) pane.style.display='block';
     if(name==='admins' && window._loadAdmins) window._loadAdmins();
     if(name==='news' && window._loadAdminNews) window._loadAdminNews();
+    if(name==='contacts'){ var cf=document.getElementById('contact-frame'); if(cf && !cf.getAttribute('src')) cf.src='contact-admin.html?embed=1'; }
     if(name==='members'){ var mf=document.getElementById('member-frame'); if(mf && !mf.getAttribute('src')) mf.src='member-admin.html?embed=1'; }
   }
   // 入會審核分頁的「待審核」數字（由 member-admin.html 傳過來）
   window.addEventListener('message', function(e){
-    if(e.origin!==location.origin || !e.data || e.data.type!=='hcd-member') return;
-    var b=document.getElementById('member-badge'); if(!b) return;
+    if(e.origin!==location.origin || !e.data || (e.data.type!=='hcd-member' && e.data.type!=='hcd-contact')) return;
+    var b=document.getElementById(e.data.type==='hcd-contact'?'contact-badge':'member-badge'); if(!b) return;
     var n=Number(e.data.pending)||0; b.textContent=n; b.hidden=!n; b.style.display=n?'inline-block':'none';
   });
 </script>
