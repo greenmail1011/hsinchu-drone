@@ -161,7 +161,7 @@
     <div class="kpi"><div class="k">假日集合</div><div class="v" style="font-size:18px">09:00 集合</div><div class="d">10:00 活動開始，17:00 結束（全天班）</div></div>
   </div>
   <div class="days" id="days"></div>
-  <p class="note">排班版本：11/12 理事長提供。標「待補」的是還沒排到人的名額。平日只有室內；攤位只有週六、日需要人力。工作人員便當與主辦方一起準備。</p>
+  <p class="note">排班版本：11/12 16:05 理事長接龍更新（理監事優先，有空缺再開放一般會員）。標「待補」的是還沒排到人的名額。平日只有室內；攤位只有週六、日需要人力。工作人員便當與主辦方一起準備。</p>
 </section>
 
 <section id="roster">
@@ -302,17 +302,17 @@
 const days=[
   {d:"12/1",w:"二",type:"setup",time:"11:00–12:00 記者會／13:00–17:00 進場場佈",
    sessions:[],
-   groups:[{role:"場佈",time:"13:00–17:00",need:3,names:["炳富","歐愷","鉢卿"]}]},
+   groups:[{role:"記者會＋場佈",time:"11:00–17:00",need:6,names:["炳富","歐愷","鉢卿","文宏","家怡","金瑩（僅早上）"]}]},
   {d:"12/2",w:"三",type:"wd",shift:"半天",time:"08:00–12:00",
    sessions:["場次1 08:30–10:00","場次2 10:20–11:50"],
-   groups:[{role:"室內",need:5,names:["炳富","歐愷","鉢卿"]}]},
+   groups:[{role:"室內",need:5,names:["炳富","歐愷","鉢卿","金瑩","家怡"]}]},
   {d:"12/3",w:"四",type:"wd",shift:"全天",time:"08:00–16:00",
    sessions:["場次3 08:30–10:00","場次4 10:20–11:50","場次5 13:30–15:00"],
-   groups:[{role:"室內",need:5,names:["炳富","歐愷（只上午）","鉢卿"]}],
-   warn:"歐愷只到上午，下午室內少 1 人"},
+   groups:[{role:"室內",need:5,eff:3,names:["炳富","歐愷（上午）","鉢卿","家怡（下午）"]}],
+   warn:"歐愷上午、家怡下午，等於上午 3 人、下午 3 人，各缺 2 人"},
   {d:"12/4",w:"五",type:"wd",shift:"半天",time:"08:00–12:00",
    sessions:["場次6 08:30–10:00","場次7 10:20–11:50"],
-   groups:[{role:"室內",need:5,names:["炳富","歐愷","鉢卿"]}]},
+   groups:[{role:"室內",need:5,names:["炳富","歐愷","鉢卿","家怡"]}]},
   {d:"12/5",w:"六",type:"we",shift:"全天",time:"09:00–17:00",
    sessions:["進場梯次 10:00／11:30／13:30／15:00"],
    groups:[{role:"室內",need:6,names:["炳富","歐愷"]},{role:"攤位",need:1,names:[]}]},
@@ -322,30 +322,30 @@ const days=[
   {d:"12/7",w:"一",type:"off",time:"休息",sessions:[],groups:[]},
   {d:"12/8",w:"二",type:"wd",shift:"全天",time:"08:00–16:00",
    sessions:["場次8 08:30–10:00","場次9 10:20–11:50","場次10 13:30–15:00"],
-   groups:[{role:"室內",need:5,names:["炳富","歐愷","鉢卿"]}]},
+   groups:[{role:"室內",need:5,names:["炳富","歐愷","鉢卿","家怡"]}]},
   {d:"12/9",w:"三",type:"wd",shift:"半天",time:"08:00–12:00 室內／13:00–17:00 撤展",
    sessions:["場次11 08:30–10:00","場次12 10:20–11:50"],
-   groups:[{role:"室內",time:"08:00–12:00",need:5,names:["炳富","歐愷","鉢卿"]},{role:"撤展",time:"13:00–17:00",need:2,names:["炳富","歐愷"]}],
-   warn:"鉢卿只到上午；撤展來不及可延到 12/10"},
+   groups:[{role:"室內",time:"08:00–12:00",need:5,names:["炳富","歐愷","鉢卿（僅早上）","金瑩"]},{role:"撤展",time:"13:00–17:00",need:3,names:["炳富","歐愷","金瑩（到 14:00）"]}],
+   warn:"金瑩只到 14:00，撤展後段 2 人；來不及可延到 12/10"},
 ];
 const tagName={setup:"記者會＋場佈",wd:"平日參訪",we:"假日開放",off:"休息"};
 const now=new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Taipei"}));
 const todayStr=(now.getMonth()+1)+"/"+now.getDate();
 const counted=g=>g.role==="室內"||g.role==="攤位";
 let need=0, filled=0;
-days.forEach(x=>x.groups.filter(counted).forEach(g=>{need+=g.need;filled+=Math.min(g.names.length,g.need);}));
+days.forEach(x=>x.groups.filter(counted).forEach(g=>{need+=g.need;filled+=(g.eff??Math.min(g.names.length,g.need));}));
 document.querySelectorAll(".total-ppl").forEach(e=>e.textContent=need);
 document.getElementById("filled").textContent=filled;
 document.getElementById("missing").textContent=need-filled;
 
 const nameChips=g=>{
   const out=g.names.map(n=>`<span class="nm">${n}</span>`);
-  for(let i=g.names.length;i<g.need;i++) out.push(`<span class="nm empty">待補</span>`);
+  for(let i=(g.eff??g.names.length);i<g.need;i++) out.push(`<span class="nm empty">待補</span>`);
   return out.join("");
 };
 document.getElementById("days").innerHTML=days.map(x=>{
   const shift=x.shift?` <span class="need">${x.shift}班</span>`:"";
-  const groups=x.groups.map(g=>`<div class="half"><div class="hh"><b>${g.role}${g.time?" "+g.time:""}</b><span class="need ${g.names.length<g.need?"tbd":""}">${Math.min(g.names.length,g.need)}/${g.need}</span></div><div class="chips2">${nameChips(g)}</div></div>`).join("");
+  const groups=x.groups.map(g=>`<div class="half"><div class="hh"><b>${g.role}${g.time?" "+g.time:""}</b><span class="need ${(g.eff??g.names.length)<g.need?"tbd":""}">${g.eff??Math.min(g.names.length,g.need)}/${g.need}</span></div><div class="chips2">${nameChips(g)}</div></div>`).join("");
   const ses=x.sessions.length?`<ul class="ses">${x.sessions.map(i=>`<li>${i}</li>`).join("")}</ul>`:"";
   const warn=x.warn?`<div class="warn">⚠ ${x.warn}</div>`:"";
   return `<div class="day ${x.type==="off"?"off":""} ${x.d===todayStr?"today":""}"><span class="date">${x.d}</span><span class="wk">（${x.w}）</span> <span class="tag t-${x.type}">${tagName[x.type]}</span>${shift}<div class="time">${x.time}</div>${ses}${groups}${warn}</div>`;
@@ -362,7 +362,14 @@ function rosterText(){
     t+=`▍${x.d}(${x.w}) ${x.time}\n`;
     for(const g of x.groups){
       t+=`【${g.role}${g.time?" "+g.time:""}】${g.need}人\n`;
-      for(let i=0;i<g.need;i++) t+=`${i+1}. ${g.names[i]||""}\n`;
+      if(g.eff!==undefined){
+        g.names.forEach((n,i)=>t+=`${i+1}. ${n}\n`);
+        const k=g.need-g.eff;
+        t+=`上午還缺${k}人：\n`; for(let i=1;i<=k;i++) t+=`・\n`;
+        t+=`下午還缺${k}人：\n`; for(let i=1;i<=k;i++) t+=`・\n`;
+      } else {
+        for(let i=0;i<Math.max(g.need,g.names.length);i++) t+=`${i+1}. ${g.names[i]||""}\n`;
+      }
     }
     t+="\n";
   }
