@@ -56,7 +56,7 @@
   .kpi .d{font-size:13.5px;color:var(--mute);margin-top:4px}
 
   /* schedule */
-  .days{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .days{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
   .day{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;position:relative}
   .day .date{font-weight:900;font-size:18px}
   .day .wk{font-size:13px;color:var(--mute);margin-left:4px}
@@ -69,6 +69,12 @@
   .day.off{opacity:.6}
   .day.today{outline:3px solid var(--accent)}
   .ppl{font-size:26px;font-weight:900;margin-top:4px}
+  .half{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+  .hh{display:flex;justify-content:space-between;align-items:center;font-size:14px}
+  .need{font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--brand-soft);color:var(--brand)}
+  .need.tbd{background:var(--accent-soft);color:var(--accent)}
+  .need.free{background:#f2f4f7;color:var(--mute)}
+  .half ul{margin:4px 0 0}
   .ppl small{font-size:13px;font-weight:500;color:var(--mute)}
 
   table{width:100%;border-collapse:collapse;font-size:14.5px}
@@ -144,8 +150,12 @@
     <div>總計<b class="total-ppl">—</b>不含場佈、撤展</div>
     <div>場佈 12/1、撤展 12/9<b style="color:var(--accent)">人數未定</b>協會內部再決定</div>
   </div>
+  <div class="grid" style="margin-bottom:14px">
+    <div class="kpi"><div class="k">平日集合</div><div class="v" style="font-size:18px">依場次提前到場準備</div><div class="d">要提前多久，請理事長依準備需要評估</div></div>
+    <div class="kpi"><div class="k">假日集合</div><div class="v" style="font-size:18px">09:00 集合</div><div class="d">10:00 活動開始，17:00 結束</div></div>
+  </div>
   <div class="days" id="days"></div>
-  <p class="note">人力版本：11/12 理事長確認、主辦方回覆「正確」。平日只有室內；攤位只有週六、日需要人力。工作人員便當與主辦方一起準備。</p>
+  <p class="note">人力版本：11/12 理事長確認、主辦方回覆「正確」；上下午時段依主辦方時程表。12/2 下午無場次、12/4 下午為設施預備，人力可再討論。平日只有室內；攤位只有週六、日需要人力。工作人員便當與主辦方一起準備。</p>
 </section>
 
 <section id="roster">
@@ -179,10 +189,11 @@
     <table>
       <thead><tr><th></th><th>平日（學校參訪）</th><th>假日（民眾開放）</th></tr></thead>
       <tbody>
-        <tr><td>開放時間</td><td>依參訪場次安排</td><td>10:00 – 17:00</td></tr>
-        <tr><td>場次</td><td>共 12 場，約 1.5 小時一場</td><td>共 14 場（兩天），1 小時一場</td></tr>
+        <tr><td>時間</td><td>上午 08:30–10:00、10:20–11:50<br>下午 13:30–15:00（部分日期）</td><td>09:00 集合，10:00–17:00<br>進場梯次 10:00／11:30／13:30／15:00</td></tr>
+        <tr><td>場次</td><td>共 12 場（12/2 場次1–2、12/3 場次3–5、12/4 場次6–7、12/8 場次8–10、12/9 場次11–12）</td><td>共 14 場（兩天），1 小時一場</td></tr>
         <tr><td>每場人數</td><td>每次一班，最多 28 人</td><td>每梯次 50 人，一天 4 梯次</td></tr>
         <tr><td>無人機足球</td><td>3 對 3 ＋ 預備</td><td>3 對 3 ＋ 多 2 顆預備球（人多、週期短）</td></tr>
+        <tr><td>同時段其他活動</td><td>—</td><td>舞台區：科學演講每日 1 場（13:30–14:30）、街頭藝人每日 2 場（15:00–17:00）；科學市集全時段開放（共 15 攤）</td></tr>
         <tr><td>報名</td><td colspan="2">主辦方統一處理，協會不需另做報名表</td></tr>
       </tbody>
     </table>
@@ -283,29 +294,47 @@
 
 <script>
 const days=[
-  {d:"12/1",w:"二",type:"setup",label:"記者會＋場佈",items:["11:20 記者會（理事長出席）","下午進場場佈"]},
-  {d:"12/2",w:"三",type:"wd",indoor:5,booth:0},
-  {d:"12/3",w:"四",type:"wd",indoor:5,booth:0},
-  {d:"12/4",w:"五",type:"wd",indoor:5,booth:0},
-  {d:"12/5",w:"六",type:"we",indoor:6,booth:1},
-  {d:"12/6",w:"日",type:"we",indoor:6,booth:1},
-  {d:"12/7",w:"一",type:"off",label:"休館"},
-  {d:"12/8",w:"二",type:"wd",indoor:5,booth:0},
-  {d:"12/9",w:"三",type:"wd",indoor:5,booth:0,items:["中午後撤展（至 17:00，可延 12/10）"]},
+  {d:"12/1",w:"二",type:"setup",
+   am:{t:"上午",items:["11:20 記者會（理事長出席）"]},
+   pm:{t:"下午",items:["進場場地佈置"],need:"待定"}},
+  {d:"12/2",w:"三",type:"wd",indoor:5,
+   am:{t:"上午",items:["場次1　08:30–10:00","場次2　10:20–11:50"],need:5},
+   pm:{t:"下午",items:["無場次"],free:true}},
+  {d:"12/3",w:"四",type:"wd",indoor:5,
+   am:{t:"上午",items:["場次3　08:30–10:00","場次4　10:20–11:50"],need:5},
+   pm:{t:"下午",items:["場次5　13:30–15:00"],need:5}},
+  {d:"12/4",w:"五",type:"wd",indoor:5,
+   am:{t:"上午",items:["場次6　08:30–10:00","場次7　10:20–11:50"],need:5},
+   pm:{t:"下午",items:["設施預備"],need:"待定"}},
+  {d:"12/5",w:"六",type:"we",indoor:6,booth:1,
+   am:{t:"上午",items:["09:00 集合","10:00 梯次","11:30 梯次"],need:"室內6＋攤位1"},
+   pm:{t:"下午",items:["13:30 梯次","15:00 梯次","17:00 結束"],need:"室內6＋攤位1"}},
+  {d:"12/6",w:"日",type:"we",indoor:6,booth:1,
+   am:{t:"上午",items:["09:00 集合","10:00 梯次","11:30 梯次"],need:"室內6＋攤位1"},
+   pm:{t:"下午",items:["13:30 梯次","15:00 梯次","17:00 結束"],need:"室內6＋攤位1"}},
+  {d:"12/7",w:"一",type:"off",
+   am:{t:"全天",items:["休館／設施修整"]}},
+  {d:"12/8",w:"二",type:"wd",indoor:5,
+   am:{t:"上午",items:["場次8　08:30–10:00","場次9　10:20–11:50"],need:5},
+   pm:{t:"下午",items:["場次10　13:30–15:00"],need:5}},
+  {d:"12/9",w:"三",type:"wd",indoor:5,
+   am:{t:"上午",items:["場次11　08:30–10:00","場次12　10:20–11:50"],need:5},
+   pm:{t:"下午",items:["撤展（至 17:00，可延 12/10）"],need:"待定"}},
 ];
 const tagName={setup:"場佈",wd:"平日參訪",we:"假日開放",off:"休息"};
 const now=new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Taipei"}));
 const todayStr=(now.getMonth()+1)+"/"+now.getDate();
 let total=0;
+const half=(h)=>{
+  if(!h) return "";
+  const need=h.free?`<span class="need free">可不排人</span>`:(h.need!==undefined?`<span class="need ${h.need==="待定"?"tbd":""}">${typeof h.need==="number"?h.need+" 人":h.need}</span>`:"");
+  return `<div class="half"><div class="hh"><b>${h.t}</b>${need}</div><ul>${h.items.map(i=>`<li>${i}</li>`).join("")}</ul></div>`;
+};
 document.getElementById("days").innerHTML=days.map(x=>{
-  let body="";
-  if(x.indoor!==undefined){
-    const s=x.indoor+x.booth; total+=s;
-    body=`<div class="ppl">${s}<small> 人</small></div><ul><li>室內 ${x.indoor} 人</li>${x.booth?`<li>攤位 ${x.booth} 人</li>`:""}${(x.items||[]).map(i=>`<li>${i}</li>`).join("")}</ul>`;
-  }else{
-    body=`<ul>${(x.items||[x.label]).map(i=>`<li>${i}</li>`).join("")}</ul>`;
-  }
-  return `<div class="day ${x.type==="off"?"off":""} ${x.d===todayStr?"today":""}"><span class="date">${x.d}</span><span class="wk">（${x.w}）</span><br><span class="tag t-${x.type}">${tagName[x.type]}</span>${body}</div>`;
+  let head="";
+  if(x.indoor!==undefined){const n=x.indoor+(x.booth||0); total+=n;
+    head=`<div class="ppl">${n}<small> 人／天${x.booth?"（室內 "+x.indoor+"＋攤位 "+x.booth+"）":"（室內）"}</small></div>`;}
+  return `<div class="day ${x.type==="off"?"off":""} ${x.d===todayStr?"today":""}"><span class="date">${x.d}</span><span class="wk">（${x.w}）</span> <span class="tag t-${x.type}">${tagName[x.type]}</span>${head}${half(x.am)}${half(x.pm)}</div>`;
 }).join("");
 document.querySelectorAll(".total-ppl").forEach(e=>e.textContent=total+" 人日");
 
@@ -316,20 +345,33 @@ document.getElementById("count").innerHTML= diff>0
   : (new Date()<new Date("2026-12-10T00:00:00+08:00") ? `<b>活動進行中</b>` : `<b>活動已結束</b>`);
 
 // roster
-const workDays=days.filter(x=>x.indoor!==undefined);
-document.getElementById("roster-table").innerHTML=workDays.map(x=>{
-  const slots=(n,lab)=>`<div><b style="font-size:13px">${lab} ${n} 人：</b>${"<span class='slot'>　</span>".repeat(n)}</div>`;
-  return `<tr><td style="white-space:nowrap;font-weight:900">${x.d}（${x.w}）</td><td>${slots(x.indoor,"室內")}${x.booth?slots(x.booth,"攤位"):""}</td></tr>`;
-}).join("")+`<tr><td style="font-weight:900">12/1（二）</td><td><b style="font-size:13px">場佈（下午）：</b><span class='slot'>　</span><span class='slot'>　</span><span class='slot'>　</span>…</td></tr>
-<tr><td style="font-weight:900">12/9（三）</td><td><b style="font-size:13px">撤展（中午後）：</b><span class='slot'>　</span><span class='slot'>　</span><span class='slot'>　</span>…</td></tr>`;
+const slotsH=(n)=>"<span class='slot'>　</span>".repeat(n);
+function rosterRows(x){
+  const rows=[];
+  for(const h of [x.am,x.pm]){
+    if(!h||x.type==="off") continue;
+    if(h.free){rows.push([h.t,"無場次，可不排人",0,0]);continue;}
+    if(h.need===undefined) continue;
+    if(x.type==="we") rows.push([h.t,h.items.join("、"),x.indoor,x.booth]);
+    else if(typeof h.need==="number") {const tt=h.items.map(i=>i.split("　")[1]);rows.push([h.t,h.items.map(i=>i.split("　")[0]).join("、")+`（${tt[0].split("–")[0]}–${tt[tt.length-1].split("–")[1]}）`,h.need,0]);}
+    else rows.push([h.t,h.items.join("、")+"（人數待定）",3,0]);
+  }
+  return rows;
+}
+document.getElementById("roster-table").innerHTML=days.filter(x=>x.type!=="off").map(x=>{
+  const rows=rosterRows(x);
+  return rows.map((r,i)=>`<tr>${i===0?`<td rowspan="${rows.length}" style="white-space:nowrap;font-weight:900;vertical-align:top">${x.d}（${x.w}）</td>`:""}<td style="white-space:nowrap"><b>${r[0]}</b></td><td><div class="note" style="margin:0">${r[1]}</div>${r[2]?`<div>${x.type==="we"?"<b style='font-size:13px'>室內：</b>":""}${slotsH(r[2])}${String(r[1]).includes("待定")?"…":""}</div>`:""}${r[3]?`<div><b style="font-size:13px">攤位：</b>${slotsH(r[3])}</div>`:""}</td></tr>`).join("");
+}).join("");
 function rosterText(){
-  let t="【2026科學節 無人機足球｜排班接龍】\n請在空格填上名字🙏\n\n";
-  t+="12/1(二) 下午場佈：\n1. \n2. \n3. \n\n";
-  for(const x of workDays){
-    t+=`${x.d}(${x.w}) 室內${x.indoor}人${x.booth?`＋攤位${x.booth}人`:""}\n`;
-    for(let i=1;i<=x.indoor;i++) t+=`室內${i}. \n`;
-    for(let i=1;i<=x.booth;i++) t+=`攤位${i}. \n`;
-    if(x.d==="12/9") t+="中午後撤展：\n1. \n2. \n3. \n";
+  let t="【2026科學節 無人機足球｜排班接龍】\n請在空格填上名字🙏\n平日：依場次時間提前到場準備（提前多久請理事長評估）\n假日：09:00 集合，10:00 開始，17:00 結束\n\n";
+  for(const x of days){
+    if(x.type==="off") continue;
+    t+=`▍${x.d}(${x.w})\n`;
+    for(const r of rosterRows(x)){
+      t+=`【${r[0]}】${r[1]}\n`;
+      for(let i=1;i<=r[2];i++) t+=`${x.type==="we"?"室內":""}${i}. \n`;
+      for(let i=1;i<=r[3];i++) t+=`攤位${i}. \n`;
+    }
     t+="\n";
   }
   return t.trim();
