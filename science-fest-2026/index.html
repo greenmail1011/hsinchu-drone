@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>2026 新竹科學節｜無人機足球 工作總覽</title>
+<link rel="icon" href="../favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5f3ee; --card:#fff; --ink:#1d2433; --mute:#667085; --line:#e4e0d6;
+    --brand:#0b5cad; --brand-soft:#e7f0fa; --accent:#e8590c; --accent-soft:#fff1e6;
+    --ok:#2b8a3e; --ok-soft:#e9f7ec; --off:#98a2b3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Noto Sans TC",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+  .wrap{max-width:960px;margin:0 auto;padding:0 18px 60px}
+  header{background:var(--ink);color:#fff;padding:34px 0 30px}
+  header .wrap{padding-bottom:0}
+  .eyebrow{font-size:13px;letter-spacing:.12em;color:#9fb8d6;font-weight:700}
+  h1{font-size:clamp(26px,5vw,38px);margin:6px 0 10px;font-weight:900;line-height:1.25}
+  .sub{color:#c9d3e0;margin:0;font-size:15px}
+  .count{display:inline-flex;gap:10px;align-items:baseline;margin-top:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:10px 16px;border-radius:12px}
+  .count b{font-size:30px;color:#ffd8a8;font-weight:900}
+  nav{position:sticky;top:0;z-index:5;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;gap:6px;overflow-x:auto;padding:10px 18px}
+  nav a{white-space:nowrap;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid var(--line)}
+  nav a:hover{border-color:var(--brand);color:var(--brand)}
+  section{margin-top:34px;scroll-margin-top:64px}
+  h2{font-size:21px;margin:0 0 14px;font-weight:900;display:flex;align-items:center;gap:10px}
+  h2 .n{font-size:13px;background:var(--brand);color:#fff;border-radius:6px;padding:2px 8px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .kpi .k{font-size:13px;color:var(--mute)}
+  .kpi .v{font-size:22px;font-weight:900;margin-top:2px}
+  .kpi .d{font-size:13.5px;color:var(--mute);margin-top:4px}
+
+  /* schedule */
+  .days{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .day{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;position:relative}
+  .day .date{font-weight:900;font-size:18px}
+  .day .wk{font-size:13px;color:var(--mute);margin-left:4px}
+  .day .tag{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;margin-top:6px}
+  .t-setup{background:var(--accent-soft);color:var(--accent)}
+  .t-wd{background:var(--brand-soft);color:var(--brand)}
+  .t-we{background:var(--ok-soft);color:var(--ok)}
+  .t-off{background:#f2f4f7;color:var(--off)}
+  .day ul{margin:8px 0 0;padding-left:18px;font-size:14px}
+  .day.off{opacity:.6}
+  .day.today{outline:3px solid var(--accent)}
+  .ppl{font-size:26px;font-weight:900;margin-top:4px}
+  .ppl small{font-size:13px;font-weight:500;color:var(--mute)}
+
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:13px;color:var(--mute);font-weight:700;background:#faf9f6}
+  .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+  tfoot td{font-weight:900;border-bottom:none}
+
+  .list{list-style:none;margin:0;padding:0}
+  .list li{padding:10px 0 10px 30px;border-bottom:1px dashed var(--line);position:relative}
+  .list li:last-child{border-bottom:none}
+  .list li::before{position:absolute;left:4px;top:10px;font-weight:900}
+  .done li::before{content:"✓";color:var(--ok)}
+  .todo li::before{content:"□";color:var(--accent)}
+  .list .who{font-size:12.5px;color:var(--mute);display:block}
+  .pill{font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-left:6px;white-space:nowrap}
+
+  .ppl-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .org h3{margin:0 0 8px;font-size:16px}
+  .org .role{color:var(--mute);font-size:13px}
+  .org ul{margin:0;padding-left:18px}
+
+  .tl{border-left:3px solid var(--line);margin-left:6px;padding-left:18px}
+  .tl div{position:relative;padding:6px 0 10px}
+  .tl div::before{content:"";position:absolute;left:-25px;top:13px;width:11px;height:11px;border-radius:50%;background:var(--brand);border:2px solid var(--bg)}
+  .tl b{font-variant-numeric:tabular-nums}
+  .links a{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;text-decoration:none;color:var(--brand);font-weight:700;margin-bottom:8px}
+  .links a span{display:block;color:var(--mute);font-weight:400;font-size:13px}
+  .note{font-size:13px;color:var(--mute);margin-top:10px}
+  footer{margin-top:40px;font-size:13px;color:var(--mute);text-align:center}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">新竹市無人機創新科技協會 × 2026 新竹市科學節</div>
+    <h1>無人機足球體驗 工作總覽</h1>
+    <p class="sub">整理自 LINE 群組「2026科學節-無人機足球」（9/21 – 11/12 對話）</p>
+    <div class="count" id="count"></div>
+  </div>
+</header>
+
+<nav><div class="wrap">
+  <a href="#overview">活動概要</a>
+  <a href="#schedule">每日排程與人力</a>
+  <a href="#sessions">場次與報名</a>
+  <a href="#todo">待辦</a>
+  <a href="#decided">已確定事項</a>
+  <a href="#people">聯絡窗口</a>
+  <a href="#history">對話時間軸</a>
+  <a href="#links">相關連結</a>
+</div></nav>
+
+<main class="wrap">
+
+<section id="overview">
+  <h2><span class="n">1</span>活動概要</h2>
+  <div class="grid">
+    <div class="kpi"><div class="k">活動期間</div><div class="v">12/2（三）– 12/9（三）</div><div class="d">12/7（一）休館；12/1 記者會＋場佈</div></div>
+    <div class="kpi"><div class="k">室內體驗場地</div><div class="v">6×3×3 m × 2 組</div><div class="d">周邊預留約 1.5 m 裁判／觀賽區；3 對 3</div></div>
+    <div class="kpi"><div class="k">戶外市集攤位</div><div class="v">僅週六、日</div><div class="d">內容須與室內足球體驗不同；攤位 1 人</div></div>
+    <div class="kpi"><div class="k">總人力（人日）</div><div class="v" id="total-ppl">—</div><div class="d">室內 ＋ 攤位，不含 12/1 場佈與撤展</div></div>
+  </div>
+</section>
+
+<section id="schedule">
+  <h2><span class="n">2</span>每日排程與人力</h2>
+  <div class="days" id="days"></div>
+  <p class="note">人力版本：11/12 理事長確認、主辦方回覆「正確」。平日只有室內；攤位只有週六、日需要人力。</p>
+</section>
+
+<section id="sessions">
+  <h2><span class="n">3</span>場次與報名</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th></th><th>平日（學校參訪）</th><th>假日（民眾開放）</th></tr></thead>
+      <tbody>
+        <tr><td>開放時間</td><td>依參訪場次安排</td><td>10:00 – 17:00</td></tr>
+        <tr><td>場次</td><td>共 12 場，約 1.5 小時一場</td><td>共 14 場（兩天），1 小時一場</td></tr>
+        <tr><td>每場人數</td><td>每次一班，最多 28 人</td><td>每梯次 50 人，一天 4 梯次</td></tr>
+        <tr><td>無人機足球</td><td>3 對 3 ＋ 預備</td><td>3 對 3 ＋ 多 2 顆預備球（人多、週期短）</td></tr>
+        <tr><td>報名</td><td colspan="2">主辦方統一處理，協會不需另做報名表</td></tr>
+      </tbody>
+    </table>
+    <p class="note">⚠ 無人機足球需要足夠散熱休息時間，才能連續正常運作。充電區安排在場地右側、不開放民眾進出的區域。</p>
+  </div>
+</section>
+
+<section id="todo">
+  <h2><span class="n">4</span>待辦與待確認</h2>
+  <div class="card">
+    <ul class="list todo">
+      <li>排定每天實際值班名單（平日室內 5 人；假日室內 6 人＋攤位 1 人）<span class="pill">協會內部</span><span class="who">群組只確認了人數，還沒有具體人選</span></li>
+      <li>決定戶外攤位的體驗內容（須與室內足球不同）<span class="pill">協會內部</span><span class="who">10/14 歐愷已填市集報名表單</span></li>
+      <li>12/1（二）記者會後下午進場場佈：確認設備、人員與載運<span class="pill">協會內部</span><span class="who">記者會 11:20 開始，理事長出席</span></li>
+      <li>12/9（三）撤展人力：中午最後一場參訪結束後開始撤收，館方開到 17:00，來不及可延到 12/10<span class="pill">協會內部</span></li>
+      <li>假日備品：比平日多準備 2 顆預備球、充足電池<span class="pill">協會內部</span></li>
+      <li>確認年齡限制／家長陪同規定是否已寫進規劃說明（9/22 主辦方第 7 題）<span class="pill">待確認</span></li>
+      <li>科學節文宣與活動連結（10/16 時尚在製作中）<span class="pill">等主辦方</span></li>
+      <li>活動結束後依已用印報價單請款（活動結束後一次匯款）<span class="pill">12/10 後</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="decided">
+  <h2><span class="n">5</span>已確定事項</h2>
+  <div class="card">
+    <ul class="list done">
+      <li>記者會 12/1（二）11:20，由<b>陳炳富理事長</b>出席（職稱：新竹市無人機創新科技協會 理事長）<span class="who">11/12 已回報主辦方</span></li>
+      <li>場佈時間：12/1（二）下午，記者會撤場後進場</li>
+      <li>人力：平日室內 5 人；假日室內 6 人＋攤位 1 人；12/7 休息<span class="who">11/12 確認</span></li>
+      <li>協會參加戶外科學市集（僅週六、日）<span class="who">10/14 確認，表單已送出</span></li>
+      <li>報價單已由主辦方用印；場租天數扣除週一休館一天；報價為未稅價<span class="who">11/4</span></li>
+      <li>付款：活動結束後一次匯款</li>
+      <li>工作人員便當：與主辦方一起準備</li>
+      <li>民眾／學校報名：由主辦方統一處理</li>
+    </ul>
+  </div>
+</section>
+
+<section id="people">
+  <h2><span class="n">6</span>聯絡窗口</h2>
+  <div class="ppl-grid">
+    <div class="card org">
+      <h3>主辦執行單位</h3>
+      <div class="role">美事來做管理顧問有限公司</div>
+      <ul>
+        <li><b>鍾佩軒</b>：主要窗口</li>
+        <li><b>韋恩</b>：議價／合作接洽</li>
+      </ul>
+    </div>
+    <div class="card org">
+      <h3>新竹市無人機創新科技協會</h3>
+      <div class="role">展出與體驗執行</div>
+      <ul>
+        <li><b>陳炳富</b>：理事長，記者會出席、報價</li>
+        <li><b>李鉢卿（Harry）</b>：協會窗口、體驗規劃說明</li>
+        <li><b>歐愷</b>：戶外市集報名</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="history">
+  <h2><span class="n">7</span>對話時間軸</h2>
+  <div class="card tl">
+    <div><b>9/21</b>：建立群組，雙方確認窗口（協會：李老師；主辦：佩軒）</div>
+    <div><b>9/22</b>：主辦提出 7 項問題（場地、人數、時間、人力、用電、進場、年齡）；協會提供體驗規劃說明連結；主辦提供場配圖，充電區設在右側非開放區</div>
+    <div><b>10/7</b>：主辦提供活動時程規劃圖；記者會原訂 12/1 上午 10 點</div>
+    <div><b>10/8 – 10/14</b>：主辦邀請參加戶外科學市集，協會同意並由歐愷填表</div>
+    <div><b>11/3</b>：確認人力維持原規劃；平日 12 場、假日 10:00–17:00；記者會改為 11:20，場佈改 12/1 下午；便當一起準備</div>
+    <div><b>11/4</b>：報名由主辦統一處理；議價後場租扣一天；報價單修正地址後用印，活動結束後一次付款</div>
+    <div><b>11/12</b>：理事長確認出席記者會；確認每日人力表；12/9 中午後撤展，可延至 12/10</div>
+  </div>
+</section>
+
+<section id="links">
+  <h2><span class="n">8</span>相關連結</h2>
+  <div class="links">
+    <a href="https://pse.is/9mypa6" target="_blank" rel="noopener">科學節無人機足球體驗規劃說明<span>協會提供給主辦方的計畫內容（9/22）</span></a>
+    <a href="https://forms.gle/xpXUsUa2EyW2t5BEA" target="_blank" rel="noopener">科學市集活動資訊／報名表單<span>已於 10/14 填寫送出</span></a>
+  </div>
+  <p class="note">群組中的場配圖、活動時程圖、報價單與記事本請至 LINE 群組查看。</p>
+</section>
+
+<footer>最後更新：2026/11/12 · 內容以 LINE 群組最新訊息為準</footer>
+</main>
+
+<script>
+const days=[
+  {d:"12/1",w:"二",type:"setup",label:"記者會＋場佈",items:["11:20 記者會（理事長出席）","下午進場場佈"]},
+  {d:"12/2",w:"三",type:"wd",indoor:5,booth:0},
+  {d:"12/3",w:"四",type:"wd",indoor:5,booth:0},
+  {d:"12/4",w:"五",type:"wd",indoor:5,booth:0},
+  {d:"12/5",w:"六",type:"we",indoor:6,booth:1},
+  {d:"12/6",w:"日",type:"we",indoor:6,booth:1},
+  {d:"12/7",w:"一",type:"off",label:"休館"},
+  {d:"12/8",w:"二",type:"wd",indoor:5,booth:0},
+  {d:"12/9",w:"三",type:"wd",indoor:5,booth:0,items:["中午後撤展（至 17:00，可延 12/10）"]},
+];
+const tagName={setup:"場佈",wd:"平日參訪",we:"假日開放",off:"休息"};
+const now=new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Taipei"}));
+const todayStr=(now.getMonth()+1)+"/"+now.getDate();
+let total=0;
+document.getElementById("days").innerHTML=days.map(x=>{
+  let body="";
+  if(x.indoor!==undefined){
+    const s=x.indoor+x.booth; total+=s;
+    body=`<div class="ppl">${s}<small> 人</small></div><ul><li>室內 ${x.indoor} 人</li>${x.booth?`<li>攤位 ${x.booth} 人</li>`:""}${(x.items||[]).map(i=>`<li>${i}</li>`).join("")}</ul>`;
+  }else{
+    body=`<ul>${(x.items||[x.label]).map(i=>`<li>${i}</li>`).join("")}</ul>`;
+  }
+  return `<div class="day ${x.type==="off"?"off":""} ${x.d===todayStr?"today":""}"><span class="date">${x.d}</span><span class="wk">（${x.w}）</span><br><span class="tag t-${x.type}">${tagName[x.type]}</span>${body}</div>`;
+}).join("");
+document.getElementById("total-ppl").textContent=total+" 人日";
+
+const target=new Date("2026-12-01T11:20:00+08:00");
+const diff=Math.ceil((target-new Date())/86400000);
+document.getElementById("count").innerHTML= diff>0
+  ? `距離 12/1 記者會＋場佈還有 <b>${diff}</b> 天`
+  : (new Date()<new Date("2026-12-10T00:00:00+08:00") ? `<b>活動進行中</b>` : `<b>活動已結束</b>`);
+</script>
+</body>
+</html>
