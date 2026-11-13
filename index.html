@@ -1578,6 +1578,7 @@
     var posts=auto.concat(window._newsPostsDb);
     window._newsPosts = posts;
     _renderNewsFront(posts);
+    if(window._openNewsFromHash) window._openNewsFromHash();
   };
   function _renderNewsFront(posts){
     const grid = document.querySelector('#news .news-grid'); if(!grid) return;
@@ -1643,16 +1644,56 @@
       card.style.display = (cat==='全部' || card.getAttribute('data-cat')===cat) ? '' : 'none';
     });
   };
-  window._openDynNews = function(idx){
+  // ---- 單篇分享：網址 #p-<文章ID>（報名場次用 #p-s-<場次代碼>）----
+  function _newsKey(p){ return p ? (p.id ? String(p.id) : (p.code ? 's-'+p.code : '')) : ''; }
+  function _newsShareUrl(p){ var k=_newsKey(p); return location.origin+location.pathname+(k?'#p-'+encodeURIComponent(k):'#news'); }
+  window._openDynNews = function(idx, noHash){
     const p = window._newsPosts[idx]; if(!p) return;
     const modal=document.getElementById('news-modal-dynamic'); if(!modal) return;
     document.getElementById('news-dyn-cat').textContent = p.category||'';
     document.getElementById('news-dyn-date').textContent = p.date||'';
     document.getElementById('news-dyn-title').textContent = p.title||'';
     document.getElementById('news-dyn-body').innerHTML = p.body && p.body.trim() ? p.body : ('<p>'+_esc(p.excerpt)+'</p>');
+    window._dynCur = p;
+    var cb=document.getElementById('news-dyn-copy'); if(cb) cb.innerHTML='<i class="ico ico-link"></i>複製連結';
     modal.style.display='flex'; modal.classList.add('show'); document.body.style.overflow='hidden';
+    modal.scrollTop=0;
+    if(!noHash && _newsKey(p)) history.replaceState(null,'','#p-'+encodeURIComponent(_newsKey(p)));
   };
-  window._closeDynNews = function(){ const m=document.getElementById('news-modal-dynamic'); if(m){ m.style.display='none'; m.classList.remove('show'); document.body.style.overflow=''; } };
+  window._closeDynNews = function(){
+    const m=document.getElementById('news-modal-dynamic');
+    if(m){ m.style.display='none'; m.classList.remove('show'); document.body.style.overflow=''; }
+    if(/^#p-/.test(location.hash)) history.replaceState(null,'',location.pathname+'#news');
+  };
+  window._copyDynLink = function(){
+    var url=_newsShareUrl(window._dynCur), btn=document.getElementById('news-dyn-copy');
+    function done(){ if(!btn) return; btn.innerHTML='✓ 已複製！'; setTimeout(function(){ btn.innerHTML='<i class="ico ico-link"></i>複製連結'; },2000); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(done, function(){ window.prompt('請複製這個連結：', url); });
+    }else{
+      var ta=document.createElement('textarea'); ta.value=url; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(e){ window.prompt('請複製這個連結：', url); }
+      document.body.removeChild(ta);
+    }
+  };
+  window._shareDyn = function(kind){
+    var p=window._dynCur; if(!p) return;
+    var u=encodeURIComponent(_newsShareUrl(p));
+    var href = kind==='line' ? 'https://social-plugins.line.me/lineit/share?url='+u
+                             : 'https://www.facebook.com/sharer/sharer.php?u='+u;
+    window.open(href,'_blank','noopener,noreferrer,width=640,height=560');
+  };
+  // 依網址 hash（#p-xxx）開啟對應文章；文章尚未載入（或找不到）就先不動作，之後每次重新渲染會再試
+  window._openNewsFromHash = function(){
+    var m=location.hash.match(/^#p-(.+)$/); if(!m) return;
+    var key; try{ key=decodeURIComponent(m[1]); }catch(e){ key=m[1]; }
+    var cur=window._dynCur, modal=document.getElementById('news-modal-dynamic');
+    if(cur && _newsKey(cur)===key && modal && modal.classList.contains('show')) return;
+    var list=window._newsPosts||[];
+    for(var i=0;i<list.length;i++){ if(_newsKey(list[i])===key){ window._openDynNews(i,true); return; } }
+  };
+  window.addEventListener('hashchange', function(){ if(window._openNewsFromHash) window._openNewsFromHash(); });
   window.addEventListener('DOMContentLoaded', function(){ window._loadNewsFront(); });
 
   // ---- Admin: news management ----
@@ -3280,7 +3321,13 @@
       <span id="news-dyn-cat" style="background:#1a3a6b; color:white; font-size:12px; font-weight:700; padding:4px 12px; border-radius:20px;"></span>
       <span id="news-dyn-date" style="font-size:13px; color:#8a9ab0;"></span>
     </div>
-    <h2 id="news-dyn-title" style="font-size:24px; font-weight:900; color:#1a2333; margin:0 0 18px; line-height:1.45;"></h2>
+    <h2 id="news-dyn-title" style="font-size:24px; font-weight:900; color:#1a2333; margin:0 0 14px; line-height:1.45;"></h2>
+    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 20px;">
+      <span style="font-size:13px; color:#8a9ab0;">分享：</span>
+      <button id="news-dyn-copy" onclick="_copyDynLink()" style="background:#f0f4ff; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#1a3a6b; font-weight:600;"><i class="ico ico-link"></i>複製連結</button>
+      <button onclick="_shareDyn('line')" style="background:#06C755; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#fff; font-weight:600;">LINE</button>
+      <button onclick="_shareDyn('fb')" style="background:#1877F2; border:none; border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; color:#fff; font-weight:600;">Facebook</button>
+    </div>
     <div id="news-dyn-body" style="font-size:15px; color:#3a4658; line-height:1.9;"></div>
   </div>
 </div>
