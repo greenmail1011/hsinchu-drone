@@ -33,13 +33,29 @@
 <meta property="og:image:alt" content="新竹市無人機創新科技協會活動照片">
 <meta property="og:image:type" content="image/jpeg">
 <link rel="preload" href="logo.webp" as="image" type="image/webp">
-<link rel="preload" href="photo/711687945_10236555962293689_3206772477084637282_n.webp" as="image" type="image/webp" fetchpriority="high">
+<script>
+/* 提早以 REST 向資料庫要資料（不等 Firebase SDK 載入）：輪播清單、最新消息文字（不含封面圖，封面圖捲到才載） */
+(function(){
+  var K='AIzaSyD2rqiTQjgYQN4JrLlVFJZbmgLuQvliySk', B='https://firestore.googleapis.com/v1/projects/hsinchu-drone/databases/(default)/documents';
+  function val(v){ if(!v) return null; if('stringValue' in v) return v.stringValue; if('integerValue' in v) return Number(v.integerValue); if('doubleValue' in v) return v.doubleValue; if('booleanValue' in v) return v.booleanValue; return null; }
+  function toObj(d){ var o={id:d.name.split('/').pop()}, f=d.fields||{}; for(var k in f) o[k]=val(f[k]); return o; }
+  function run(q){ return fetch(B+':runQuery?key='+K,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({structuredQuery:q})}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }).then(function(a){ return a.filter(function(x){return x.document;}).map(function(x){return toObj(x.document);}); }); }
+  try{
+    window._earlyCarousel = run({from:[{collectionId:'carousel'}],orderBy:[{field:{fieldPath:'order'},direction:'ASCENDING'}]}).then(function(list){
+      var first=list.filter(function(x){return x.active!==false;})[0];
+      if(first && first.url){ var u=first.url; if(/^photo\//.test(u)) u=u.replace(/\.(jpg|jpeg|png)$/i,'.webp'); var l=document.createElement('link'); l.rel='preload'; l.as='image'; l.href=u; l.setAttribute('fetchpriority','high'); document.head.appendChild(l); }
+      return list; });
+    window._earlyNews = run({from:[{collectionId:'news'}],where:{fieldFilter:{field:{fieldPath:'published'},op:'EQUAL',value:{booleanValue:true}}},select:{fields:['title','excerpt','category','date','body','published','ts','signup'].map(function(f){return {fieldPath:f};})}});
+    window._earlyCarousel.catch(function(){}); window._earlyNews.catch(function(){});
+  }catch(e){}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet"></noscript>
 <style>
   :root {
     --primary: #1a3a6b;
@@ -1117,20 +1133,27 @@
 
   // 本地預設照片（Firebase 尚無資料時顯示）
   const LOCAL_SLIDES = [
-    { url: "photo/image (1).jpeg", caption: "追風少年科技培力課程啟動記者會 — 全體合影", order: 1, active: true },
-    { url: "photo/711687945_10236555962293689_3206772477084637282_n.jpg", caption: "協會理事長致詞", order: 2, active: true },
-    { url: "photo/715202032_10236555963013707_8081835340011368804_n.jpg", caption: "無人機足球教具展示", order: 3, active: true },
-    { url: "photo/712825014_10236555963373716_3209302459966334975_n.jpg", caption: "媒體聯訪新竹 高虹安 市長", order: 4, active: true },
-    { url: "photo/714736853_10236555960933655_3209340005012413548_n.jpg", caption: "啟動儀式 — 新竹市政府與協會代表共同宣示", order: 5, active: true },
-    { url: "photo/713604768_10236555961813677_2830716195629382388_n.jpg", caption: "與會貴賓專注聆聽課程介紹", order: 6, active: true },
+    { url: "photo/image (1).webp", caption: "追風少年科技培力課程啟動記者會 — 全體合影", order: 1, active: true },
+    { url: "photo/711687945_10236555962293689_3206772477084637282_n.webp", caption: "協會理事長致詞", order: 2, active: true },
+    { url: "photo/715202032_10236555963013707_8081835340011368804_n.webp", caption: "無人機足球教具展示", order: 3, active: true },
+    { url: "photo/712825014_10236555963373716_3209302459966334975_n.webp", caption: "媒體聯訪新竹 高虹安 市長", order: 4, active: true },
+    { url: "photo/714736853_10236555960933655_3209340005012413548_n.webp", caption: "啟動儀式 — 新竹市政府與協會代表共同宣示", order: 5, active: true },
+    { url: "photo/713604768_10236555961813677_2830716195629382388_n.webp", caption: "與會貴賓專注聆聽課程介紹", order: 6, active: true },
   ];
 
   window._loadCarousel = async function() {
-    // 先立即顯示本地照片，不等 Firebase
+    // 優先用頁首提早抓好的輪播資料（只用一次；之後後台儲存再呼叫就走 SDK 重新讀）
+    const earlyP = window._earlyCarousel; window._earlyCarousel = null;
+    if (earlyP) {
+      try {
+        const list = await Promise.race([earlyP, new Promise(r => setTimeout(() => r(null), 3500))]);
+        const act = (list || []).filter(d => d.active !== false);
+        if (act.length) { renderCarousel(act); return; }
+      } catch(e) {}
+    }
+    // 備援：先立即顯示本地照片，再用 SDK 讀資料庫
     renderCarousel(LOCAL_SLIDES);
-    // 背景更新：若 Firebase 有資料則替換
     try {
-      // 只用單欄 orderBy（不需複合索引），active 篩選改在 JS 端做
       const q = query(collection(db, "carousel"), orderBy("order"));
       const snap = await getDocs(q);
       const slides = [];
@@ -1150,12 +1173,12 @@
     track.innerHTML = slides.map((s, i) => {
       const isLocal = s.url && s.url.startsWith('photo/');
       const webpUrl = isLocal ? s.url.replace(/\.(jpg|jpeg|png)$/i, '.webp') : null;
-      const lazy = i === 0 ? '' : ' loading="lazy"';
+      const lazy = i === 0 ? ' fetchpriority="high" decoding="async"' : ' loading="lazy" decoding="async"';
       const imgTag = webpUrl
         ? `<picture><source srcset="${encodeURI(webpUrl)}" type="image/webp"><img src="${s.url}" alt="${s.caption||''}"${lazy}></picture>`
         : `<img src="${s.url}" alt="${s.caption||''}"${lazy}>`;
       return `
-        <div class="c-slide ${i===0?'active':''}" style="--bg-img:url('${s.url}')">
+        <div class="c-slide ${i===0?'active':''}" style="--bg-img:url('${webpUrl||s.url}')">
           ${imgTag}
           ${s.caption ? `<div class="c-caption">${s.caption}</div>` : ''}
         </div>`;
@@ -1562,6 +1585,21 @@
   function _esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
   window._loadNewsFront = async function(){
+    // 先用頁首提早抓好的「不含封面圖」文章資料（很小，卡片先出現）；封面圖之後捲到才一張張載入
+    const earlyP = window._earlyNews; window._earlyNews = null;
+    if(earlyP){
+      try{
+        const list = await Promise.race([earlyP, new Promise(function(r){ setTimeout(function(){ r(null); },3500); })]);
+        if(list && list.length){
+          window._newsImg = window._newsImg || {};
+          const posts = list.map(function(p){ var c=window._newsImg[p.id]; return Object.assign({}, p, { image:c||'', _imgPending:true }); });
+          posts.sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+          window._newsPostsDb = posts;
+          window._renderNewsAll();
+          return;
+        }
+      }catch(e){}
+    }
     try{
       const snap = await getDocs(query(collection(db2,'news'), where('published','==',true)));
       const posts=[]; snap.forEach(function(d){ posts.push(Object.assign({id:d.id}, d.data())); });
@@ -1571,6 +1609,37 @@
       window._renderNewsAll();
     }catch(e){ /* keep static */ }
   };
+  // 捲到才載入封面圖（封面圖存在資料庫文件裡，一次全抓會很大）
+  function _lazyNewsImages(){
+    var cards=document.querySelectorAll('#news .news-grid .news-card[data-pid]'); if(!cards.length) return;
+    window._newsImg = window._newsImg || {};
+    var K='AIzaSyD2rqiTQjgYQN4JrLlVFJZbmgLuQvliySk', B='https://firestore.googleapis.com/v1/projects/hsinchu-drone/databases/(default)/documents';
+    function put(card,src){
+      var box=card.querySelector('.news-card-img'); if(!box || box.querySelector('img.nlazy')) return;
+      var im=new Image(); im.className='nlazy'; im.decoding='async';
+      im.alt=(card.querySelector('.news-title')||{}).textContent||'';
+      im.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s;';
+      im.onload=function(){ im.style.opacity=1; };
+      im.src=src; box.appendChild(im);
+    }
+    function go(card){
+      var id=card.getAttribute('data-pid'); card.removeAttribute('data-pid');
+      var c=window._newsImg[id];
+      if(c!==undefined){ if(c) put(card,c); return; }
+      fetch(B+'/news/'+encodeURIComponent(id)+'?mask.fieldPaths=image&key='+K)
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(j){
+          var s=(j && j.fields && j.fields.image && j.fields.image.stringValue) || '';
+          window._newsImg[id]=s;
+          if(!s) return;
+          var p=(window._newsPostsDb||[]).filter(function(x){ return x.id===id; })[0]; if(p) p.image=s;
+          put(card,s);
+        }).catch(function(){});
+    }
+    if(!('IntersectionObserver' in window)){ Array.prototype.forEach.call(cards,go); return; }
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ io.unobserve(e.target); go(e.target); } }); },{rootMargin:'400px'});
+    Array.prototype.forEach.call(cards,function(c){ io.observe(c); });
+  }
   // Firestore 文章 ＋ 報名系統「報名中」場次（window._signupNews，由活動專區程式提供），報名中的排最前面
   window._renderNewsAll = function(){
     if(!window._newsPostsDb) return;
@@ -1591,6 +1660,7 @@
     const chips=['全部'].concat(cats);
     bar.innerHTML = chips.map(function(c,i){ return '<button class="news-chip'+(i===0?' active':'')+'" onclick="_filterNews(this)" data-cat="'+_esc(c)+'">'+_esc(c)+'</button>'; }).join('');
     grid.innerHTML = posts.map(function(p,idx){ return _newsCardHtml(p,idx); }).join('');
+    _lazyNewsImages();
   }
   // 捕捉首頁靜態卡片內建的分類插圖（SVG），給沒有封面圖的動態文章重用，避免顯示空白深藍色塊
   function _capturePlaceholders(){
@@ -1630,7 +1700,7 @@
       cardBg=ph.bg||cardBg;
       img=ph.svg||'';
     }
-    return '<div class="news-card" data-cat="'+_esc(p.category)+'">'
+    return '<div class="news-card" data-cat="'+_esc(p.category)+'"'+((p._imgPending && !p.image && p.id) ? ' data-pid="'+_esc(p.id)+'"' : '')+'>'
       + '<div class="news-card-img" style="background:'+cardBg+';"><div class="news-card-tag">'+_esc(p.category)+'</div>'+img+'</div>'
       + '<div class="news-card-body"><p class="news-date"><i class="ico ico-date"></i>'+_esc(p.date)+(p.signup?' <span style="margin-left:6px;background:rgba(220,38,38,0.12);color:#dc2626;font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;">報名中</span>':'')+'</p>'
       + '<h3 class="news-title">'+_esc(p.title)+'</h3>'
@@ -2039,12 +2109,12 @@
 <section id="carousel" style="padding:0;">
   <div class="carousel-wrap">
     <div id="carousel-track">
-      <div class="c-slide active" style="--bg-img:url('photo/image (1).jpeg')"><img src="photo/image (1).jpeg" alt="追風少年科技培力課程啟動記者會 — 全體合影" loading="eager" fetchpriority="high"><div class="c-caption">追風少年科技培力課程啟動記者會 — 全體合影</div></div>
-      <div class="c-slide" style="--bg-img:url('photo/711687945_10236555962293689_3206772477084637282_n.jpg')"><img src="photo/711687945_10236555962293689_3206772477084637282_n.jpg" alt="協會理事長致詞" loading="lazy"><div class="c-caption">協會理事長致詞</div></div>
-      <div class="c-slide" style="--bg-img:url('photo/715202032_10236555963013707_8081835340011368804_n.jpg')"><img src="photo/715202032_10236555963013707_8081835340011368804_n.jpg" alt="無人機足球教具展示" loading="lazy"><div class="c-caption">無人機足球教具展示</div></div>
-      <div class="c-slide" style="--bg-img:url('photo/712825014_10236555963373716_3209302459966334975_n.jpg')"><img src="photo/712825014_10236555963373716_3209302459966334975_n.jpg" alt="媒體聯訪新竹 高虹安 市長" loading="lazy"><div class="c-caption">媒體聯訪新竹 高虹安 市長</div></div>
-      <div class="c-slide" style="--bg-img:url('photo/714736853_10236555960933655_3209340005012413548_n.jpg')"><img src="photo/714736853_10236555960933655_3209340005012413548_n.jpg" alt="啟動儀式 — 新竹市政府與協會代表共同宣示" loading="lazy"><div class="c-caption">啟動儀式 — 新竹市政府與協會代表共同宣示</div></div>
-      <div class="c-slide" style="--bg-img:url('photo/713604768_10236555961813677_2830716195629382388_n.jpg')"><img src="photo/713604768_10236555961813677_2830716195629382388_n.jpg" alt="與會貴賓專注聆聽課程介紹" loading="lazy"><div class="c-caption">與會貴賓專注聆聽課程介紹</div></div>
+      <div class="c-slide active" style="--bg-img:url('photo/image (1).webp')"><img src="photo/image (1).webp" alt="追風少年科技培力課程啟動記者會 — 全體合影" loading="eager" fetchpriority="high"><div class="c-caption">追風少年科技培力課程啟動記者會 — 全體合影</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/711687945_10236555962293689_3206772477084637282_n.webp')"><img src="photo/711687945_10236555962293689_3206772477084637282_n.webp" alt="協會理事長致詞" loading="lazy"><div class="c-caption">協會理事長致詞</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/715202032_10236555963013707_8081835340011368804_n.webp')"><img src="photo/715202032_10236555963013707_8081835340011368804_n.webp" alt="無人機足球教具展示" loading="lazy"><div class="c-caption">無人機足球教具展示</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/712825014_10236555963373716_3209302459966334975_n.webp')"><img src="photo/712825014_10236555963373716_3209302459966334975_n.webp" alt="媒體聯訪新竹 高虹安 市長" loading="lazy"><div class="c-caption">媒體聯訪新竹 高虹安 市長</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/714736853_10236555960933655_3209340005012413548_n.webp')"><img src="photo/714736853_10236555960933655_3209340005012413548_n.webp" alt="啟動儀式 — 新竹市政府與協會代表共同宣示" loading="lazy"><div class="c-caption">啟動儀式 — 新竹市政府與協會代表共同宣示</div></div>
+      <div class="c-slide" style="--bg-img:url('photo/713604768_10236555961813677_2830716195629382388_n.webp')"><img src="photo/713604768_10236555961813677_2830716195629382388_n.webp" alt="與會貴賓專注聆聽課程介紹" loading="lazy"><div class="c-caption">與會貴賓專注聆聽課程介紹</div></div>
     </div>
     <button class="c-prev" onclick="prevSlide()">&#8249;</button>
     <button class="c-next" onclick="nextSlide()">&#8250;</button>
@@ -2270,8 +2340,8 @@
           <div class="news-card-tag" style="background:rgba(220,38,38,0.85);color:white;">賽事消息</div>
           <picture>
             <source srcset="photo/dronesoccer-poster.webp" type="image/webp">
-            <source srcset="photo/dronesoccer-poster.jpg" type="image/jpeg">
-            <img src="photo/截圖 2026-06-10 上午10.25.04.png" alt="2026 RoboRAVE 新竹市無人機足球競賽" loading="lazy" style="object-position: top; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+            <source srcset="photo/dronesoccer-poster.webp" type="image/jpeg">
+            <img src="photo/截圖 2026-06-10 上午10.25.04.webp" alt="2026 RoboRAVE 新竹市無人機足球競賽" loading="lazy" style="object-position: top; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
           </picture>
         </div>
         <div class="news-card-body">
@@ -2284,7 +2354,7 @@
       <div class="news-card">
         <div class="news-card-img" style="background:#1a3a6b;">
           <div class="news-card-tag">新聞稿</div>
-          <img src="photo/image (1).jpeg" alt="追風少年科技培力課程啟動記者會" loading="lazy">
+          <img src="photo/image (1).webp" alt="追風少年科技培力課程啟動記者會" loading="lazy">
         </div>
         <div class="news-card-body">
           <p class="news-date"><i class="ico ico-date"></i>2026年06月03日</p>
@@ -3062,8 +3132,8 @@
     <div style="color:#3a4a60; line-height:1.9; font-size:15px;">
       <picture>
         <source srcset="photo/dronesoccer-poster.webp" type="image/webp">
-        <source srcset="photo/dronesoccer-poster.jpg" type="image/jpeg">
-        <img src="photo/截圖 2026-06-10 上午10.25.04.png" alt="2026 RoboRAVE 新竹市無人機足球競賽海報" style="width:100%; border-radius:12px; margin-bottom:20px; object-fit:cover;">
+        <source srcset="photo/dronesoccer-poster.webp" type="image/jpeg">
+        <img loading="lazy" decoding="async" src="photo/截圖 2026-06-10 上午10.25.04.webp" alt="2026 RoboRAVE 新竹市無人機足球競賽海報" style="width:100%; border-radius:12px; margin-bottom:20px; object-fit:cover;">
       </picture>
       <p style="margin-bottom:16px;">無人機足球競賽結合無人機操控、團隊合作與科技競技，是目前最具臨場感的新興科技運動。3v3 的空中激鬥，等你和隊友一起來挑戰！</p>
 
@@ -3139,7 +3209,7 @@
     <div style="color:#3a4a60; line-height:1.9; font-size:15px;">
 
       <!-- 首圖：全體合影 -->
-      <img src="photo/image (1).jpeg" alt="追風少年科技培力課程啟動記者會 — 全體合影" style="width:100%; border-radius:12px; margin-bottom:10px; object-fit:cover; max-height:360px;">
+      <img loading="lazy" decoding="async" src="photo/image (1).webp" alt="追風少年科技培力課程啟動記者會 — 全體合影" style="width:100%; border-radius:12px; margin-bottom:10px; object-fit:cover; max-height:360px;">
       <p style="font-size:12px; color:#888; text-align:center; margin-bottom:20px;">▲ 追風少年科技培力課程啟動記者會 — 全體合影</p>
 
       <p style="margin-bottom:16px;">新竹市作為全國重要的科技城市，擁有世界級半導體產業聚落與高度創新的城市能量。為讓科技教育向下扎根，新竹市政府攜手國立陽明交通大學電機工程學系、電子研究所及新竹市無人機創新科技協會，共同推動「追風少年科技培力課程」，以半導體與無人機兩大科技主題為核心，帶領學生從認識科技、動手實作到團隊合作，培養面向未來的科技素養與競爭力。</p>
@@ -3149,11 +3219,11 @@
       <!-- 啟動儀式照片 -->
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:20px 0;">
         <div>
-          <img src="photo/714736853_10236555960933655_3209340005012413548_n.jpg" alt="啟動儀式" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
+          <img loading="lazy" decoding="async" src="photo/714736853_10236555960933655_3209340005012413548_n.webp" alt="啟動儀式" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
           <p style="font-size:12px; color:#888; text-align:center; margin-top:6px;">▲ 啟動儀式</p>
         </div>
         <div>
-          <img src="photo/711687945_10236555962293689_3206772477084637282_n.jpg" alt="理事長致詞" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
+          <img loading="lazy" decoding="async" src="photo/711687945_10236555962293689_3206772477084637282_n.webp" alt="理事長致詞" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
           <p style="font-size:12px; color:#888; text-align:center; margin-top:6px;">▲ 協會理事長致詞</p>
         </div>
       </div>
@@ -3165,11 +3235,11 @@
       <!-- 媒體聯訪 + 與會貴賓 -->
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:20px 0;">
         <div>
-          <img src="photo/712825014_10236555963373716_3209302459966334975_n.jpg" alt="媒體聯訪市長" style="width:100%; border-radius:10px; display:block;">
+          <img loading="lazy" decoding="async" src="photo/712825014_10236555963373716_3209302459966334975_n.webp" alt="媒體聯訪市長" style="width:100%; border-radius:10px; display:block;">
           <p style="font-size:12px; color:#888; text-align:center; margin-top:6px;">▲ 媒體聯訪新竹 高虹安 市長</p>
         </div>
         <div>
-          <img src="photo/713604768_10236555961813677_2830716195629382388_n.jpg" alt="與會貴賓聆聽" style="width:100%; border-radius:10px; display:block;">
+          <img loading="lazy" decoding="async" src="photo/713604768_10236555961813677_2830716195629382388_n.webp" alt="與會貴賓聆聽" style="width:100%; border-radius:10px; display:block;">
           <p style="font-size:12px; color:#888; text-align:center; margin-top:6px;">▲ 與會貴賓專注聆聽</p>
         </div>
       </div>
@@ -3177,7 +3247,7 @@
       <p style="margin-bottom:16px;">新竹市無人機創新科技協會理事長表示，科技教育的目的，不只是培養會操作設備的學生，而是培養能理解科技、善用科技、並勇於創新的下一代。新竹市擁有最強大的科技產業基礎，更應該讓孩子從小接觸半導體、無人機、AI、程式設計等未來關鍵領域，讓城市的科技優勢真正轉化為教育動能。</p>
 
       <!-- 無人機教具展示 -->
-      <img src="photo/715202032_10236555963013707_8081835340011368804_n.jpg" alt="無人機足球教具展示" style="width:100%; border-radius:12px; margin:4px 0 8px; object-fit:cover; max-height:280px;">
+      <img loading="lazy" decoding="async" src="photo/715202032_10236555963013707_8081835340011368804_n.webp" alt="無人機足球教具展示" style="width:100%; border-radius:12px; margin:4px 0 8px; object-fit:cover; max-height:280px;">
       <p style="font-size:12px; color:#888; text-align:center; margin-bottom:20px;">▲ 無人機足球教具展示</p>
 
       <p style="margin-bottom:16px;">協會也感謝新竹市政府長期重視科技教育，並肯定本次課程將半導體與無人機元素導入校園，為學生打造跨域學習場域。未來協會將持續投入無人機科技教育、師資培訓、校園推廣、競賽辦理與安全規範建置，與市府、學校及產學單位共同合作，讓更多孩子有機會接觸新興科技，培養面對未來世界的核心能力。</p>
