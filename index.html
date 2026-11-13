@@ -1716,7 +1716,11 @@
   };
   // ---- 單篇分享：網址 #p-<文章ID>（報名場次用 #p-s-<場次代碼>）----
   function _newsKey(p){ return p ? (p.id ? String(p.id) : (p.code ? 's-'+p.code : '')) : ''; }
-  function _newsShareUrl(p){ var k=_newsKey(p); return location.origin+location.pathname+(k?'#p-'+encodeURIComponent(k):'#news'); }
+  function _newsShareUrl(p){
+    // 資料庫文章：分享到獨立分享頁 /p/<ID>/（頁首帶該篇標題與封面縮圖，LINE／Facebook 才抓得到）；報名場次沿用 #p-s-<代碼>
+    if(p && p.id) return location.origin+'/p/'+encodeURIComponent(p.id)+'/';
+    var k=_newsKey(p); return location.origin+location.pathname+(k?'#p-'+encodeURIComponent(k):'#news');
+  }
   window._openDynNews = function(idx, noHash){
     const p = window._newsPosts[idx]; if(!p) return;
     const modal=document.getElementById('news-modal-dynamic'); if(!modal) return;

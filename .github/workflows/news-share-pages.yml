@@ -1,0 +1,33 @@
+name: 產生最新消息分享頁
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: share-pages
+  cancel-in-progress: false
+jobs:
+  gen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pillow
+      - run: python tools/gen_share_pages.py
+      - name: 有變動才提交
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "share-pages-bot"
+          git config user.email "noreply@github.com"
+          git add p
+          if git diff --cached --quiet; then echo "沒有變動"; exit 0; fi
+          git commit -m "自動產生最新消息分享頁"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
