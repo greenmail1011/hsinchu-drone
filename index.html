@@ -2492,6 +2492,15 @@
 
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function today0() { var d = new Date(); d.setHours(0,0,0,0); return d; }
+  // 活動當天：現在時間超過 time 欄位的結束時間（例「上午 10:00–11:00」→ 11:00）就算已結束；抓不到時間則維持整天算進行中
+  function isEnded(c, d, t) {
+    if (d < t) return true;
+    var m = /(\d{1,2}):(\d{2})\s*[–—~-]\s*(\d{1,2}):(\d{2})/.exec(c.time || '');
+    if (!m) return false;
+    var hh = +m[3], mm = +m[4];
+    if (/下午|晚上/.test(c.time) && hh < 12) hh += 12;
+    return new Date() >= new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh, mm);
+  }
   // date 欄位（YYYY-MM-DD）優先；沒有就從 time 的「11/6」推算年份（距今最近的那一年）
   function parseDate(c) {
     var m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(c.date || '');
@@ -2518,7 +2527,7 @@
       var c = cfg.COMMUNITIES[code];
       if (!c || c.hidden) return;
       var d = parseDate(c);
-      if (d) list.push({ code: code, c: c, d: d, past: d < t });
+      if (d) list.push({ code: code, c: c, d: d, past: isEnded(c, d, t) });
     });
     list.sort(function (a, b) { return a.d - b.d; });
 
