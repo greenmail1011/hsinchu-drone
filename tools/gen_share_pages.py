@@ -3,7 +3,7 @@
 LINE / Facebook 抓不到網址 # 後面的內容，所以分享連結改指向這些獨立頁面（頁首帶該篇的標題、摘要、封面），
 真人點進去會自動跳到官網的文章彈窗（/#p-<文章ID>）。
 資料來源：Firestore 公開讀取（news，published==true）。測試時可用環境變數 NEWS_JSON 指向本機 JSON。"""
-import base64, hashlib, html, io, json, os, shutil, sys, urllib.request
+import base64, hashlib, html, io, json, os, re, shutil, sys, urllib.request
 from PIL import Image
 
 KEY = 'AIzaSyD2rqiTQjgYQN4JrLlVFJZbmgLuQvliySk'  # 網頁公開金鑰（同 index.html）
@@ -35,6 +35,20 @@ def fetch_posts():
                 p[k] = v['stringValue']
         posts.append(p)
     return posts
+
+
+def first_body_image(pid):
+    """文章沒有封面圖時，改抓內文第一張圖（data URI 或 https 網址）當分享縮圖。"""
+    try:
+        url = ('https://firestore.googleapis.com/v1/projects/hsinchu-drone/databases/(default)/documents/news/'
+               + pid + '?mask.fieldPaths=body&key=' + KEY)
+        d = json.load(urllib.request.urlopen(url, timeout=90))
+        body = (d.get('fields') or {}).get('body', {}).get('stringValue', '')
+        m = re.search(r'<img[^>]+src="(data:image/[a-z+]+;base64,[A-Za-z0-9+/=]+|https?://[^"]+)"', body)
+        return m.group(1) if m else None
+    except Exception as e:
+        print('  內文圖片讀取失敗：', str(e)[:80])
+        return None
 
 
 def load_image(src):
@@ -106,14 +120,24 @@ def main():
     new_manifest, ids = {}, set()
     for p in posts:
         pid = p['id']; ids.add(pid)
-        h = hashlib.sha1('|'.join(p.get(k, '') for k in ('title', 'excerpt', 'image')).encode()).hexdigest()[:10]
         d = os.path.join(OUT, pid)
-        if manifest.get(pid) == h and os.path.exists(os.path.join(d, 'index.html')):
+        # 沒有封面圖：改用內文第一張圖。為省流量，已產生過且標題／摘要／封面沒變的文章不重抓內文。
+        src = p.get('image')
+        body_cover = False
+        h0 = hashlib.sha1('|'.join(p.get(k, '') for k in ('title', 'excerpt', 'image')).encode()).hexdigest()[:10]
+        if not src:
+            body_cover = True
+            if manifest.get(pid) == h0 + 'b' and os.path.exists(os.path.join(d, 'index.html')):
+                new_manifest[pid] = h0 + 'b'
+                continue
+            src = first_body_image(pid)
+        h = h0 + ('b' if body_cover else '')
+        if not body_cover and manifest.get(pid) == h and os.path.exists(os.path.join(d, 'index.html')):
             new_manifest[pid] = h
             continue
         print('產生', pid, (p.get('title') or '')[:20])
         os.makedirs(d, exist_ok=True)
-        im = load_image(p.get('image'))
+        im = load_image(src)
         if im is not None:
             make_cover(im, os.path.join(d, 'cover.jpg'))
             img_url = f'{SITE}/p/{pid}/cover.jpg?v={h}'
